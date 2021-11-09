@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { getTransactionList } from "../../store/actions/transaction/transactions.js";
 import { Link } from "react-router-dom";
 import DatePicker from "react-datepicker";
-
+import TransactionView from "./TransactionView";
 import { TransactionsTableExportModal } from "./Print/TransactionsTableExportModal";
 let filteredData = [];
 let Transactions = [];
@@ -17,6 +17,10 @@ class TransactionSettingIndex extends React.Component {
   state = {
     search: "",
     InputDate: "",
+    showTransactionViewModal: false,
+    showMoreOption: false,
+    showMoreOptionTransacId: 0,
+    TransactionToShow: "",
   };
   // setSeeMore(transaction_id) {
   //   return (e) => {
@@ -24,6 +28,25 @@ class TransactionSettingIndex extends React.Component {
   //     document.getElementById(transaction_id).classList.toggle("hidden");
   //   };
   // }
+  handleShowTransactionViewModal = (event) => {
+    event.preventDefault();
+    this.setState({
+      showTransactionViewModal: !this.state.showTransactionViewModal,
+    });
+  };
+
+  handleShowMoreOption = (showMoreOptionTransacId) => {
+    return (event) => {
+      event.preventDefault();
+      this.setState({
+        showMoreOption: !this.state.showMoreOption,
+        showMoreOptionTransacId: showMoreOptionTransacId,
+        TransactionToShow: filteredData.filter(
+          (x) => x.id === showMoreOptionTransacId
+        ),
+      });
+    };
+  };
   onChange = (e) =>
     this.setState({ [e.target.name]: e.target.value, InputDate: "" });
   componentDidMount() {
@@ -38,6 +61,7 @@ class TransactionSettingIndex extends React.Component {
   };
   render() {
     //returning the search filtered
+    console.log(this.props.transactions);
     const { InputDate } = this.state;
     Transactions = [];
 
@@ -50,6 +74,7 @@ class TransactionSettingIndex extends React.Component {
         items: trans.items,
         created_at: trans.created_at,
         totalAmount: trans.totalAmount,
+        totalProfit: trans.totalProfit,
         quantity: trans.quantity,
         mode_of_payment: trans.payment_method,
       })
@@ -173,9 +198,9 @@ class TransactionSettingIndex extends React.Component {
                 <table className="min-w-full bg-white ">
                   <thead>
                     <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
-                      <th className="pl-14 pr-6 text-md">ID</th>
-                      <th className=" pr-6 text-md">Creator</th>
-                      <th className="  pr-6 text-md w-2/12">
+                      <th className="pl-10 pr-4 text-md">ID</th>
+                      <th className=" pr-4 text-md">User</th>
+                      <th className="pr-4 text-md ">
                         {" "}
                         <div>Date</div>
                         <DatePicker
@@ -186,16 +211,34 @@ class TransactionSettingIndex extends React.Component {
                           value={this.state.InputDate}
                           closeOnScroll={true}
                           placeholderText="Select Date"
-                          className="my-1 px-1 py-1 border-2 rounded-l"
+                          className="my-1 px-1 py-1 border-2 text-sm rounded-l w-5/6"
                         />
                       </th>
-                      <th className="pr-6 text-md">
-                        <div className="text-center">Items</div>
+                      <th className="pr-4 text-md">
+                        <div className="text-center mb-5">Items</div>
+                        <div className="flex justify-between  whitespace-no-wrap">
+                          <th className="text-sm pr-4 whitespace-no-wrap ">
+                            SKU
+                          </th>
+                          <th className="text-sm pr-4 whitespace-no-wrap ">
+                            Product Name
+                          </th>
+                          <th className="text-sm pr-4 whitespace-no-wrap ">
+                            Retail Price
+                          </th>
+                          <th className="text-sm pr-4 whitespace-no-wrap ">
+                            Cost Price
+                          </th>
+                          <th className="text-sm pr-4 whitespace-no-wrap ">
+                            QTY
+                          </th>
+                        </div>
                       </th>
-                      <th className="pr-6 text-md">Total Amount</th>
-                      <th className="pr-6 text-md">Total Number of Items</th>
-                      <th className="pr-6 text-md">Mode of Payment</th>
-                      <th className="pr-6 text-md">More</th>
+                      <th className="pr-4 text-md">Total Amount</th>
+                      <th className="pr-4 text-md">Total Profit</th>
+                      <th className="pr-4 text-md">Total number of items</th>
+                      <th className="pr-4 text-md">Mode of Payment</th>
+                      <th className="pr-4 text-md">More</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -204,59 +247,81 @@ class TransactionSettingIndex extends React.Component {
                         key={transaction.id}
                         className="h-24 border-gray-300  border-b"
                       >
-                        <td className="pl-14 text-sm pr-6 whitespace-no-wrap text-gray-800 ">
+                        <td className="pl-10 text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           {transaction.id}
                         </td>
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           {transaction.creator}
                         </td>
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           {transaction.created_at}
                         </td>
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 w-3/12">
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 w-3/12">
                           {transaction.items.map((transac, index) => (
                             <tr
                               className={
                                 transaction.items.length === 1
-                                  ? "h-20 border-gray-300"
+                                  ? "h-20 border-gray-300 flex justify-between"
                                   : index + 1 === transaction.items.length
-                                  ? "h-20 border-gray-300"
-                                  : "h-20 border-gray-300 border-b-2"
+                                  ? "h-20 border-gray-300 flex justify-between"
+                                  : "h-20 border-gray-300 border-b-2 flex justify-between"
                               }
                             >
-                              <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
+                              <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
+                                {transac.sku_id}
+                              </td>
+                              <td className="text-sm pr-4 whitespace-no-wrap overflow-ellipsis overflow-hidden text-gray-800 ">
                                 {transac.product.name}
                                 <div>
-                                  ({transac.product_variation_info.color}/
-                                  {transac.product_variation_info.size})
+                                  ({transac.product_variation_info.variation})
                                 </div>
                               </td>
-                              <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
-                                {transac.product.price}
+                              <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
+                                ₱{transac.product.cost_price}
                               </td>
-                              <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
+                              <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
+                                ₱{transac.product.price}
+                              </td>
+
+                              <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
                                 {transac.quantity}
                               </td>
                             </tr>
                           ))}
                         </td>
 
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
-                          {transaction.totalAmount}
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                          ₱{transaction.totalAmount}
                         </td>
-
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                          ₱{transaction.totalProfit}
+                        </td>
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           {transaction.quantity}
                         </td>
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           {transaction.mode_of_payment}
                         </td>
                         <td className="pr-8 relative">
-                          <button className="button-see-more text-gray-500 rounded cursor-pointer border border-transparent focus:outline-none">
-                            <div className="seeMore absolute left-0 top-0 mt-2 -ml-20 shadow-md z-10 w-32">
+                          <button
+                            onClick={this.handleShowMoreOption(transaction.id)}
+                            className="text-gray-500 rounded cursor-pointer border border-transparent focus:outline-none"
+                          >
+                            <div
+                              className={`absolute left-0 top-0 mt-2 -ml-20 shadow-md z-10 w-32 ${
+                                this.state.showMoreOption &&
+                                this.state.showMoreOptionTransacId ===
+                                  transaction.id
+                                  ? ""
+                                  : "hidden"
+                              } `}
+                            >
                               <ul className="bg-white shadow rounded p-2">
-                                <li className="cursor-pointer text-gray-600  text-sm leading-3 py-3 hover:bg-teal_custom hover:text-white px-3 font-normal">
-                                  Edit
+                                <li
+                                  onClick={this.handleShowTransactionViewModal}
+                                  className="cursor-pointer text-gray-600  text-sm leading-3 py-3 hover:bg-teal_custom hover:text-white px-3 font-normal"
+                                >
+                                  View
                                 </li>
                                 <li className="cursor-pointer text-sm leading-3 py-3 hover:bg-red-500 hover:text-white px-3 font-normal">
                                   Delete
@@ -300,6 +365,10 @@ class TransactionSettingIndex extends React.Component {
             Transactions={filteredData}
           />
         </div>
+        <TransactionView
+          state={this.state}
+          handleShowTransactionViewModal={this.handleShowTransactionViewModal}
+        />
       </>
     );
   }

@@ -15,6 +15,7 @@ const ProductModal = (props) => {
     handleLeftScroll,
     handelRightScroll,
     handleRemoveImage,
+    handleRemoveImageFromDatabase,
     showProductModal,
     handleModalProductVarationTable,
   } = props;
@@ -22,11 +23,11 @@ const ProductModal = (props) => {
     productName,
     description,
     price,
+    cost_price,
     categoryID,
     supplierID,
     stock,
-    size,
-    color,
+    variant,
     productID,
     ProductNameError,
     weight,
@@ -35,8 +36,7 @@ const ProductModal = (props) => {
     file_content,
 
     product_name_attribute,
-    size_attribute,
-    color_attribute,
+    variant_attribute,
   } = props.state;
   return (
     <>
@@ -123,9 +123,9 @@ const ProductModal = (props) => {
                           <div class="relative z-0 w-full mb-5">
                             <input
                               type="text"
-                              name="size"
+                              name="variant"
                               required
-                              value={size}
+                              value={variant}
                               onChange={onChange}
                               placeholder=" "
                               class={
@@ -133,37 +133,16 @@ const ProductModal = (props) => {
                               }
                             />
                             <label
-                              for="size"
+                              for="variant"
                               class="absolute duration-300 top-3 -z-1 origin-0 text-gray-500"
                             >
-                              Size
+                              Variant
                             </label>
                             {/* <span class="text-sm text-red-600" id="error">
                           {ProductNameError}
                           </span> */}
                           </div>
-                          <div class="relative z-0 w-full mb-5">
-                            <input
-                              type="text"
-                              name="color"
-                              required
-                              value={color}
-                              onChange={onChange}
-                              placeholder=" "
-                              class={
-                                "pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
-                              }
-                            />
-                            <label
-                              for="color"
-                              class="absolute duration-300 top-3 -z-1 origin-0 text-gray-500"
-                            >
-                              Color
-                            </label>
-                            {/* <span class="text-sm text-red-600" id="error">
-                          {ProductNameError}
-                          </span> */}
-                          </div>
+
                           <div className="pt-3 pb-2 text-gray-800">
                             Stock-keeping unit(SKU)
                           </div>
@@ -182,19 +161,9 @@ const ProductModal = (props) => {
                               <input
                                 className="w-full border rounded-md pl-4 py-2 focus:ring-0 focus:border-cyan-700"
                                 type="text"
-                                name="size_attribute"
-                                value={size_attribute}
-                                placeholder="Size attribute"
-                              />
-                            </div>
-                            <span className="text-2xl font-bold">-</span>
-                            <div class="mb-5">
-                              <input
-                                className="w-full border rounded-md pl-4 py-2 focus:ring-0 focus:border-cyan-700"
-                                type="text"
-                                name="color_attribute"
-                                value={color_attribute}
-                                placeholder="Color attribute"
+                                name="variant_attribute"
+                                value={variant_attribute}
+                                placeholder="Variant attribute"
                               />
                             </div>
                           </div>
@@ -202,6 +171,45 @@ const ProductModal = (props) => {
                       ) : (
                         ""
                       )}
+
+                      <div class="mt-5 flex flex-col md:flex-row justify-center space-x-0 md:space-x-2">
+                        {cost_price === 0 ? (
+                          ""
+                        ) : (
+                          <span className="text-xs text-center font-normal">
+                            Cost Price
+                          </span>
+                        )}
+
+                        <div class="mb-5">
+                          <input
+                            className="w-full border rounded-md pl-4 py-2 focus:ring-0 focus:border-cyan-700"
+                            type="text"
+                            name="cost_price"
+                            onChange={onChange}
+                            value={cost_price > 0 ? cost_price : ""}
+                            placeholder="Cost Price"
+                          />
+                        </div>
+                        {price === 0 ? (
+                          ""
+                        ) : (
+                          <span className="text-xs text-center font-normal">
+                            Retail Price
+                          </span>
+                        )}
+
+                        <div class="mb-5">
+                          <input
+                            className="w-full border rounded-md pl-4 py-2 focus:ring-0 focus:border-cyan-700"
+                            type="text"
+                            name="price"
+                            onChange={onChange}
+                            value={price > 0 ? price : ""}
+                            placeholder="Retail Price"
+                          />
+                        </div>
+                      </div>
                       <div class="flex flex-wrap -mx-3 mb-5">
                         <h2 class="px-4 pt-3 pb-2 text-gray-800">
                           Description
@@ -217,11 +225,11 @@ const ProductModal = (props) => {
                           ></textarea>
                         </div>
                       </div>
-                      <div class="relative z-0 mb-5 space-y-4 border-4 rounded-2xl p-2">
-                        <label class="block">Image</label>
+                      <div class="relative z-0 mb-5 space-y-4 rounded-2xl p-2">
+                        <label class="block text-2xl">Image/s</label>
                         {!EditButtonProductIsClicked ? (
                           <>
-                            <input
+                            {/* <input
                               class="pt-3 pb-2 block w-full px-2 mt-0 text-gray-700 focus:ring-0 active:border-cyan-700 "
                               id="file_content"
                               type="file"
@@ -229,8 +237,25 @@ const ProductModal = (props) => {
                               name="file_content"
                               required
                               onChange={onChange}
-                            />
-                            {urlFile === [] ? (
+                            /> */}
+                            <label class="w-64 mx-auto bg-white flex flex-col items-center  rounded-3xl  shadow-md tracking-wide uppercase border-4 border-blue cursor-pointer hover:bg-gray-800 hover:text-white text-gray-800 ease-linear transition-all duration-150">
+                              <div className="flex flex-col  items-center my-auto">
+                                <i class="fas fa-cloud-upload-alt fa-3x"></i>
+                                <span class="mt-2 text-base leading-normal">
+                                  Select a file
+                                </span>
+                              </div>
+                              <input
+                                class="hidden"
+                                id="file_content"
+                                type="file"
+                                multiple
+                                name="file_content"
+                                required
+                                onChange={onChange}
+                              />
+                            </label>
+                            {urlFile !== [] ? (
                               <div className="relative flex items-center">
                                 <span
                                   onClick={handleLeftScroll}
@@ -312,6 +337,20 @@ const ProductModal = (props) => {
                                 id="slider"
                                 className="overflow-x-hidden flex space-x-4"
                               >
+                                <label class=" w-64 bg-white flex flex-col items-center  rounded-3xl  shadow-md tracking-wide uppercase border-4 border-blue cursor-pointer hover:bg-gray-800 hover:text-white text-gray-800 ease-linear transition-all duration-150">
+                                  <div className="flex flex-col  items-center my-auto">
+                                    <i class="fas fa-cloud-upload-alt fa-3x"></i>
+                                    <span class="mt-2 text-base leading-normal">
+                                      Select a file
+                                    </span>
+                                  </div>
+                                  <input
+                                    name="add_file_content"
+                                    type="file"
+                                    class="hidden"
+                                    onChange={onChange}
+                                  />
+                                </label>
                                 {file_content
                                   ? file_content.map((url, index) =>
                                       url.image.includes(".mp4") ? (
@@ -332,10 +371,12 @@ const ProductModal = (props) => {
                                               </video>
                                             </div>
                                             <button
-                                              onClick={handleRemoveImage(index)}
-                                              className="middle"
+                                              onClick={handleRemoveImageFromDatabase(
+                                                url.id
+                                              )}
+                                              className="middle "
                                             >
-                                              <i class="fad fa-trash-alt fa-3x"></i>
+                                              <i class="fad fa-trash-alt fa-3x "></i>
                                             </button>{" "}
                                           </div>
                                         </>
@@ -348,10 +389,12 @@ const ProductModal = (props) => {
                                               src={url.image}
                                             />
                                             <button
-                                              onClick={handleRemoveImage(index)}
-                                              className="middle"
+                                              onClick={handleRemoveImageFromDatabase(
+                                                url.id
+                                              )}
+                                              className="middle "
                                             >
-                                              <i class="far fa-trash-alt fa-3x"></i>
+                                              <i class="far fa-trash-alt fa-3x text-gray-800"></i>
                                             </button>{" "}
                                           </div>
                                         </>
@@ -499,28 +542,6 @@ const ProductModal = (props) => {
                       ) : (
                         ""
                       )}
-
-                      <div class="relative z-0 w-full mb-5">
-                        <input
-                          type="number"
-                          name="price"
-                          required
-                          onChange={onChange}
-                          value={price > 0 ? price : ""}
-                          onChange={onChange}
-                          placeholder=" "
-                          class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
-                        />
-                        <label
-                          for="number"
-                          class="absolute duration-300 top-3 -z-1 origin-0 text-gray-500"
-                        >
-                          Price
-                        </label>
-                        <span class="text-sm text-red-600 hidden" id="error">
-                          Price is required
-                        </span>
-                      </div>
                     </div>
 
                     <div className="flex items-center justify-center w-full">

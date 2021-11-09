@@ -135,9 +135,7 @@ class CartIndex extends React.Component {
                                 </div>
                               </span>
                               <span class="text-gray-600 text-sm">
-                                {item.color}
-                                {" / "}
-                                {item.size}
+                                {item.variation}
                               </span>
                               <div
                                 href="#"

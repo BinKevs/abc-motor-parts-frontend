@@ -3,7 +3,6 @@ import React, { useState } from "react";
 const ProductVariation = (props) => {
   const {
     handleModalProductVarationTable,
-
     handleModalProductVarationEditClose,
     handleModalProductVarationAddClose,
     handleModalToggleProductVarationEdit,
@@ -17,10 +16,10 @@ const ProductVariation = (props) => {
     showModalProductVariationAddEdit,
     product_variation,
     stockProductVariation,
-    sizeProductVariation,
-    colorProductVariation,
+    variantProductVariation,
     weightProductVariation,
     EditButtonProductVariationIsClicked,
+    SKUProductVariation,
   } = props.state;
 
   return (
@@ -63,8 +62,8 @@ const ProductVariation = (props) => {
                       <thead>
                         <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
                           <th className="pl-14 pr-6 text-md">ID</th>
-                          <th className=" pr-6 text-md">Color</th>
-                          <th className="  pr-6 text-md">Size</th>
+                          <th className="pl-14 pr-6 text-md">SKU</th>
+                          <th className="  pr-6 text-md">Variant</th>
                           <th className=" pr-6 text-md">Weight</th>
                           <th className="  pr-6 text-md">Stock</th>
                         </tr>
@@ -78,11 +77,11 @@ const ProductVariation = (props) => {
                             <td className="pl-12 text-sm pr-6 whitespace-no-wrap text-gray-800 ">
                               {variation.id}
                             </td>
-                            <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
-                              {variation.color}
+                            <td className="pl-12 text-sm pr-6 whitespace-no-wrap text-gray-800 ">
+                              {variation.SKU}
                             </td>
                             <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
-                              {variation.size}
+                              {variation.variation}
                             </td>
                             <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
                               {variation.weight}
@@ -94,9 +93,9 @@ const ProductVariation = (props) => {
                               <div
                                 onClick={handleModalToggleProductVarationEdit(
                                   variation.id,
+                                  variation.SKU,
                                   variation.stock,
-                                  variation.size,
-                                  variation.color,
+                                  variation.variation,
                                   variation.weight
                                 )}
                                 className="shadow rounded p-2 text-center cursor-pointer  text-sm py-3 bg-teal_custom text-white px-3 font-normal"
@@ -179,13 +178,12 @@ const ProductVariation = (props) => {
                         Product Variation Setting
                       </h1>
                     </div>
-
                     <div class="relative z-0 w-full mb-5">
                       <input
                         type="text"
-                        name="sizeProductVariation"
+                        name="SKUProductVariation"
                         required
-                        value={sizeProductVariation}
+                        value={SKUProductVariation}
                         onChange={onChange}
                         placeholder=" "
                         class={
@@ -193,22 +191,21 @@ const ProductVariation = (props) => {
                         }
                       />
                       <label
-                        for="size"
+                        for="weight"
                         class="absolute duration-300 top-3 -z-1 origin-0 text-gray-500"
                       >
-                        Size
+                        SKU
                       </label>
                       {/* <span class="text-sm text-red-600" id="error">
                           {ProductNameError}
                         </span> */}
                     </div>
-
                     <div class="relative z-0 w-full mb-5">
                       <input
                         type="text"
-                        name="colorProductVariation"
+                        name="variantProductVariation"
                         required
-                        value={colorProductVariation}
+                        value={variantProductVariation}
                         onChange={onChange}
                         placeholder=" "
                         class={
@@ -216,10 +213,10 @@ const ProductVariation = (props) => {
                         }
                       />
                       <label
-                        for="color"
+                        for="variantProductVariation"
                         class="absolute duration-300 top-3 -z-1 origin-0 text-gray-500"
                       >
-                        Color
+                        Variant Name
                       </label>
                       {/* <span class="text-sm text-red-600" id="error">
                           {ProductNameError}

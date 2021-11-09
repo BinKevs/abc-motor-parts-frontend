@@ -21,6 +21,8 @@ import {
 } from "select-philippines-address";
 let shippingFee = 0;
 let TotalAmountToPay = 0;
+let totalProfit = 0;
+
 let TotalWeight = 0;
 let succeedingWeight = 0;
 class Checkout extends React.Component {
@@ -76,15 +78,15 @@ class Checkout extends React.Component {
   componentDidMount() {
     this.props.getVoucherList();
     this.props.loadUser();
-    let VariableTotalAmount = 0;
-    let Variablequantity = 0;
-
     TotalAmountToPay = Object.values(this.props.cartItems).reduce(
       (r, { price, quantity }) => parseFloat(r) + parseFloat(price * quantity),
-
       0
     );
-
+    totalProfit = Object.values(this.props.cartItems).reduce(
+      (r, { quantity, profit }) =>
+        parseFloat(r) + parseFloat(profit * quantity),
+      0
+    );
     // this.setState({
     //   totalAmount: this.HandleDecimalPlaces(VariableTotalAmount + shippingFee),
     //   quantity: Variablequantity,
@@ -119,6 +121,7 @@ class Checkout extends React.Component {
       const items = this.props.cartItems;
       const { payment_method, amount_tendered, change } = this.state;
       const data = {
+        totalProfit: this.HandleDecimalPlaces(totalProfit),
         totalAmount: TotalAmountToPay - this.state.voucher_value,
         shippingCost: this.HandleDecimalPlaces(shippingFee),
         quantity,
@@ -609,7 +612,7 @@ class Checkout extends React.Component {
                       onClick={this.handlePaymentMethod("Cash On Delivery")}
                       class={
                         this.state.payment_method === "Cash On Delivery"
-                          ? "space-x-1 w-full text-lg text-gray-700 transition-colors duration-150 border-gray-500 rounded-lg focus:shadow-outline border-4"
+                          ? "space-x-1 w-full text-lg text-white transition-colors duration-150 rounded-lg bg-teal_custom"
                           : "space-x-1 w-full text-lg text-gray-700 transition-colors duration-150 border border-gray-500 rounded-lg focus:shadow-outline  "
                       }
                     >
@@ -622,7 +625,7 @@ class Checkout extends React.Component {
                       onClick={this.handlePaymentMethod("E-Wallet")}
                       class={
                         this.state.payment_method === "E-Wallet"
-                          ? "space-x-1 w-full text-lg text-gray-700 transition-colors duration-150 border-gray-500 rounded-lg focus:shadow-outline  border-4"
+                          ? "space-x-1 w-full text-lg text-white transition-colors duration-150 rounded-lg bg-teal_custom"
                           : "space-x-1 w-full text-lg text-gray-700 transition-colors duration-150 border border-gray-500 rounded-lg focus:shadow-outline  "
                       }
                     >
@@ -767,18 +770,51 @@ class Checkout extends React.Component {
                         </div>
 
                         <h1 class="text-gray-800 text-3xl font-medium">
-                          E-Walley Payment
+                          E-Wallet Payment
                         </h1>
                       </div>
-                      <div className="flex flex-col md:flex-row justify-center">
-                        <div className="flex items-center justify-center bg-gray-100 shadow-lg z-10 rounded-xl p-4 m-3 w-full md:w-2/5">
+                      <div className="flex flex-col md:flex-row justify-center items-center px-auto">
+                        <div className="flex flex-col items-center justify-center space-y-2 bg-white shadow-lg z-10 rounded-xl p-4 m-3 w-full md:w-2/5">
+                          {/* <h1 class="text-blue-500 text-xl font-bold">Gcash</h1> */}
                           <img
-                            className="h-48"
-                            src="https://play-lh.googleusercontent.com/QNP0Aj2hyumAmYiWVAsJtY2LLTQnzHxdW7-DpwFUFNkPJjgRxi-BXg7A4yI6tgYKMeU"
+                            src="https://orangemagazine.ph/wp-content/uploads/2020/05/GCash_Horizontal-Full-Blue-BG-3-1.png"
                             alt=""
                           />
+
+                          <h1 class="text-gray-400 text-md font-medium">
+                            Send your payment here
+                          </h1>
+                          <h1 class="text-gray-800 text-lg font-medium">
+                            <span>09159156949</span>
+                          </h1>
+                          <input
+                            className="w-full border rounded-md pl-4 py-2 focus:ring-0 focus:border-cyan-700"
+                            type="text"
+                            name="reference_number"
+                            placeholder="Reference Number"
+                          />
+                          <input
+                            className="w-full border rounded-md pl-4 py-2 focus:ring-0 focus:border-cyan-700"
+                            type="text"
+                            name="phone_number"
+                            placeholder="Your Phone Number"
+                          />
+                          <button
+                            type="submit"
+                            className="focus:outline-none transition duration-150 ease-in-out hover:bg-cyan-700 bg-cyan-700 rounded text-white px-8 py-2 text-sm"
+                          >
+                            Submit
+                          </button>
                         </div>
-                        <div className="flex items-center justify-center bg-gray-100 shadow-lg z-10 rounded-xl p-4 m-3 w-full md:w-2/5">
+                        <div className="flex flex-col space-y-4 items-center justify-center bg-white shadow-lg z-10 rounded-xl p-4 m-3 w-full md:w-2/5">
+                          {/* <h1 class="text-blue-500 text-xl font-bold">
+                            <span className="text-blue-800"> Pay</span>Pal
+                          </h1> */}
+                          <img
+                            src="https://iresis.files.wordpress.com/2021/06/paypal_logo.jpg"
+                            alt=""
+                          />
+
                           <PayPalButton
                             createOrder={(data, actions) => {
                               return actions.order.create({
@@ -817,6 +853,38 @@ class Checkout extends React.Component {
                                 });
                             }}
                           />
+                        </div>
+                        <div className="flex flex-col items-center justify-center space-y-2 bg-white shadow-lg z-10 rounded-xl p-4 m-3 w-full md:w-2/5">
+                          {/* <h1 class="text-white text-xl font-bold">PayMaya</h1> */}
+                          <img
+                            src="
+                          http://www.panaybroadband.com.ph/img/bca-index/paymaya.png"
+                            alt=""
+                          />
+                          <h1 class="text-gray-400 text-md font-medium">
+                            Send your payment here
+                          </h1>
+                          <h1 class="text-gray-800 text-lg font-medium">
+                            <span>09159156949</span>
+                          </h1>
+                          <input
+                            className="w-full border rounded-md pl-4 py-2 focus:ring-0 focus:border-cyan-700"
+                            type="text"
+                            name="reference_number"
+                            placeholder="Reference Number"
+                          />
+                          <input
+                            className="w-full border rounded-md pl-4 py-2 focus:ring-0 focus:border-cyan-700"
+                            type="text"
+                            name="phone_number"
+                            placeholder="Your Phone Number"
+                          />
+                          <button
+                            type="submit"
+                            className="focus:outline-none transition duration-150 ease-in-out hover:bg-cyan-700 bg-cyan-700 rounded text-white px-8 py-2 text-sm"
+                          >
+                            Submit
+                          </button>
                         </div>
                       </div>
                       <div

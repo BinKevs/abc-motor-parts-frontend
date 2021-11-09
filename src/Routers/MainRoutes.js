@@ -8,7 +8,7 @@ import Categories from "../components/Customers/Products/Categories";
 import AccountSetting from "../components/Customers/Accounts/AccountSetting";
 import Checkout from "../components/Customers/Checkout/Checkout";
 
-import TransactionQueuing from "../components/Transactions/TransactionQueuing";
+import TransactionOrders from "../components/Transactions/TransactionOrders";
 
 import ProductListIndex from "../components/Products/ProductListIndex";
 import ProductSetting from "../components/Products/ProductSetting";
@@ -33,8 +33,9 @@ import InventoriesReport from "../components/Reports/InventoriesReport";
 
 import ActivityLog from "../components/Accounts/ActivityLog";
 import AttendanceLog from "../components/Accounts/AttendanceLog";
-import AccountsIndex from "../components/Accounts/AccountsIndex";
-import AccountSettingsMenu from "../components/Accounts/AccountSettingsMenu";
+import AccountsIndex from "../components/Accounts/AccountSetting/AccountsIndex";
+import AccountSettingsMenu from "../components/Accounts/AccountSetting/AccountSettingsMenu";
+import CustomerAccountSetting from "../components/Accounts/AccountSetting/CustomerAccountSetting";
 
 import PrivateRoute from "../Helpers/PrivateRoute";
 function MainBaseRouter() {
@@ -73,7 +74,7 @@ function MainBaseRouter() {
         <PrivateRoute
           exact
           path="/transactions/queuing"
-          component={TransactionQueuing}
+          component={TransactionOrders}
         />
 
         {/* <PrivateRoute exact path="/checkout" component={CheckoutIndex} /> */}
@@ -115,6 +116,11 @@ function MainBaseRouter() {
         />
         <PrivateRoute exact path="/reports/sales" component={SalesReport} />
 
+        <PrivateRoute
+          exact
+          path="/customer-setting"
+          component={CustomerAccountSetting}
+        />
         <PrivateRoute exact path="/activity_log" component={ActivityLog} />
         <PrivateRoute exact path="/attendance_log" component={AttendanceLog} />
         <PrivateRoute exact path="/accounts" component={AccountsIndex} />

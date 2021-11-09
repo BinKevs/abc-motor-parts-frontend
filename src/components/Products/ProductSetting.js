@@ -14,13 +14,15 @@ import {
   updateProductVariation,
   addProductVariation,
   changeProductStatus,
+  deleteImage,
+  AddImageUpdateProduct,
 } from "../../store/actions/product/products";
 import { getSupplierList } from "../../store/actions/supplier/suppliers";
 import ProductModal from "./ProductModal";
 import CategoryModal from "./CategoryModal";
 import ProductVariation from "./ProductVariation";
 import { ProductsTableExportModal } from "./Print/ProductsTableExportModal";
-
+import { HandleDecimalPlaces, numberWithCommas } from "../../Helpers/functions";
 let products = [];
 
 let FilesArray = [];
@@ -44,10 +46,10 @@ class ProductSetting extends React.Component {
     supplierID: 0,
     description: "",
     price: 0,
+    cost_price: 0,
     categoryID: 0,
     stock: 0,
-    size: "",
-    color: "",
+    variant: "",
     weight: "",
     productID: 0,
     search: "",
@@ -55,6 +57,8 @@ class ProductSetting extends React.Component {
     file_content: "",
     product_variation: [],
     showProductModal: false,
+
+    add_file_content: "",
 
     categoryForDropDownSelect: "",
     categoryName: "",
@@ -66,8 +70,8 @@ class ProductSetting extends React.Component {
     showModalProductVariationAddEdit: false,
     EditButtonProductVariationIsClicked: false,
     stockProductVariation: "",
-    sizeProductVariation: "",
-    colorProductVariation: "",
+    SKUProductVariation: "",
+    variantProductVariation: "",
     weightProductVariation: "",
     IDProductVariation: "",
 
@@ -75,8 +79,7 @@ class ProductSetting extends React.Component {
     ProductNameError: "",
 
     product_name_attribute: "",
-    size_attribute: "",
-    color_attribute: "",
+    variant_attribute: "",
   };
   componentDidMount() {
     this.props.getProductList();
@@ -94,6 +97,7 @@ class ProductSetting extends React.Component {
         name,
         description,
         price,
+        cost_price,
         supplier,
         category,
         stock,
@@ -104,6 +108,7 @@ class ProductSetting extends React.Component {
         productName: name,
         description,
         price,
+        cost_price,
         supplierID: supplier,
         categoryID: category,
         stock,
@@ -135,6 +140,45 @@ class ProductSetting extends React.Component {
       this.setState({
         urlFile: FilesArray,
       });
+    } else if (e.target.name === "add_file_content") {
+      swal("Confirm adding this image to this product ?", {
+        buttons: {
+          catch: {
+            text: "Yes",
+            value: "confirm",
+          },
+          cancel: "No",
+        },
+      }).then((value) => {
+        switch (value) {
+          case "confirm":
+            // this.props.deleteImage(ImageID);
+            // this.setState({
+            //   file_content: this.state.file_content.filter(
+            //     (file) => file.id !== ImageID
+            //   ),
+            // });
+            const formData = new FormData();
+            for (let i = 0; i < e.target.files.length; i++) {
+              formData.append("file_content", e.target.files[i]);
+            }
+            this.props.AddImageUpdateProduct(this.state.productID, formData);
+            this.setState({
+              file_content: [
+                ...this.state.file_content,
+                {
+                  id: this.state.file_content.at(-1).id + 1,
+                  image: URL.createObjectURL(e.target.files[0]),
+                },
+              ],
+            });
+
+            swal("Successfully added image!", "", "success");
+            break;
+          default:
+            break;
+        }
+      });
     } else {
       if (e.target.name === "productName") {
         const found = this.props.products.some(
@@ -154,18 +198,9 @@ class ProductSetting extends React.Component {
             [e.target.name]: e.target.value,
           });
         }
-      } else if (e.target.name === "size" || e.target.name === "color") {
-        if (e.target.name === "size") {
-          this.setState({
-            size_attribute: e.target.value.substring(0, 3).toUpperCase(),
-          });
-        } else if (e.target.name === "color") {
-          this.setState({
-            color_attribute: e.target.value.substring(0, 3).toUpperCase(),
-          });
-        }
-
+      } else if (e.target.name === "variant") {
         this.setState({
+          variant_attribute: e.target.value.substring(0, 3).toUpperCase(),
           [e.target.name]: e.target.value,
         });
       } else {
@@ -179,13 +214,21 @@ class ProductSetting extends React.Component {
   handleSubmitUpdateProduct = (productID) => {
     return (e) => {
       e.preventDefault();
-      const { productName, description, price, categoryID, supplierID } =
-        this.state;
+      const {
+        productName,
+        description,
+        price,
+        cost_price,
+        categoryID,
+        supplierID,
+      } = this.state;
       const formData = new FormData();
 
       formData.append("name", productName);
       formData.append("description", description);
       formData.append("price", price);
+      formData.append("cost_price", cost_price);
+
       formData.append("category", categoryID);
       formData.append("supplier", supplierID);
       this.props.updateProduct(productID, formData);
@@ -193,6 +236,7 @@ class ProductSetting extends React.Component {
         productName: "",
         description: "",
         price: 0,
+        cost_price: 0,
         supplierID: 0,
         categoryID: 0,
         productID: 0,
@@ -209,34 +253,29 @@ class ProductSetting extends React.Component {
         productName,
         description,
         price,
+        cost_price,
         categoryID,
         supplierID,
         stock,
-        size,
+        variant,
         weight,
-        color,
         file_content,
         product_name_attribute,
-        size_attribute,
-        color_attribute,
+        variant_attribute,
       } = this.state;
       const action_done = "Product Added";
       const formData = new FormData();
       formData.append("name", productName);
       formData.append("description", description);
       formData.append("price", price);
+      formData.append("cost_price", cost_price);
       formData.append("category", categoryID);
       formData.append("supplier", supplierID);
       formData.append("stock", stock);
-      formData.append("size", size);
-      formData.append(
-        "SKU",
-        product_name_attribute + "-" + size_attribute + "-" + color_attribute
-      );
-      formData.append("color", color);
+      formData.append("variation", variant);
+      formData.append("SKU", product_name_attribute + "-" + variant_attribute);
       formData.append("weight", weight);
       formData.append("status", true);
-
       formData.append("action_done", action_done);
       for (let i = 0; i < file_content.length; i++) {
         formData.append("file_content", file_content[i]);
@@ -247,15 +286,16 @@ class ProductSetting extends React.Component {
         productName: "",
         description: "",
         price: 0,
+        cost_price: 0,
         supplierID: 0,
         categoryID: 0,
         new_stock: 0,
         stock: 0,
-        size: "",
-        color: "",
+        variant: "",
+        file_content: "",
       });
-      this.ModalFunction();
       FilesArray = [];
+      this.ModalFunction();
     }
   };
 
@@ -266,6 +306,7 @@ class ProductSetting extends React.Component {
       productName: "",
       description: "",
       price: 0,
+      cost_price: 0,
       supplierID: 0,
       categoryID: 0,
       new_stock: 0,
@@ -280,6 +321,10 @@ class ProductSetting extends React.Component {
   };
   //this will toggle the add showProductModal form
   handleModalToggleAddProduct = (e) => {
+    this.setState({
+      urlFile: [],
+      file_content: "",
+    });
     e.preventDefault();
     this.ModalFunction();
   };
@@ -292,7 +337,35 @@ class ProductSetting extends React.Component {
       EditButtonProductIsClicked = true;
     };
   }
-  handleDeleteProduct(productID) {
+  handleRemoveImageFromDatabase = (ImageID) => {
+    return (event) => {
+      event.preventDefault();
+      swal("Do you really want to remove this image ?", {
+        buttons: {
+          catch: {
+            text: "Yes",
+            value: "delete",
+          },
+          cancel: "No",
+        },
+      }).then((value) => {
+        switch (value) {
+          case "delete":
+            this.props.deleteImage(ImageID);
+            this.setState({
+              file_content: this.state.file_content.filter(
+                (file) => file.id !== ImageID
+              ),
+            });
+            swal("Successfully removed image!", "", "success");
+            break;
+          default:
+            break;
+        }
+      });
+    };
+  };
+  handleDeleteProduct = (ProductID) => {
     return (event) => {
       event.preventDefault();
       swal("Do you really want to delete this?", {
@@ -308,20 +381,15 @@ class ProductSetting extends React.Component {
           case "delete":
             const formData = new FormData();
             formData.append("status", false);
-            this.props.changeProductStatus(productID, formData);
-            swal(
-              "Successfully deleted!",
-              // "You can retrive it in the archives module.",
-              "",
-              "success"
-            );
+            this.props.changeProductStatus(ProductID, formData);
+            swal("Successfully deleted!", "", "success");
             break;
           default:
             break;
         }
       });
     };
-  }
+  };
   ModalFunction() {
     this.setState({ showProductModal: !this.state.showProductModal });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -359,23 +427,21 @@ class ProductSetting extends React.Component {
   handleAddProductVariation = (e) => {
     e.preventDefault();
     const {
+      SKUProductVariation,
       stockProductVariation,
-      sizeProductVariation,
-      colorProductVariation,
+      variantProductVariation,
       weightProductVariation,
     } = this.state;
     const formProductVariationData = new FormData();
-
+    formProductVariationData.append("SKU", SKUProductVariation);
     formProductVariationData.append("stock", stockProductVariation);
-    formProductVariationData.append("size", sizeProductVariation);
-    formProductVariationData.append("color", colorProductVariation);
+    formProductVariationData.append("variant", variantProductVariation);
     formProductVariationData.append("weight", weightProductVariation);
     formProductVariationData.append("product_id", this.props.product.id);
     this.props.addProductVariation(formProductVariationData);
     this.setState({
       stockProductVariation: "",
-      sizeProductVariation: "",
-      colorProductVariation: "",
+      variantProductVariation: "",
       weightProductVariation: "",
       IDProductVariation: "",
       showModalProductVariationAddEdit:
@@ -387,17 +453,16 @@ class ProductSetting extends React.Component {
   handleUpdateProductVariation = (e) => {
     e.preventDefault();
     const {
+      SKUProductVariation,
       stockProductVariation,
-      sizeProductVariation,
-      colorProductVariation,
+      variantProductVariation,
       weightProductVariation,
       IDProductVariation,
     } = this.state;
     const formProductVariationData = new FormData();
-
+    formProductVariationData.append("SKU", SKUProductVariation);
     formProductVariationData.append("stock", stockProductVariation);
-    formProductVariationData.append("size", sizeProductVariation);
-    formProductVariationData.append("color", colorProductVariation);
+    formProductVariationData.append("variation", variantProductVariation);
     formProductVariationData.append("weight", weightProductVariation);
     formProductVariationData.append("product_id", this.props.product.id);
     this.props.updateProductVariation(
@@ -405,9 +470,9 @@ class ProductSetting extends React.Component {
       formProductVariationData
     );
     this.setState({
+      SKUProductVariation: "",
       stockProductVariation: "",
-      sizeProductVariation: "",
-      colorProductVariation: "",
+      variantProductVariation: "",
       weightProductVariation: "",
       IDProductVariation: "",
       showModalProductVariationAddEdit:
@@ -439,9 +504,9 @@ class ProductSetting extends React.Component {
   handleModalProductVarationEditClose = () => {
     this.setState({
       IDProductVariation: "",
+      SKUProductVariation: "",
       stockProductVariation: "",
-      sizeProductVariation: "",
-      colorProductVariation: "",
+      variantProductVariation: "",
       weightProductVariation: "",
       showModalProductVariationAddEdit:
         !this.state.showModalProductVariationAddEdit,
@@ -457,18 +522,18 @@ class ProductSetting extends React.Component {
   };
   handleModalToggleProductVarationEdit = (
     IDProductVariation,
+    SKUProductVariation,
     stockProductVariation,
-    sizeProductVariation,
-    colorProductVariation,
+    variantProductVariation,
     weightProductVariation
   ) => {
     return (event) => {
       event.preventDefault();
       this.setState({
         IDProductVariation: IDProductVariation,
+        SKUProductVariation: SKUProductVariation,
         stockProductVariation: stockProductVariation,
-        sizeProductVariation: sizeProductVariation,
-        colorProductVariation: colorProductVariation,
+        variantProductVariation: variantProductVariation,
         weightProductVariation: weightProductVariation,
         showModalProductVariationAddEdit:
           !this.state.showModalProductVariationAddEdit,
@@ -561,6 +626,7 @@ class ProductSetting extends React.Component {
   };
 
   render() {
+    console.log(this.state.file_content);
     // destructure the products that came from the reducer so it will be easier to filter and show
     products = [];
     filteredData = [];
@@ -569,9 +635,9 @@ class ProductSetting extends React.Component {
       product.status
         ? products.push({
             id: product.id,
-            SKU: product.SKU,
             name: product.name,
             price: product.price,
+            cost_price: product.cost_price,
             category: product.category_info.name,
             supplier: product.supplier_info.name,
             description: product.description,
@@ -677,7 +743,7 @@ class ProductSetting extends React.Component {
                   </div>
                 </div>
               </div>
-              <div className="w-full flex justify-end pr-6">
+              <div className="w-full flex justify-end pr-4">
                 <div
                   onClick={this.handleModalCategory}
                   className="flex ml-4 bg-teal_custom text-white cursor-pointer h-12 rounded items-center justify-center px-3"
@@ -691,12 +757,14 @@ class ProductSetting extends React.Component {
                 <table className="min-w-full bg-white">
                   <thead>
                     <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
-                      <th className="pl-14 pr-6 text-md">ID</th>
-                      <th className=" pr-6 text-md">SKU</th>
-                      <th className=" pr-6 text-md">Product</th>
-                      <th className="  pr-6 text-md">(Variation) Stock</th>
-                      <th className="pr-6 text-md">Price</th>
-                      <th className="text-gray-600  font-normal pr-6 text-left text-sm w-2/12">
+                      <th className="pl-10 pr-4 text-md">ID</th>
+
+                      <th className="pr-4 text-md">Product</th>
+                      <th className="pr-4 text-md">(Variation) Stock</th>
+                      <th className="pr-4 text-md">Price</th>
+                      <th className="pr-4 text-md">Cost Price</th>
+                      <th className="pr-4 text-md">Profit</th>
+                      <th className="text-gray-600  font-normal pr-4 text-left text-sm w-2/12">
                         <select
                           onChange={this.onChange}
                           name="categoryForDropDownSelect"
@@ -710,9 +778,9 @@ class ProductSetting extends React.Component {
                           ))}
                         </select>
                       </th>
-                      <th className=" pr-6 text-md">Supplier</th>
-                      <th className="  pr-6 text-md">Description</th>
-                      <th className="pr-6 text-md">More</th>
+                      <th className=" pr-4 text-md">Supplier</th>
+                      <th className="  pr-4 text-md">Description</th>
+                      <th className="pr-4 text-md">More</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -721,16 +789,14 @@ class ProductSetting extends React.Component {
                         key={product.id}
                         className="h-24 border-gray-300 border-b"
                       >
-                        <td className="pl-12 text-sm pr-6 whitespace-no-wrap text-gray-800 ">
+                        <td className="pl-12 text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           {product.id}
                         </td>
-                        <td className="pl-12 text-sm pr-6 whitespace-no-wrap text-gray-800 ">
-                          {product.SKU}
-                        </td>
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
+
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           {product.name}
                         </td>
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 w-3/12">
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 w-3/12">
                           {product.variation
                             ? product.variation.map(
                                 (productVariation, index) => (
@@ -743,13 +809,10 @@ class ProductSetting extends React.Component {
                                         : "h-20 border-gray-300 border-b-2"
                                     }
                                   >
-                                    <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
-                                      <div>
-                                        ({productVariation.color}/
-                                        {productVariation.size})
-                                      </div>
+                                    <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                                      <div>({productVariation.variation})</div>
                                     </td>
-                                    <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
+                                    <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                                       {productVariation.stock}
                                     </td>
                                   </tr>
@@ -757,18 +820,27 @@ class ProductSetting extends React.Component {
                               )
                             : ""}
                         </td>
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
-                          {product.price}
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                          ₱{product.price}
+                        </td>
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                          ₱{product.cost_price}
+                        </td>
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                          ₱
+                          {HandleDecimalPlaces(
+                            product.price - product.cost_price
+                          )}
                         </td>
 
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           {product.category}
                         </td>
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 ">
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           {product.supplier}
                         </td>
 
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800">
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800">
                           <div className="w-full h-36 overflow-clip overflow-hidden">
                             {product.description}
                           </div>
@@ -834,6 +906,7 @@ class ProductSetting extends React.Component {
           handleEditCloseButtonProduct={this.handleEditCloseButtonProduct}
           handelRightScroll={this.handelRightScroll}
           handleLeftScroll={this.handleLeftScroll}
+          handleRemoveImageFromDatabase={this.handleRemoveImageFromDatabase}
           handleRemoveImage={this.handleRemoveImage}
           handleModalProductVarationTable={this.handleModalProductVarationTable}
         />
@@ -897,4 +970,6 @@ export default connect(mapStateToProps, {
   updateProductVariation,
   addProductVariation,
   changeProductStatus,
+  deleteImage,
+  AddImageUpdateProduct,
 })(ProductSetting);

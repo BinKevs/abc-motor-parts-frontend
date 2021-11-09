@@ -8,12 +8,14 @@ import swal from "sweetalert";
 import { Redirect } from "react-router-dom";
 import { getTransactionList } from "../../store/actions/transaction/transactions.js";
 import CartIndex from "../Customers/Cart/CartIndex";
+import { URL_IMPORT } from "../../Helpers/constant";
 let Variablequantity = 0;
 class MainLayout extends React.Component {
   state = {
     DashboardNavBtn: false,
     VoucherNavBtn: false,
-    QueueNavBtn: false,
+    CustomerNavBtn: false,
+    OrdersNavBtn: false,
     RefundNavBtn: false,
     ProductsNavBtn: true,
     ReportsNavBtn: false,
@@ -99,9 +101,26 @@ class MainLayout extends React.Component {
       if (NavBtn === "DashboardNavBtn") {
         this.setState({
           DashboardNavBtn: true,
-          QueueNavBtn: false,
+          OrdersNavBtn: false,
           RefundNavBtn: false,
           VoucherNavBtn: false,
+          CustomerNavBtn: false,
+          ProductsNavBtn: false,
+          ReportsNavBtn: false,
+          ProductSettingNavBtn: false,
+          InventoryNavBtn: false,
+          SupplierNavBtn: false,
+          TransactionsNavBtn: false,
+          TransactionsItemsNavBtn: false,
+          ArchiveNavBtn: false,
+        });
+      } else if (NavBtn === "CustomerNavBtn") {
+        this.setState({
+          VoucherNavBtn: false,
+          CustomerNavBtn: true,
+          DashboardNavBtn: false,
+          OrdersNavBtn: false,
+          RefundNavBtn: false,
           ProductsNavBtn: false,
           ReportsNavBtn: false,
           ProductSettingNavBtn: false,
@@ -114,8 +133,9 @@ class MainLayout extends React.Component {
       } else if (NavBtn === "VoucherNavBtn") {
         this.setState({
           VoucherNavBtn: true,
+          CustomerNavBtn: false,
           DashboardNavBtn: false,
-          QueueNavBtn: false,
+          OrdersNavBtn: false,
           RefundNavBtn: false,
           ProductsNavBtn: false,
           ReportsNavBtn: false,
@@ -126,11 +146,12 @@ class MainLayout extends React.Component {
           TransactionsItemsNavBtn: false,
           ArchiveNavBtn: false,
         });
-      } else if (NavBtn === "QueueNavBtn") {
+      } else if (NavBtn === "OrdersNavBtn") {
         this.setState({
           DashboardNavBtn: false,
           VoucherNavBtn: false,
-          QueueNavBtn: true,
+          CustomerNavBtn: false,
+          OrdersNavBtn: true,
           RefundNavBtn: false,
           ProductsNavBtn: false,
           ReportsNavBtn: false,
@@ -145,7 +166,8 @@ class MainLayout extends React.Component {
         this.setState({
           DashboardNavBtn: false,
           VoucherNavBtn: false,
-          QueueNavBtn: false,
+          CustomerNavBtn: false,
+          OrdersNavBtn: false,
           RefundNavBtn: true,
           ProductsNavBtn: false,
           ReportsNavBtn: false,
@@ -160,7 +182,8 @@ class MainLayout extends React.Component {
         this.setState({
           DashboardNavBtn: false,
           VoucherNavBtn: false,
-          QueueNavBtn: false,
+          CustomerNavBtn: false,
+          OrdersNavBtn: false,
           RefundNavBtn: false,
           ProductsNavBtn: true,
           ReportsNavBtn: false,
@@ -175,7 +198,8 @@ class MainLayout extends React.Component {
         this.setState({
           DashboardNavBtn: false,
           VoucherNavBtn: false,
-          QueueNavBtn: false,
+          CustomerNavBtn: false,
+          OrdersNavBtn: false,
           RefundNavBtn: false,
           ProductsNavBtn: false,
           ReportsNavBtn: true,
@@ -190,7 +214,8 @@ class MainLayout extends React.Component {
         this.setState({
           DashboardNavBtn: false,
           VoucherNavBtn: false,
-          QueueNavBtn: false,
+          CustomerNavBtn: false,
+          OrdersNavBtn: false,
           RefundNavBtn: false,
           ProductsNavBtn: false,
           ReportsNavBtn: false,
@@ -205,7 +230,8 @@ class MainLayout extends React.Component {
         this.setState({
           DashboardNavBtn: false,
           VoucherNavBtn: false,
-          QueueNavBtn: false,
+          CustomerNavBtn: false,
+          OrdersNavBtn: false,
           RefundNavBtn: false,
           ProductsNavBtn: false,
           ReportsNavBtn: false,
@@ -219,9 +245,10 @@ class MainLayout extends React.Component {
       } else if (NavBtn === "SupplierNavBtn") {
         this.setState({
           DashboardNavBtn: false,
-          QueueNavBtn: false,
+          OrdersNavBtn: false,
           RefundNavBtn: false,
           VoucherNavBtn: false,
+          CustomerNavBtn: false,
           ProductsNavBtn: false,
           ReportsNavBtn: false,
           ProductSettingNavBtn: false,
@@ -234,9 +261,10 @@ class MainLayout extends React.Component {
       } else if (NavBtn === "TransactionsNavBtn") {
         this.setState({
           DashboardNavBtn: false,
-          QueueNavBtn: false,
+          OrdersNavBtn: false,
           RefundNavBtn: false,
           VoucherNavBtn: false,
+          CustomerNavBtn: false,
           ProductsNavBtn: false,
           ReportsNavBtn: false,
           ProductSettingNavBtn: false,
@@ -249,10 +277,11 @@ class MainLayout extends React.Component {
       } else if (NavBtn === "TransactionsItemsNavBtn") {
         this.setState({
           DashboardNavBtn: false,
-          QueueNavBtn: false,
+          OrdersNavBtn: false,
           RefundNavBtn: false,
           ProductsNavBtn: false,
           VoucherNavBtn: false,
+          CustomerNavBtn: false,
           ReportsNavBtn: false,
           ProductSettingNavBtn: false,
           InventoryNavBtn: false,
@@ -264,10 +293,11 @@ class MainLayout extends React.Component {
       } else if (NavBtn === "ArchiveNavBtn") {
         this.setState({
           DashboardNavBtn: false,
-          QueueNavBtn: false,
+          OrdersNavBtn: false,
           RefundNavBtn: false,
           ProductsNavBtn: false,
           VoucherNavBtn: false,
+          CustomerNavBtn: false,
           ReportsNavBtn: false,
           ProductSettingNavBtn: false,
           InventoryNavBtn: false,
@@ -312,9 +342,10 @@ class MainLayout extends React.Component {
       SupplierNavBtn,
       TransactionsNavBtn,
       TransactionsItemsNavBtn,
-      QueueNavBtn,
+      OrdersNavBtn,
       RefundNavBtn,
       VoucherNavBtn,
+      CustomerNavBtn,
       ArchiveNavBtn,
     } = this.state;
 
@@ -548,25 +579,25 @@ class MainLayout extends React.Component {
                     </li>
                     <li
                       class="mr-3 flex-1 NavBtn"
-                      onClick={this.setActiveNav("QueueNavBtn")}
+                      onClick={this.setActiveNav("OrdersNavBtn")}
                     >
                       <Link
                         to="/transactions/queuing"
                         class={
-                          QueueNavBtn
+                          OrdersNavBtn
                             ? "MainLayoutNav MainLayoutNavActive"
                             : "MainLayoutNav"
                         }
                       >
-                        <i className="fad fa-pause pr-0 lg:pr-3"></i>
+                        <i className="fal fa-bags-shopping pr-0 lg:pr-3"></i>
                         <span
                           class={
-                            QueueNavBtn
+                            OrdersNavBtn
                               ? "MainLayoutNav2 MainLayoutNavActive2"
                               : "MainLayoutNav2"
                           }
                         >
-                          Transaction Queue
+                          Orders
                         </span>
                       </Link>
                     </li>
@@ -848,7 +879,31 @@ class MainLayout extends React.Component {
                         </span>
                       </Link>
                     </li>
+                    <li
+                      class="mr-3 flex-1 NavBtn"
+                      onClick={this.setActiveNav("CustomerNavBtn")}
+                    >
+                      <Link
+                        to="/customer-setting"
+                        class={
+                          CustomerNavBtn
+                            ? "MainLayoutNav MainLayoutNavActive"
+                            : "MainLayoutNav"
+                        }
+                      >
+                        <i className="fad fa-users pr-0 lg:pr-3"></i>
 
+                        <span
+                          class={
+                            CustomerNavBtn
+                              ? "pb-1 lg:pb-0 text-xs align-middle lg:text-base text-white  block lg:inline-block"
+                              : "pb-1 lg:pb-0 text-xs align-middle lg:text-base text-gray-400 hover:text-white block lg:inline-block"
+                          }
+                        >
+                          Customers
+                        </span>
+                      </Link>
+                    </li>
                     <li
                       class="mr-3 flex-1 NavBtn"
                       onClick={this.setActiveNav("ArchiveNavBtn")}

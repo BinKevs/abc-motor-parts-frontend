@@ -88,7 +88,7 @@ select:focus ~ label {
   visibility: visible;
 }
 
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
   width: 9px;
   height: 9px;
 }
@@ -107,7 +107,7 @@ select:focus ~ label {
 .btn:hover {
   background-color: white;
   color: #1f2937;
-}
+} */
 /* ---------------------------------------------------
     Loader
 ----------------------------------------------------- */

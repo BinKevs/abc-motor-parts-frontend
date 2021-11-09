@@ -316,3 +316,33 @@ export const getReviewList = () => (dispatch, getState) => {
   //   })
   // );
 };
+
+export const AddImageUpdateProduct =
+  (ProductID, data) => (dispatch, getState) => {
+    axios
+      .post(
+        URL_IMPORT + "/api/products-image/" + ProductID,
+        data,
+        tokenConfig(getState)
+      )
+      .then((res) => {
+        // HandleSuccessMessages("Image Added", "success");
+      })
+      .catch((err) => console.log(err));
+  };
+
+export const deleteImage = (ImageID) => (dispatch, getState) => {
+  axios
+    .delete(
+      URL_IMPORT + "/api/product_files/" + ImageID + "/",
+      tokenConfig(getState)
+    )
+    .then((res) => {})
+    .catch((err) =>
+      swal({
+        title: "Product Deletion Failed",
+        text: "Error : " + err,
+        icon: "error",
+      })
+    );
+};

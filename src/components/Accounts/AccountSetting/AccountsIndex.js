@@ -6,9 +6,9 @@ import {
   getAccountList,
   getAccount,
   changeAccountStatus,
-} from "../../store/actions/account/auth";
+} from "../../../store/actions/account/auth";
 import AccountFormModal from "./AccountFormModal";
-import { AccountTableExportModal } from "./Print/AccountTableExportModal";
+import { AccountTableExportModal } from "../Print/AccountTableExportModal";
 import { Link } from "react-router-dom";
 import swal from "sweetalert";
 let AccountsItems = [];

@@ -43,6 +43,8 @@ class InventorySettingIndex extends React.Component {
     table_export_modal: false,
     InputDate: "",
     productForDropDownSelect: "",
+    cost_price: "",
+    price: "",
   };
 
   componentDidMount() {

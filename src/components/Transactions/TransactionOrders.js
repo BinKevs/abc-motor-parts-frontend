@@ -5,7 +5,7 @@ import {
   updateTransactionStatus,
 } from "../../store/actions/transaction/transactions.js";
 let filteredData = [];
-class TransactionQueuing extends React.Component {
+class TransactionOrders extends React.Component {
   state = {
     showActionButtonModal: false,
     showToReceiveModal: false,
@@ -75,13 +75,12 @@ class TransactionQueuing extends React.Component {
     filteredData = this.props.transactions.filter((item) => {
       return item.order_status !== "Complete";
     });
-
     return (
       <>
         <div class="bg-gray-100 flex-1 mt-20 md:mt-14 pb-24 md:pb-5">
           <div class="bg-gray-800 pt-3">
             <div class="rounded-tl-3xl bg-gradient-to-r from-teal_custom to-gray-800 p-4 shadow text-2xl text-white">
-              <h3 class="font-bold pl-2">Transaction Queueing</h3>
+              <h3 class="font-bold pl-2">Transaction Orders</h3>
             </div>
           </div>
           <div className="p-5 w-full">
@@ -158,8 +157,10 @@ class TransactionQueuing extends React.Component {
                                 <td class="px-4 py-3 text-sm font-semibold">
                                   <div>{item.product.name}</div>
                                   <div>
-                                    <p>Size : XL</p>
-                                    <p>Color : RED</p>
+                                    <p>
+                                      Variant :{" "}
+                                      {item.product_variation_info.variation}
+                                    </p>
                                   </div>
                                 </td>
                                 <td class="px-4 py-3 text-sm font-semibold">
@@ -378,4 +379,4 @@ const mapStateToProps = (state) => ({
 export default connect(mapStateToProps, {
   getTransactionList,
   updateTransactionStatus,
-})(TransactionQueuing);
+})(TransactionOrders);

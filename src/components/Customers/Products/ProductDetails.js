@@ -6,20 +6,22 @@ import { addToCart } from "../../../store/actions/cart/cartActions";
 import ReactPlayer from "react-player";
 import { getReviewList } from "../../../store/actions/product/products";
 import { Rating } from "react-simple-star-rating";
+import {
+  HandleDecimalPlaces,
+  numberWithCommas,
+} from "../../../Helpers/functions";
 import video1 from "../../../Group2.mp4";
-
-let color = [];
-let size = [];
+let variation = [];
 let variantStock = 0;
 let TempStock = 0;
 let variant_id = "";
+let product_SKU = "";
 let weight = 0.0;
 let rates = 0;
 let count = 0;
 class ProductDetails extends React.Component {
   state = {
-    size: "",
-    color: "",
+    variation: "",
     quantity: 0,
     video_link: "",
     product_rate: 0,
@@ -37,22 +39,17 @@ class ProductDetails extends React.Component {
         this.setState({ [e.target.name]: parseInt(e.target.value) });
       }
     } else {
-      if (e.target.name === "color") {
-        this.setState({ [e.target.name]: e.target.value, size: "" });
-        var dropDown = document.getElementById("size");
-        dropDown.selectedIndex = 0;
-      } else {
-        this.setState({ [e.target.name]: e.target.value });
-      }
+      this.setState({ [e.target.name]: e.target.value });
     }
   };
   handleSubmitToCart(
     product_id,
+    SKU,
     product_name,
     price,
+    cost_price,
     supplier,
-    size,
-    color,
+    variation,
     quantity,
     variant_id,
     weight
@@ -61,11 +58,13 @@ class ProductDetails extends React.Component {
       event.preventDefault();
       const product = {
         product_id,
+        sku_id: SKU,
         product_name,
         price,
+        cost_price,
+        profit: HandleDecimalPlaces(price - cost_price),
         supplier,
-        size,
-        color,
+        variation,
         quantity,
         product_with_variation: variant_id,
         weight,
@@ -131,11 +130,11 @@ class ProductDetails extends React.Component {
     };
   }
   render() {
-    color = [{ color: "Open this to select color" }];
-    size = [{ size: "Open this to select size" }];
+    variation = [{ variation: "Open this to select variation" }];
     TempStock = 0;
     variantStock = 0;
     variant_id = "";
+    product_SKU = "";
     weight = 0.0;
     rates = 0;
     count = 0;
@@ -148,44 +147,32 @@ class ProductDetails extends React.Component {
         )
       );
     if (product.variation) {
-      product.variation.map(
-        (product) => (
-          !color.find((o) => o.color === product.color)
-            ? color.push({
-                color: product.color,
-              })
-            : "",
-          this.state.color !== ""
-            ? this.state.color === product.color
-              ? !size.find((o) => o.size === product.size)
-                ? size.push({
-                    size: product.size,
-                  })
-                : ""
-              : ""
-            : ""
-        )
+      product.variation.map((product) =>
+        !variation.find((o) => o.variation === product.variation)
+          ? variation.push({
+              variation: product.variation,
+            })
+          : ""
       );
     }
 
-    if (this.state.color !== "" && this.state.size !== "") {
+    if (this.state.variation !== "") {
       if (product.variation) {
         product.variation.map((p) =>
-          this.state.color === p.color && this.state.size === p.size
+          this.state.variation === p.variation
             ? ((variantStock = p.stock),
               (variant_id = p.id),
+              (product_SKU = p.SKU),
               (weight = p.weight))
             : ""
         );
       }
     }
 
-    if (this.state.color !== "" && this.state.size !== "") {
+    if (this.state.variation !== "") {
       if (product.variation) {
         product.variation.map((p) =>
-          this.state.color === p.color && this.state.size === p.size
-            ? (TempStock = p.stock)
-            : ""
+          this.state.variation === p.variation ? (TempStock = p.stock) : ""
         );
       }
     } else {
@@ -251,7 +238,7 @@ class ProductDetails extends React.Component {
                               )}
                               id="thumbnail"
                               className="object-cover object-center rounded-3xl thumbnail max-h-28"
-                              src="https://img.flaticon.com/icons/png/512/3204/3204323.png?size=1200x630f&pad=10,10,10,10&ext=png&bg=FFFFFFFF"
+                              src="https://img.flaticon.com/icons/png/512/3204/3204323.png?variation=1200x630f&pad=10,10,10,10&ext=png&bg=FFFFFFFF"
                             />
                           ) : (
                             <img
@@ -340,56 +327,22 @@ class ProductDetails extends React.Component {
                 <div class="border-b-2 border-gray-200 mb-5">
                   <div className="flex flex-col md:flex-row md:space-y-0 space-y-6 mt-6 items-center border-gray-600">
                     <div class="flex ml-6 items-center">
-                      <span class="mr-3">Color</span>
-                      {/* <button class="border-2 border-gray-300 rounded-full w-6 h-6 focus:outline-none"></button>
-                    <button class="border-2 border-gray-300 ml-1 bg-gray-700 rounded-full w-6 h-6 focus:outline-none"></button>
-                    <button class="border-2 border-gray-300 ml-1 bg-red-500 rounded-full w-6 h-6 focus:outline-none"></button> */}
+                      <span class="mr-3">Variant</span>
                       <div class="relative">
                         <select
-                          name="color"
+                          name="variation"
+                          id="variation"
                           onChange={this.onChange}
                           class="rounded border appearance-none border-gray-400 py-2 focus:outline-none focus:border-teal_custom text-base pl-3 pr-10"
                         >
                           {/* <option value="" selected>
-                            Open this to select color
+                            Open this to select variation
                           </option> */}
-                          {color
-                            ? color.map((c) => (
-                                <option value={c.color}>{c.color}</option>
-                              ))
-                            : ""}
-                        </select>
-                        <span class="absolute right-0 top-0 h-full w-10 text-center text-gray-600 pointer-events-none flex items-center justify-center">
-                          <svg
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            class="w-4 h-4"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M6 9l6 6 6-6"></path>
-                          </svg>
-                        </span>
-                      </div>
-                    </div>
-                    <div class="flex ml-6 items-center">
-                      <span class="mr-3">Size</span>
-                      <div class="relative">
-                        <select
-                          name="size"
-                          id="size"
-                          onChange={this.onChange}
-                          // disabled={!this.state.color ? true : false}
-                          class="rounded border appearance-none border-gray-400 py-2 focus:outline-none focus:border-teal_custom text-base pl-3 pr-10"
-                        >
-                          {/* <option value="" selected>
-                            Open this to select size
-                          </option> */}
-                          {size
-                            ? size.map((s) => (
-                                <option value={s.size}>{s.size}</option>
+                          {variation
+                            ? variation.map((s) => (
+                                <option value={s.variation}>
+                                  {s.variation}
+                                </option>
                               ))
                             : ""}
                         </select>
@@ -411,17 +364,8 @@ class ProductDetails extends React.Component {
                   </div>
 
                   <div className=" ml-6 mt-6  pb-5 text-md font-medium text-gray-700">
-                    {/* {this.state.color !== "" && this.state.size !== "" ? ( */}
                     <div className="flex items-center">
                       <span class="mr-3"> Stock : {TempStock}</span>
-                      {/* {product.variation
-                          ? product.variation.map((p) =>
-                              this.state.color === p.color &&
-                              this.state.size === p.size
-                                ? p.stock
-                                : ""
-                            )
-                          : ""} */}
                     </div>
                     {/* ) : (
                       ""
@@ -456,14 +400,17 @@ class ProductDetails extends React.Component {
 
                 <div class="flex">
                   <button
-                    class="flex ml-auto text-white bg-teal_custom border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded cursor-pointer"
+                    class="flex mx-auto text-white bg-teal_custom border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded cursor-pointer"
                     onClick={this.handleSubmitToCart(
                       product.id,
+                      product_SKU +
+                        "-" +
+                        parseInt(TempStock - this.state.quantity),
                       product.name,
                       product.price,
+                      product.cost_price,
                       this.props.supplier_name,
-                      this.state.size,
-                      this.state.color,
+                      this.state.variation,
                       this.state.quantity,
                       variant_id,
                       weight

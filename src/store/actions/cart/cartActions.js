@@ -69,6 +69,6 @@ export const removeFromCart = (product) => (dispatch, getState) => {
 };
 // When a checkout and payment successfully done local storage will be clear automatically with this.
 export const clearCart = () => (dispatch) => {
-  // localStorage.removeItem("cartItem");
-  // dispatch({ type: CLEAR_CART });
+  localStorage.removeItem("cartItem");
+  dispatch({ type: CLEAR_CART });
 };

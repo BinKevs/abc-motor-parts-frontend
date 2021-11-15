@@ -5,15 +5,7 @@ app.use(express.static(__dirname + "/"));
 app.listen(process.env.PORT || 8080);
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("build"));
-  app.get("*", (req, res) => {
+  app.get("/*", (req, res) => {
     res.sendFile(path.join("build", "index.html"));
   });
 }
-
-app.get("/*", (req, res) => {
-  let url = path.join(__dirname, "../client/build", "index.html");
-  if (!url.startsWith("/app/"))
-    // we're on local windows
-    url = url.substring(1);
-  res.sendFile(url);
-});

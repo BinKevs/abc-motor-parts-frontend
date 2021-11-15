@@ -29,6 +29,7 @@ const initialState = {
   account: {},
   activity_log: [],
   attendance_log: [],
+  profileImage: "",
 };
 
 const AuthReducer = (state = initialState, action) => {
@@ -56,6 +57,7 @@ const AuthReducer = (state = initialState, action) => {
         ...action.payload,
         isAuthenticated: true,
         isLoading: false,
+        user: action.payload,
       };
     case ADD_ACCOUNT:
       return {
@@ -85,10 +87,13 @@ const AuthReducer = (state = initialState, action) => {
         ...state,
         user: action.payload.user,
         addresses: action.payload.address,
-        contact_numbers: action.payload.contact_number,
+        contact_number: action.payload.contact_number,
         isAuthenticated: true,
         isLoading: false,
         is_superuser: action.payload.user.is_superuser,
+
+        birthdate: action.payload.birthdate,
+        profileImage: "http://127.0.0.1:8000" + action.payload.profile_image,
       };
     case GET_ACCOUNT_LIST:
       return {

@@ -5,6 +5,8 @@ import {
   addVoucher,
   updateVoucher,
 } from "../../store/actions/product/products";
+import swal from "sweetalert";
+import { VoucherTableExportModal } from "./Print/VoucherTableExportModal";
 class VoucherSetting extends React.Component {
   componentDidMount() {
     this.props.getVoucherList();
@@ -20,6 +22,7 @@ class VoucherSetting extends React.Component {
     voucher_id: "",
     showVoucherModal: false,
     EditButtonClicked: false,
+    table_export_modal: false,
   };
   handleAddSubmitVoucher = (e) => {
     e.preventDefault();
@@ -64,7 +67,58 @@ class VoucherSetting extends React.Component {
       showVoucherModal: !this.state.showVoucherModal,
     });
   };
+  handleArchiveVoucher(voucherID) {
+    return (event) => {
+      event.preventDefault();
 
+      swal(
+        "Are you sure you want to delete this voucher?\n If you are sure, type in your password:",
+        {
+          content: {
+            element: "input",
+            attributes: {
+              placeholder: "Type your password",
+              type: "password",
+            },
+          },
+          icon: "warning",
+          buttons: {
+            confirm: {
+              text: "Confirm",
+              visible: true,
+              className: "",
+              closeModal: true,
+            },
+            cancel: {
+              text: "Cancel",
+              value: false,
+              value: "cancel",
+              visible: true,
+              className: "",
+              closeModal: true,
+            },
+          },
+          dangerMode: true,
+        }
+      ).then((value) => {
+        if (value === "Nicksstonecold2017") {
+          // const formData = new FormData();
+          // formData.append("status", false);
+          // this.props.changeSupplierStatus(voucherID, formData);
+          swal("Successfully deleted!", "", "success");
+        } else if (value === "cancel") {
+        } else {
+          swal("Invalid password!", "", "error");
+        }
+      });
+    };
+  }
+  handleToggleExportTable = (event) => {
+    event.preventDefault();
+    this.setState({ table_export_modal: !this.state.table_export_modal });
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  };
   render() {
     return (
       <>
@@ -79,7 +133,10 @@ class VoucherSetting extends React.Component {
               <div className="flex flex-col lg:flex-row p-4 lg:p-8 justify-end items-start lg:items-stretch w-full">
                 <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center justify-end">
                   <div className="lg:ml-6 flex items-start w-full">
-                    <div className="text-white cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-teal_custom transition duration-150 ease-in-out hover:bg-gray-600 w-12 h-12 rounded flex items-center justify-center">
+                    <div
+                      onClick={this.handleToggleExportTable}
+                      className="text-white cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-teal_custom transition duration-150 ease-in-out hover:bg-gray-600 w-12 h-12 rounded flex items-center justify-center"
+                    >
                       <i class="fal fa-print fa-lg"></i>
                     </div>
                     <div
@@ -127,16 +184,17 @@ class VoucherSetting extends React.Component {
               </div>
               <div className="w-full overflow-x-auto">
                 <table className="min-w-full bg-white dark:bg-gray-800">
-                  <tbody>
+                  <thead>
                     <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
                       <th className="pl-14 pr-6 text-md">ID</th>
                       <th className=" pr-6 text-md">Code</th>
 
                       <th className="pr-6 text-md">Value</th>
+                      <th className="pr-6 text-md">Status</th>
                       <th className="pr-6 text-md">Date Created</th>
-                      <th className="pr-6 text-md">Action</th>
+                      <th className="pr-6 text-md">More</th>
                     </tr>
-                  </tbody>
+                  </thead>
                   <tbody>
                     {this.props.vouchers.map((voucher) => (
                       <tr className="h-24 border-gray-300 dark:border-gray-200 border-b">
@@ -149,6 +207,12 @@ class VoucherSetting extends React.Component {
                         <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
                           {voucher.value}
                         </td>
+                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                          {voucher.voucher_status_details}
+                        </td>
+                        {/* <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                          {voucher.status ? "True" : "False"}
+                        </td> */}
                         <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
                           {voucher.created_at}
                         </td>
@@ -170,7 +234,12 @@ class VoucherSetting extends React.Component {
                                 >
                                   Edit
                                 </li>
-                                <li className="cursor-pointer text-sm leading-3 py-3 hover:bg-red-500 hover:text-white px-3 font-normal">
+                                <li
+                                  onClick={this.handleArchiveVoucher(
+                                    voucher.id
+                                  )}
+                                  className="cursor-pointer text-sm leading-3 py-3 hover:bg-red-500 hover:text-white px-3 font-normal"
+                                >
                                   Delete
                                 </li>
                               </ul>
@@ -231,7 +300,7 @@ class VoucherSetting extends React.Component {
                         </div>
 
                         <h1 class="text-gray-800 text-3xl font-medium">
-                          Add Voucher
+                          Edit Voucher
                         </h1>
                       </div>
                       <div class="relative z-0 w-full mb-5">
@@ -314,6 +383,16 @@ class VoucherSetting extends React.Component {
               </div>
             </div>
           </div>
+        </div>
+        <div
+          class={
+            this.state.table_export_modal ? "h-screen " : "h-screen hidden"
+          }
+        >
+          <VoucherTableExportModal
+            handleToggleExportTable={this.handleToggleExportTable}
+            vouchers={this.props.vouchers}
+          />
         </div>
       </>
     );

@@ -25,6 +25,16 @@ let totalProfit = 0;
 
 let TotalWeight = 0;
 let succeedingWeight = 0;
+var options = {
+  weekday: "short",
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  hour: "numeric",
+  minute: "numeric",
+  second: "numeric",
+};
+let DateNow = new Date().toLocaleString("en-US", options);
 class Checkout extends React.Component {
   state = {
     contact_number: "",
@@ -38,6 +48,7 @@ class Checkout extends React.Component {
     TotalQuantity: 0,
     payment_method: "",
     voucher_code: "",
+    voucher_id: 0,
     voucher_value: 0,
     voucher_error: "",
     currentScrollState: 0,
@@ -54,6 +65,8 @@ class Checkout extends React.Component {
     cityCode: "",
     barangayCode: "",
     street: "",
+    ref_number_gcash: "",
+    phone_number_gcash: "",
   };
   onChange = (e) => {
     this.setState({
@@ -114,15 +127,18 @@ class Checkout extends React.Component {
         this.props.AuthReducer.addresses.province +
         " " +
         this.props.AuthReducer.addresses.region;
-      const contact_number = this.props.AuthReducer.contact_numbers;
+      const contact_number = this.props.AuthReducer.contact_number;
       const action_done = "Transaction Added";
       const order_status = "Pending";
 
       const items = this.props.cartItems;
-      const { payment_method, amount_tendered, change } = this.state;
+      const { payment_method, amount_tendered, change, voucher_id } =
+        this.state;
       const data = {
         totalProfit: this.HandleDecimalPlaces(totalProfit),
-        totalAmount: TotalAmountToPay - this.state.voucher_value,
+        totalAmount: this.HandleDecimalPlaces(
+          TotalAmountToPay - this.state.voucher_value
+        ),
         shippingCost: this.HandleDecimalPlaces(shippingFee),
         quantity,
         items,
@@ -131,37 +147,82 @@ class Checkout extends React.Component {
         order_status,
         address,
         contact_number,
+        voucher_status_details:
+          "Redeemed by : " +
+          this.props.AuthReducer.user.username +
+          " at " +
+          DateNow,
+        voucher_id: voucher_id,
       };
       this.props.addTransaction(data);
-      // this.props.getTransactionList();
       this.props.clearCart();
       this.props.history.push("/Home");
     }
   };
+  handleSubmitGCash = (event) => {
+    event.preventDefault();
+    let quantity = 0;
+    this.props.cartItems.map((item) => (quantity += item.quantity));
+    const address =
+      this.props.AuthReducer.addresses.street +
+      " " +
+      this.props.AuthReducer.addresses.barangay +
+      " " +
+      this.props.AuthReducer.addresses.city +
+      " " +
+      this.props.AuthReducer.addresses.province +
+      " " +
+      this.props.AuthReducer.addresses.region;
+    const contact_number = this.props.AuthReducer.contact_number;
+    const action_done = "Transaction Added";
+    const order_status = "Pending (Checking Payment)";
 
+    const items = this.props.cartItems;
+    const {
+      payment_method,
+      amount_tendered,
+      change,
+      ref_number_gcash,
+      phone_number_gcash,
+      voucher_id,
+    } = this.state;
+    const payment_method_gcash =
+      "Ref No. : " + ref_number_gcash + " Phone No. : " + phone_number_gcash;
+    const data = {
+      totalProfit: this.HandleDecimalPlaces(totalProfit),
+      totalAmount: this.HandleDecimalPlaces(
+        TotalAmountToPay - this.state.voucher_value
+      ),
+      shippingCost: this.HandleDecimalPlaces(shippingFee),
+      quantity,
+      items,
+      action_done,
+      payment_method: "Gcash",
+      payment_details: payment_method_gcash,
+      voucher_status_details:
+        "Redeemed by : " +
+        this.props.AuthReducer.user.username +
+        " at " +
+        DateNow,
+      voucher_id: voucher_id,
+      order_status,
+      address,
+      contact_number,
+    };
+    this.props.addTransaction(data);
+    this.props.clearCart();
+    this.props.history.push("/Home");
+  };
   handleUpdateContact = (AddressID) => {
     return (event) => {
       event.preventDefault();
-      const {
-        regionValue,
-        provinceValue,
-        cityValue,
-        barangayValue,
-        regionCode,
-        provinceCode,
-        cityCode,
-        barangayCode,
-        street,
-      } = this.state;
+      const { regionValue, provinceValue, cityValue, barangayValue, street } =
+        this.state;
       const data = {
         region: regionValue,
         province: provinceValue,
         city: cityValue,
         barangay: barangayValue,
-        region_code: regionCode,
-        province_code: provinceCode,
-        city_code: cityCode,
-        barangay_code: barangayCode,
         street,
       };
       this.props.UpdateAddress(AddressID, data);
@@ -205,7 +266,7 @@ class Checkout extends React.Component {
       street: street,
     });
   };
-  handleSubmitEWallet() {
+  handleSubmitPaypal() {
     let quantity = 0;
     this.props.cartItems.map((item) => (quantity += item.quantity));
     const address =
@@ -223,14 +284,20 @@ class Checkout extends React.Component {
     const order_status = "Pending";
 
     const items = this.props.cartItems;
-    const { payment_method, amount_tendered, change } = this.state;
+    const { payment_method, amount_tendered, change, voucher_id } = this.state;
     const data = {
       totalAmount: TotalAmountToPay - this.state.voucher_value,
       shippingCost: shippingFee,
       quantity,
       items,
       action_done,
-      payment_method,
+      payment_method: "Paypal",
+      voucher_status_details:
+        "Redeemed by : " +
+        this.props.AuthReducer.user.username +
+        " at " +
+        DateNow,
+      voucher_id: voucher_id,
       order_status,
       address,
       contact_number,
@@ -238,7 +305,7 @@ class Checkout extends React.Component {
     this.props.addTransaction(data);
     this.props.getTransactionList();
     this.props.clearCart();
-    this.props.history.push("/account/purchases");
+    this.props.history.push("/Home");
   }
   handleModalEWallet = (e) => {
     e.preventDefault();
@@ -265,12 +332,13 @@ class Checkout extends React.Component {
   handleVoucherApply = (e) => {
     e.preventDefault();
     this.props.vouchers.map((voucher) =>
-      voucher.code === this.state.voucher_code
+      this.state.voucher_code === voucher.code
         ? this.setState({
+            voucher_id: voucher.id,
             voucher_value: voucher.value,
             showModalVoucher: !this.state.showModalVoucher,
           })
-        : this.setState({ voucher_value: 0 })
+        : ""
     );
     window.scrollTo({ top: this.state.currentScrollState, behavior: "smooth" });
   };
@@ -548,9 +616,7 @@ class Checkout extends React.Component {
                                 </div>
                               </span>
                               <span class="text-gray-600 text-sm">
-                                {item.color}
-                                {" / "}
-                                {item.size}
+                                {item.variation}
                               </span>
                               {/* <div
                                 href="#"
@@ -657,7 +723,11 @@ class Checkout extends React.Component {
                         </h1>
                         <h1 class="font-semibold text-md"> ₱ 180</h1>
                       </div>
-                      <div class="flex justify-between">
+                      <div
+                        class={`flex justify-between ${
+                          succeedingWeight > 0 ? "" : "hidden"
+                        }`}
+                      >
                         <h1 class="font-medium text-md">
                           Succeding kg / Cost:
                         </h1>
@@ -687,7 +757,6 @@ class Checkout extends React.Component {
                       ) : (
                         ""
                       )}
-
                       <div class="flex justify-between">
                         <h1 class="font-medium text-2xl">Shipping Fee:</h1>
                         <h1 class="font-semibold text-2xl">
@@ -726,9 +795,11 @@ class Checkout extends React.Component {
                         <h2 class="font-semibold text-2xl">
                           ₱
                           {this.numberWithCommas(
-                            TotalAmountToPay +
-                              shippingFee -
-                              this.state.voucher_value
+                            this.HandleDecimalPlaces(
+                              TotalAmountToPay +
+                                shippingFee -
+                                this.state.voucher_value
+                            )
                           )}
                         </h2>
                       </div>
@@ -790,17 +861,21 @@ class Checkout extends React.Component {
                           <input
                             className="w-full border rounded-md pl-4 py-2 focus:ring-0 focus:border-cyan-700"
                             type="text"
-                            name="reference_number"
+                            onChange={this.onChange}
+                            name="ref_number_gcash"
+                            value={this.state.ref_number_gcash}
                             placeholder="Reference Number"
                           />
                           <input
                             className="w-full border rounded-md pl-4 py-2 focus:ring-0 focus:border-cyan-700"
                             type="text"
-                            name="phone_number"
+                            onChange={this.onChange}
+                            name="phone_number_gcash"
+                            value={this.state.phone_number_gcash}
                             placeholder="Your Phone Number"
                           />
                           <button
-                            type="submit"
+                            onClick={this.handleSubmitGCash}
                             className="focus:outline-none transition duration-150 ease-in-out hover:bg-cyan-700 bg-cyan-700 rounded text-white px-8 py-2 text-sm"
                           >
                             Submit
@@ -833,7 +908,7 @@ class Checkout extends React.Component {
                             }}
                             onApprove={(data, actions) => {
                               // Capture the funds from the transaction
-                              this.handleSubmitEWallet();
+                              this.handleSubmitPaypal();
                               return actions.order
                                 .capture()
                                 .then(function (details) {

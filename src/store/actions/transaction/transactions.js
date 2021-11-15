@@ -61,13 +61,7 @@ export const deleteTransaction = (TransactionID) => (dispatch, getState) => {
         payload: TransactionID,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Transaction Deletion Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };
 
 export const updateTransaction =
@@ -81,13 +75,7 @@ export const updateTransaction =
           payload: res.data,
         });
       })
-      .catch((err) =>
-        swal({
-          title: "Transaction Update Failed",
-          text: "Error : " + err,
-          icon: "error",
-        })
-      );
+      .catch((err) => console.log(err));
   };
 
 // Transaction Items part
@@ -122,13 +110,7 @@ export const addTransaction = (data) => (dispatch, getState) => {
         payload: res.data,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Transaction Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };
 export const updateTransactionStatus =
   (TransactionID, data) => (dispatch, getState) => {
@@ -141,13 +123,7 @@ export const updateTransactionStatus =
           payload: res.data,
         });
       })
-      .catch((err) =>
-        swal({
-          title: "Transaction Update Status Failed",
-          text: "Error : " + err,
-          icon: "error",
-        })
-      );
+      .catch((err) => console.log(err));
   };
 
 export const addReview = (TransactionID, data) => (dispatch, getState) => {
@@ -161,13 +137,7 @@ export const addReview = (TransactionID, data) => (dispatch, getState) => {
         payload: res.data,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Review Addition Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };
 export const addRefund = (data) => (dispatch, getState) => {
   axios
@@ -187,13 +157,7 @@ export const addRefund = (data) => (dispatch, getState) => {
         payload: res.data,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Refund Addition Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };
 export const getRefundList = () => (dispatch, getState) => {
   axios
@@ -224,11 +188,5 @@ export const updateRefund = (RefundID, data) => (dispatch, getState) => {
       });
       console.log(res.data);
     })
-    .catch((err) =>
-      swal({
-        title: "Refund Update Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };

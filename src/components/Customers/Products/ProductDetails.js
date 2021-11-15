@@ -10,7 +10,7 @@ import {
   HandleDecimalPlaces,
   numberWithCommas,
 } from "../../../Helpers/functions";
-import video1 from "../../../Group2.mp4";
+import noImageAvailable from "../../../no-image-available.png";
 let variation = [];
 let variantStock = 0;
 let TempStock = 0;
@@ -192,7 +192,11 @@ class ProductDetails extends React.Component {
                       alt="ecommerce"
                       id="featured"
                       class="w-full object-cover object-center rounded-3xl border-2 border-gray-400 h-60 md:h-80"
-                      src={product.file_content[0].image}
+                      src={
+                        product.file_content
+                          ? product.file_content[0].image
+                          : noImageAvailable
+                      }
                     />
                   ) : (
                     // <video width="340" height="240" controls>
@@ -247,7 +251,11 @@ class ProductDetails extends React.Component {
                               )}
                               id="thumbnail"
                               className="object-cover object-center rounded-3xl  thumbnail max-h-28"
-                              src={file_content.image}
+                              src={
+                                file_content.image
+                                  ? file_content.image
+                                  : noImageAvailable
+                              }
                             />
                           )
                         )
@@ -425,7 +433,7 @@ class ProductDetails extends React.Component {
           <div className="flex-col w-full space-y-5">
             {this.props.reviews.map((rev) =>
               rev.product === product.id ? (
-                <div class="flex items-center mx-auto w-4/6 bg-white rounded-xl shadow-2xl">
+                <div class="flex flex-col md:flex-row items-center mx-auto md:w-4/6 w-11/12 bg-white rounded-xl shadow-2xl">
                   {/* <div class="md:flex-shrink-0">
                     <img
                       class="h-48 w-full object-cover md:w-48"
@@ -439,7 +447,7 @@ class ProductDetails extends React.Component {
                     alt="A cat"
                   />
                   <div class="m-4 w-full">
-                    <div class="flex">
+                    <div class="flex flex-col md:flex-row items-center">
                       <div class="uppercase tracking-wide text-sm text-indigo-500 font-semibold mr-4">
                         {rev.user_info.username}
                       </div>
@@ -451,7 +459,7 @@ class ProductDetails extends React.Component {
                         />
                       </span>
                     </div>
-                    <p class="mt-1 text-md leading-tight font-medium text-black">
+                    <p class="mt-1 text-md leading-tight font-medium text-black mx-10">
                       {rev.comment}
                     </p>
                   </div>

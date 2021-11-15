@@ -69,13 +69,7 @@ export const deleteProduct = (ProductID) => (dispatch, getState) => {
         payload: ProductID,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Product Deletion Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };
 export const addProduct = (data) => (dispatch, getState) => {
   console.log(data);
@@ -88,15 +82,7 @@ export const addProduct = (data) => (dispatch, getState) => {
         payload: res.data,
       });
     })
-    .catch(
-      (err) =>
-        swal({
-          title: "Product Addition Failed",
-          text: "Error : " + err,
-          icon: "error",
-        })
-      // console.log(err)
-    );
+    .catch((err) => console.log(err));
 };
 export const updateProduct = (ProductID, data) => (dispatch, getState) => {
   axios
@@ -108,13 +94,7 @@ export const updateProduct = (ProductID, data) => (dispatch, getState) => {
         payload: res.data,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Product Update Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };
 
 export const changeProductStatus =
@@ -127,13 +107,7 @@ export const changeProductStatus =
           payload: res.data,
         });
       })
-      .catch((err) =>
-        swal({
-          title: "Change Status Failed",
-          text: "Error : " + err,
-          icon: "error",
-        })
-      );
+      .catch((err) => console.log(err));
   };
 
 export const addProductVariation = (data) => (dispatch, getState) => {
@@ -146,13 +120,7 @@ export const addProductVariation = (data) => (dispatch, getState) => {
         payload: res.data,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Product Variation Addition Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };
 
 export const updateProductVariation =
@@ -170,13 +138,7 @@ export const updateProductVariation =
           payload: res.data,
         });
       })
-      .catch((err) =>
-        swal({
-          title: "Product Variation Update Failed",
-          text: "Error : " + err,
-          icon: "error",
-        })
-      );
+      .catch((err) => console.log(err));
   };
 
 // Category part
@@ -210,13 +172,7 @@ export const addCategory = (data) => (dispatch, getState) => {
         payload: res.data,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Category Addition Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };
 export const updateCategory = (CategoryID, data) => (dispatch, getState) => {
   axios
@@ -233,13 +189,7 @@ export const updateCategory = (CategoryID, data) => (dispatch, getState) => {
         categoryID: CategoryID,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Category Update Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };
 
 //Vocuhers
@@ -267,13 +217,7 @@ export const addVoucher = (data) => (dispatch, getState) => {
         payload: res.data,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Vouchers Addition Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };
 export const updateVoucher = (VoucherID, data) => (dispatch, getState) => {
   axios
@@ -289,13 +233,7 @@ export const updateVoucher = (VoucherID, data) => (dispatch, getState) => {
         payload: res.data,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Voucher Update Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };
 
 export const getReviewList = () => (dispatch, getState) => {
@@ -338,11 +276,5 @@ export const deleteImage = (ImageID) => (dispatch, getState) => {
       tokenConfig(getState)
     )
     .then((res) => {})
-    .catch((err) =>
-      swal({
-        title: "Product Deletion Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };

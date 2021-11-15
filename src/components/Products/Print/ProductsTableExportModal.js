@@ -4,7 +4,7 @@ import ReactToPrint from "react-to-print";
 import { ProductTablePrint } from "./ProductTablePrint";
 export class ProductsTableExportModal extends React.PureComponent {
   render() {
-    const { OnToggleExportTable, products } = this.props;
+    const { OnToggleExportTable, filteredData } = this.props;
 
     return (
       <>
@@ -19,7 +19,8 @@ export class ProductsTableExportModal extends React.PureComponent {
               id="modal"
             >
               <div class="modal-overlay absolute w-full h-full z-25 bg-gray-900 opacity-50"></div>
-              <div className="h-full overflow-auto w-1/2 mx-auto flex flex-col">
+              <div className="h-full overflow-auto md:w-1/2 w-full mx-auto flex flex-col">
+                {" "}
                 <div className="m-2 md:m-12">
                   <div className="relative p-4 md:p-8 bg-white dark:bg-gray-800 dark:border-gray-700 shadow-md rounded border border-gray-400 ">
                     <div class="text-left p-0 mb-8">
@@ -91,7 +92,7 @@ export class ProductsTableExportModal extends React.PureComponent {
         </div>
         <div className="hidden">
           <ProductTablePrint
-            productProps={products}
+            filteredDataFrom={filteredData}
             ref={(el) => (this.componentRef = el)}
           />
         </div>

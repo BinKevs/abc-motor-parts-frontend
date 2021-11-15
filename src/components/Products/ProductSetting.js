@@ -291,8 +291,11 @@ class ProductSetting extends React.Component {
         categoryID: 0,
         new_stock: 0,
         stock: 0,
+        weight: 0,
         variant: "",
         file_content: "",
+        product_name_attribute: "",
+        variant_attribute: "",
       });
       FilesArray = [];
       this.ModalFunction();
@@ -368,26 +371,67 @@ class ProductSetting extends React.Component {
   handleDeleteProduct = (ProductID) => {
     return (event) => {
       event.preventDefault();
-      swal("Do you really want to delete this?", {
-        buttons: {
-          catch: {
-            text: "Yes",
-            value: "delete",
+
+      swal(
+        "Are you sure you want to delete this product?\n If you are sure, type in your password:",
+        {
+          content: {
+            element: "input",
+            attributes: {
+              placeholder: "Type your password",
+              type: "password",
+            },
           },
-          cancel: "No",
-        },
-      }).then((value) => {
-        switch (value) {
-          case "delete":
-            const formData = new FormData();
-            formData.append("status", false);
-            this.props.changeProductStatus(ProductID, formData);
-            swal("Successfully deleted!", "", "success");
-            break;
-          default:
-            break;
+          icon: "warning",
+          buttons: {
+            confirm: {
+              text: "Confirm",
+              visible: true,
+              className: "",
+              closeModal: true,
+            },
+            cancel: {
+              text: "Cancel",
+              value: false,
+              value: "cancel",
+              visible: true,
+              className: "",
+              closeModal: true,
+            },
+          },
+          dangerMode: true,
+        }
+      ).then((value) => {
+        if (value === "Nicksstonecold2017") {
+          const formData = new FormData();
+          formData.append("status", false);
+          this.props.changeProductStatus(ProductID, formData);
+          swal("Successfully deleted!", "", "success");
+        } else if (value === "cancel") {
+        } else {
+          swal("Invalid password!", "", "error");
         }
       });
+      // swal("Do you really want to delete this?", {
+      //   buttons: {
+      //     catch: {
+      //       text: "Yes",
+      //       value: "delete",
+      //     },
+      //     cancel: "No",
+      //   },
+      // }).then((value) => {
+      //   switch (value) {
+      //     case "delete":
+      //       const formData = new FormData();
+      //       formData.append("status", false);
+      //       this.props.changeProductStatus(ProductID, formData);
+      //       swal("Successfully deleted!", "", "success");
+      //       break;
+      //     default:
+      //       break;
+      //   }
+      // });
     };
   };
   ModalFunction() {
@@ -811,6 +855,7 @@ class ProductSetting extends React.Component {
                                   >
                                     <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                                       <div>({productVariation.variation})</div>
+                                      SKU : {productVariation.SKU}
                                     </td>
                                     <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                                       {productVariation.stock}
@@ -913,7 +958,7 @@ class ProductSetting extends React.Component {
 
         <ProductsTableExportModal
           OnToggleExportTable={this.OnToggleExportTable}
-          products={filteredData}
+          filteredData={filteredData}
           table_export_modal={this.state.table_export_modal}
         />
 

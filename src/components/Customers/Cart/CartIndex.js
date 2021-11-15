@@ -139,7 +139,7 @@ class CartIndex extends React.Component {
                               </span>
                               <div
                                 href="#"
-                                class="font-semibold hover:text-red-500 text-gray-500 text-xs"
+                                class="font-semibold cursor-pointer z-20 hover:text-red-500 text-gray-500 text-xs"
                                 onClick={() => removeFromCart(item)}
                               >
                                 Remove

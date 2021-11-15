@@ -58,9 +58,9 @@ const ProductVariation = (props) => {
                         <i class="fal fa-plus fa-lg"></i>
                       </div>
                     </div>
-                    <table className="min-w-full bg-white p-28">
+                    <table className="md:min-w-full bg-white md:p-28 p-0">
                       <thead>
-                        <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
+                        <tr className="h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
                           <th className="pl-14 pr-6 text-md">ID</th>
                           <th className="pl-14 pr-6 text-md">SKU</th>
                           <th className="  pr-6 text-md">Variant</th>
@@ -72,7 +72,7 @@ const ProductVariation = (props) => {
                         {product_variation.map((variation) => (
                           <tr
                             key={variation.id}
-                            className="h-24 border-gray-300 dark:border-gray-200 border-b"
+                            className="h-24 border-gray-300 dark:border-gray-200 border-b "
                           >
                             <td className="pl-12 text-sm pr-6 whitespace-no-wrap text-gray-800 ">
                               {variation.id}

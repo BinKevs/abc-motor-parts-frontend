@@ -53,7 +53,6 @@ class CustomerAccountSetting extends React.Component {
   };
 
   render() {
-    console.log(this.state.UserTransactions);
     //destructuring the dictionary for searching/ fetching purposes
     AccountsItems = [this.props.accounts];
     this.props.accounts.map((account) =>

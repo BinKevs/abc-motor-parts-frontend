@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
+import swal from "sweetalert";
 import {
   getInventoryList,
   deleteInventory,
@@ -157,6 +158,52 @@ class InventorySettingIndex extends React.Component {
     document.documentElement.scrollTop = 0;
     document.getElementById("Body").classList.toggle("overflow-hidden");
   };
+  handleArchiveInventory(inventoryID) {
+    return (event) => {
+      event.preventDefault();
+
+      swal(
+        "Are you sure you want to delete this inventory?\n If you are sure, type in your password:",
+        {
+          content: {
+            element: "input",
+            attributes: {
+              placeholder: "Type your password",
+              type: "password",
+            },
+          },
+          icon: "warning",
+          buttons: {
+            confirm: {
+              text: "Confirm",
+              visible: true,
+              className: "",
+              closeModal: true,
+            },
+            cancel: {
+              text: "Cancel",
+              value: false,
+              value: "cancel",
+              visible: true,
+              className: "",
+              closeModal: true,
+            },
+          },
+          dangerMode: true,
+        }
+      ).then((value) => {
+        if (value === "Nicksstonecold2017") {
+          // const formData = new FormData();
+          // formData.append("status", false);
+          // this.props.changeSupplierStatus(inventoryID, formData);
+          swal("Successfully deleted!", "", "success");
+        } else if (value === "cancel") {
+        } else {
+          swal("Invalid password!", "", "error");
+        }
+      });
+    };
+  }
   render() {
     console.log(this.props.inventories);
     const { InputDate, search, productForDropDownSelect } = this.state;
@@ -167,12 +214,9 @@ class InventorySettingIndex extends React.Component {
       inventories.push({
         id: inventory.id,
         supplier: inventory.supplier_info.name,
-
         product: inventory.product_info.name,
-        product_variation:
-          inventory.product_variation_info.color +
-          "/" +
-          inventory.product_variation_info.size,
+        product_variation: inventory.product_variation_info.variation,
+        SKU: inventory.product_variation_info.SKU,
         new_stock: inventory.new_stock,
         created_at: inventory.created_at,
       })
@@ -373,6 +417,7 @@ class InventorySettingIndex extends React.Component {
                         <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
                           <div>{inventory.product}</div>(
                           {inventory.product_variation})
+                          <div>({inventory.SKU})</div>
                         </td>
                         <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
                           {inventory.new_stock}
@@ -394,7 +439,12 @@ class InventorySettingIndex extends React.Component {
                                 >
                                   Edit
                                 </li>
-                                <li className="cursor-pointer text-sm leading-3 py-3 hover:bg-red-500 hover:text-white px-3 font-normal">
+                                <li
+                                  onClick={this.handleArchiveInventory(
+                                    inventory.id
+                                  )}
+                                  className="cursor-pointer text-sm leading-3 py-3 hover:bg-red-500 hover:text-white px-3 font-normal"
+                                >
                                   Delete
                                 </li>
                               </ul>

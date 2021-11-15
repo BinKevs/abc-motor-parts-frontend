@@ -62,13 +62,7 @@ export const deleteInventory = (InventoryID) => (dispatch, getState) => {
         payload: InventoryID,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Getting Deleting Inventory Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };
 export const addInventory = (data) => (dispatch, getState) => {
   axios
@@ -81,13 +75,7 @@ export const addInventory = (data) => (dispatch, getState) => {
         payload: res.data,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Adding Inventory Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };
 export const updateInventory = (InventoryID, data) => (dispatch, getState) => {
   axios
@@ -99,11 +87,5 @@ export const updateInventory = (InventoryID, data) => (dispatch, getState) => {
         payload: res.data,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Updating Inventory Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };

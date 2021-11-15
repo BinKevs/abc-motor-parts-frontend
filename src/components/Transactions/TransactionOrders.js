@@ -4,6 +4,9 @@ import {
   getTransactionList,
   updateTransactionStatus,
 } from "../../store/actions/transaction/transactions.js";
+import DatePicker from "react-datepicker";
+
+import { TransactionsOrdersTableExportModal } from "./Print/TransactionsOrdersTableExportModal";
 let filteredData = [];
 class TransactionOrders extends React.Component {
   state = {
@@ -11,6 +14,7 @@ class TransactionOrders extends React.Component {
     showToReceiveModal: false,
     transactionId: 0,
     tracking_number: "",
+    table_export_modal: false,
   };
   componentDidMount() {
     this.props.getTransactionList();
@@ -69,12 +73,18 @@ class TransactionOrders extends React.Component {
       showToReceiveModal: !this.state.showToReceiveModal,
     });
   };
-
+  handleToggleExportTable = (event) => {
+    event.preventDefault();
+    this.setState({ table_export_modal: !this.state.table_export_modal });
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  };
   render() {
     filteredData = [];
     filteredData = this.props.transactions.filter((item) => {
       return item.order_status !== "Complete";
     });
+    console.log(filteredData);
     return (
       <>
         <div class="bg-gray-100 flex-1 mt-20 md:mt-14 pb-24 md:pb-5">
@@ -86,17 +96,17 @@ class TransactionOrders extends React.Component {
           <div className="p-5 w-full">
             <div className="mx-auto bg-white shadow rounded">
               <div className="flex flex-col lg:flex-row p-4 lg:p-8 justify-end items-start lg:items-stretch w-full">
-                <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center justify-end">
+                <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-end">
                   <div className="lg:ml-6 flex items-start w-full">
                     <div
-                      // onClick={this.OnToggleExportTable}
+                      onClick={this.handleToggleExportTable}
                       className="text-white cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-teal_custom transition duration-150 ease-in-out hover:bg-gray-600 w-12 h-12 rounded flex items-center justify-center"
                     >
                       <i class="fal fa-print fa-lg"></i>
                     </div>
                   </div>
                 </div>
-                <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center justify-end">
+                {/* <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center justify-end">
                   <div className="lg:ml-6 flex items-center">
                     <div class="relative w-full">
                       <input
@@ -117,7 +127,7 @@ class TransactionOrders extends React.Component {
                     </div>
                     <i class="fad fa-search fa-lg"></i>
                   </div>
-                </div>
+                </div> */}
               </div>
               {filteredData.length > 0 ? (
                 <div className="w-full overflow-x-auto">
@@ -125,9 +135,41 @@ class TransactionOrders extends React.Component {
                     <thead>
                       <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
                         <th className="pl-14 pr-6 text-md">User</th>
-                        <th className=" pr-6 text-md">Date</th>
+
+                        <th className="pr-6 text-md w-2/12">
+                          {" "}
+                          <div>Date</div>
+                          <DatePicker
+                            selected={this.state.InputDate}
+                            onChange={(date) =>
+                              this.setState({ InputDate: date })
+                            }
+                            value={this.state.InputDate}
+                            closeOnScroll={true}
+                            placeholderText="Select Date"
+                            className="my-1 px-1 py-1 border-2 rounded-l"
+                          />
+                        </th>
                         <th className="  pr-6 text-md">Product</th>
-                        <th className="pr-6 text-md">Status</th>
+
+                        <th className="pr-6 text-md">
+                          Status
+                          <select
+                            // onChange={this.onChange}
+                            name="categoryForDropDownSelect"
+                            class="w-full h-8 border rounded-lg text-xs my-2"
+                          >
+                            <option>Filter Status</option>
+                            {/* {this.props.categories.map((category) => ( */}
+                            {/* value={category.name} */}
+                            <option>Cancel Order</option>
+                            <option>Pending</option>
+                            <option>Preferring</option>
+                            <option>To Ship</option>
+                            <option>To Receive</option>
+                            {/* // ))} */}
+                          </select>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -138,6 +180,9 @@ class TransactionOrders extends React.Component {
                         >
                           <td className="pl-14 text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
                             {trans.user_info.name}
+
+                            <div className="my-2">{trans.address}</div>
+                            <div>{trans.contact_number}</div>
                           </td>
                           <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
                             {trans.created_at}
@@ -227,6 +272,13 @@ class TransactionOrders extends React.Component {
                       </div>
 
                       <div className="flex flex-col gap-2.5">
+                        <button
+                          value="Cancel Order"
+                          onClick={this.handleUpdateSubmitOrderStatus}
+                          className="focus:outline-none transition duration-150 ease-in-out hover:bg-cyan-700 bg-cyan-700 rounded text-white px-8 py-4 text-md"
+                        >
+                          Canceled Order
+                        </button>
                         <button
                           value="Pending"
                           onClick={this.handleUpdateSubmitOrderStatus}
@@ -366,6 +418,16 @@ class TransactionOrders extends React.Component {
               </div>
             </div>
           </div>
+        </div>
+        <div
+          class={
+            this.state.table_export_modal ? "h-screen " : "h-screen hidden"
+          }
+        >
+          <TransactionsOrdersTableExportModal
+            handleToggleExportTable={this.handleToggleExportTable}
+            TransactionsOrders={filteredData}
+          />
         </div>
       </>
     );

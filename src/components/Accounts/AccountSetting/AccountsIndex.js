@@ -170,29 +170,69 @@ class AccountsIndex extends React.Component {
   handleArchiveAccount(accountID) {
     return (event) => {
       event.preventDefault();
-      swal("Do you really want to delete this?", {
-        buttons: {
-          catch: {
-            text: "Yes",
-            value: "delete",
+      // swal("Do you really want to delete this?", {
+      //   buttons: {
+      //     catch: {
+      //       text: "Yes",
+      //       value: "delete",
+      //     },
+      //     cancel: "No",
+      //   },
+      // }).then((value) => {
+      //   switch (value) {
+      //     case "delete":
+      //       const formData = new FormData();
+      //       formData.append("status", false);
+      //       this.props.changeAccountStatus(accountID, formData);
+      //       swal(
+      //         "Successfully deleted!",
+      //         // "You can retrive it in the archives module.",
+      //         "",
+      //         "success"
+      //       );
+      //       break;
+      //     default:
+      //       break;
+      //   }
+      // });
+      swal(
+        "Are you sure you want to delete this Account?\n If you are sure, type in your password:",
+        {
+          content: {
+            element: "input",
+            attributes: {
+              placeholder: "Type your password",
+              type: "password",
+            },
           },
-          cancel: "No",
-        },
-      }).then((value) => {
-        switch (value) {
-          case "delete":
-            const formData = new FormData();
-            formData.append("status", false);
-            this.props.changeAccountStatus(accountID, formData);
-            swal(
-              "Successfully deleted!",
-              // "You can retrive it in the archives module.",
-              "",
-              "success"
-            );
-            break;
-          default:
-            break;
+          icon: "warning",
+          buttons: {
+            confirm: {
+              text: "Confirm",
+              visible: true,
+              className: "",
+              closeModal: true,
+            },
+            cancel: {
+              text: "Cancel",
+              value: false,
+              value: "cancel",
+              visible: true,
+              className: "",
+              closeModal: true,
+            },
+          },
+          dangerMode: true,
+        }
+      ).then((value) => {
+        if (value === "Nicksstonecold2017") {
+          // const formData = new FormData();
+          // formData.append("status", false);
+          // this.props.changeSupplierStatus(transactionID, formData);
+          swal("Successfully deleted!", "", "success");
+        } else if (value === "cancel") {
+        } else {
+          swal("Invalid password!", "", "error");
         }
       });
     };

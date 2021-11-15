@@ -1,18 +1,22 @@
 import React from "react";
 import { connect } from "react-redux";
 import ReactPlayer from "react-player";
-import video1 from "../../Group2.mp4";
 import noImageAvailable from "../../no-image-available.png";
+import swal from "sweetalert";
 import {
   getRefundList,
   updateRefund,
 } from "../../store/actions/transaction/transactions.js";
+import DatePicker from "react-datepicker";
+import { RefundTableExportModal } from "./Print/RefundTableExportModal";
+let status = "";
 class RefundsIndex extends React.Component {
   state = {
     showViewMoreModal: false,
     refundInfo: "",
     response: "",
-    status: "",
+    InputDate: "",
+    table_export_modal: "",
   };
   componentDidMount() {
     this.props.getRefundList();
@@ -31,26 +35,94 @@ class RefundsIndex extends React.Component {
       });
     };
   };
-  handleRefundUpdate = (event) => {
-    event.preventDefault();
-    const formData = new FormData();
-    formData.append("tranItemID", this.state.refundInfo.id);
-    formData.append("response", this.state.response);
-    formData.append("status", this.state.status);
-    this.props.updateRefund(this.state.refundInfo.id, formData);
-    this.setState({
-      refundInfo: "",
-      response: "",
-      status: "",
-      showViewMoreModal: !this.state.showViewMoreModal,
-    });
-  };
-  handleRefundStatus = (status) => {
+  handleRefundUpdate = (action, productvariation, quantity, refundID) => {
     return (event) => {
       event.preventDefault();
-      this.setState({
-        status: status,
+
+      swal("What type of action?", {
+        icon: "info",
+        buttons: {
+          ReplaceItem: {
+            text: "Replace Item",
+            value: "Replace",
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
+          Refund: {
+            text: "Refund Item",
+            value: "Refund",
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
+          cancel: {
+            text: "Cancel",
+            value: false,
+            value: "cancel",
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
+        },
+      }).then((value) => {
+        if (value === "Replace") {
+          status = "Item will be replace";
+          swal("Inventory changes?", {
+            icon: "info",
+            buttons: {
+              Deduct: {
+                text: "Deduct quantity",
+                value: "Deduct",
+                visible: true,
+                className: "",
+                closeModal: true,
+              },
+              Remain: {
+                text: "Remain the same",
+                value: "Remain",
+                visible: true,
+                className: "",
+                closeModal: true,
+              },
+              cancel: {
+                text: "Cancel",
+                value: false,
+                value: "cancel",
+                visible: true,
+                className: "",
+                closeModal: true,
+              },
+            },
+          }).then((value) => {
+            const formData = new FormData();
+            formData.append("response", this.state.response);
+            formData.append("status", action + " & " + status);
+            formData.append("inventoryAction", value);
+            formData.append("productVariationID", productvariation);
+            formData.append("quantity", quantity);
+            this.props.updateRefund(refundID, formData);
+            status = "";
+            this.setState({
+              refundInfo: "",
+              response: "",
+              showViewMoreModal: !this.state.showViewMoreModal,
+            });
+          });
+        }
       });
+
+      // .then((value) => {
+      //   if (value === "Nicksstonecold2017") {
+      //     const formData = new FormData();
+      //     formData.append("status", false);
+      //     this.props.changeProductStatus(ProductID, formData);
+      //     swal("Successfully deleted!", "", "success");
+      //   } else if (value === "cancel") {
+      //   } else {
+      //     swal("Invalid password!", "", "error");
+      //   }
+      // });
     };
   };
 
@@ -60,9 +132,14 @@ class RefundsIndex extends React.Component {
       showViewMoreModal: !this.state.showViewMoreModal,
     });
   };
+  OnToggleExportTable = (event) => {
+    event.preventDefault();
+    this.setState({ table_export_modal: !this.state.table_export_modal });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
   render() {
     const { refundInfo } = this.state;
-    console.log(refundInfo);
+    console.log(this.state);
     return (
       <>
         <div class="bg-gray-100 flex-1 mt-20 md:mt-14 pb-24 md:pb-5">
@@ -75,17 +152,17 @@ class RefundsIndex extends React.Component {
           <div className="p-5 w-full">
             <div className="mx-auto bg-white shadow rounded">
               <div className="flex flex-col lg:flex-row p-4 lg:p-8 justify-end items-start lg:items-stretch w-full">
-                <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center justify-end">
+                <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-end">
                   <div className="lg:ml-6 flex items-start w-full">
                     <div
-                      // onClick={this.OnToggleExportTable}
+                      onClick={this.OnToggleExportTable}
                       className="text-white cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-teal_custom transition duration-150 ease-in-out hover:bg-gray-600 w-12 h-12 rounded flex items-center justify-center"
                     >
                       <i class="fal fa-print fa-lg"></i>
                     </div>
                   </div>
                 </div>
-                <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center justify-end">
+                {/* <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center justify-end">
                   <div className="lg:ml-6 flex items-center">
                     <div class="relative w-full">
                       <input
@@ -106,7 +183,7 @@ class RefundsIndex extends React.Component {
                     </div>
                     <i class="fad fa-search fa-lg"></i>
                   </div>
-                </div>
+                </div> */}
               </div>
               <div className="w-full overflow-x-auto">
                 <table className="min-w-full bg-white">
@@ -115,11 +192,42 @@ class RefundsIndex extends React.Component {
                       <th className="pl-14 pr-6 text-md">
                         Transaction Item ID
                       </th>
-                      <th className=" pr-6 text-md">User</th>
-                      <th className=" pr-6 text-md">Product</th>
-                      <th className="  pr-6 text-md">Date Of Request</th>
-                      <th className="pr-6 text-md">Status</th>
-                      <th className=" pr-6 text-md">Action</th>
+                      <th className="pr-6 text-md">User</th>
+                      <th className="pr-6 text-md">Product</th>
+
+                      <th className="pr-6 text-md w-2/12">
+                        {" "}
+                        <div>Date Of Request : </div>
+                        <DatePicker
+                          selected={this.state.InputDate}
+                          onChange={(date) =>
+                            this.setState({ InputDate: date })
+                          }
+                          value={this.state.InputDate}
+                          closeOnScroll={true}
+                          placeholderText="Select Date"
+                          className="my-1 px-1 py-1 border-2 rounded-l"
+                        />
+                      </th>
+
+                      <th className="pr-6 text-md">
+                        Status
+                        <select
+                          // onChange={this.onChange}
+                          name="categoryForDropDownSelect"
+                          class="w-full h-8 border rounded-lg text-xs my-2"
+                        >
+                          <option>Filter Status</option>
+                          {/* {this.props.categories.map((category) => ( */}
+                          {/* value={category.name} */}
+                          <option>Accepted</option>
+                          <option>Denied</option>
+                          <option>Pending</option>
+
+                          {/* // ))} */}
+                        </select>
+                      </th>
+                      <th className="pr-6 text-md">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -138,17 +246,10 @@ class RefundsIndex extends React.Component {
                           <div>{refund.transaction_item.product.name}</div>
                           <div>
                             <p>
-                              Size :{" "}
+                              Variant :{" "}
                               {
                                 refund.transaction_item.product_variation_info
-                                  .size
-                              }
-                            </p>
-                            <p>
-                              Color :{" "}
-                              {
-                                refund.transaction_item.product_variation_info
-                                  .color
+                                  .variation
                               }
                             </p>
                           </div>
@@ -251,12 +352,7 @@ class RefundsIndex extends React.Component {
                                   <div>
                                     {refundInfo.transaction_item
                                       ? refundInfo.transaction_item
-                                          .product_variation_info.color
-                                      : ""}
-                                    /{" "}
-                                    {refundInfo.transaction_item
-                                      ? refundInfo.transaction_item
-                                          .product_variation_info.size
+                                          .product_variation_info.variation
                                       : ""}
                                   </div>
                                   <div className="flex justify-between">
@@ -303,38 +399,12 @@ class RefundsIndex extends React.Component {
                           {refundInfo ? refundInfo.description : ""}
                         </p>
                       </div>
-                      <div className="flex justify-center pt-5">
+                      {/* <div className="flex justify-center pt-5">
                         <div class="text-gray-900 text-2xl font-medium pb-4">
                           Course of Action
                         </div>
-                      </div>
+                      </div> */}
 
-                      <div className="w-full flex flex-col md:flex-row md:space-x-4 space-x-0 md:space-y-0 space-y-4  justify-center mb-5">
-                        <div
-                          onClick={this.handleRefundStatus(
-                            "Your request is accepted"
-                          )}
-                          className={
-                            this.state.status === "Your request is accepted"
-                              ? "flex bg-teal_custom hover:bg-gray-400 text-white cursor-pointer rounded items-center justify-center px-3 h-16 border-4 border-gray-800"
-                              : "flex bg-teal_custom hover:bg-gray-400 text-white cursor-pointer rounded items-center justify-center px-3 h-12"
-                          }
-                        >
-                          <div>Accept Refund/Return</div>
-                        </div>
-                        <div
-                          onClick={this.handleRefundStatus(
-                            "Your request is denied"
-                          )}
-                          className={
-                            this.state.status === "Your request is denied"
-                              ? "flex bg-teal_custom hover:bg-gray-400 text-white cursor-pointer rounded items-center justify-center px-3 h-16 border-4 border-gray-800"
-                              : "flex bg-teal_custom hover:bg-gray-400 text-white cursor-pointer rounded items-center justify-center px-3 h-12"
-                          }
-                        >
-                          <div>Denied Refund/Return</div>
-                        </div>
-                      </div>
                       <div class="flex flex-wrap mb-5">
                         <h2 class="px-4 pt-3 pb-2 text-gray-800">Response</h2>
                         <div class="w-full md:w-full px-3 mb-2 mt-2">
@@ -342,13 +412,41 @@ class RefundsIndex extends React.Component {
                             class="rounded border border-gray-400 leading-normal resize-none w-full h-20 py-2 px-3 placeholder-gray-700 focus:outline-none"
                             name="response"
                             onChange={this.onChange}
-                            value={this.state.response}
                             placeholder="Write Your Response Here"
                             required
                           ></textarea>
                         </div>
                       </div>
-                      <div className="flex items-center justify-center w-full">
+                      <div className="w-full flex flex-col md:flex-row md:space-x-4 space-x-0 md:space-y-0 space-y-4  justify-center mb-5">
+                        <div
+                          onClick={this.handleRefundUpdate(
+                            "Accepted",
+                            refundInfo
+                              ? refundInfo.transaction_item
+                                  .product_with_variation
+                              : "",
+                            refundInfo
+                              ? refundInfo.transaction_item.quantity
+                              : "",
+
+                            refundInfo.id
+                          )}
+                          className={
+                            "flex bg-teal_custom hover:bg-gray-400 text-white cursor-pointer rounded items-center justify-center px-3 h-12"
+                          }
+                        >
+                          <div>Accept Refund/Return</div>
+                        </div>
+                        <div
+                          onClick={this.handleRefundUpdate("Denied")}
+                          className={
+                            "flex bg-teal_custom hover:bg-gray-400 text-white cursor-pointer rounded items-center justify-center px-3 h-12"
+                          }
+                        >
+                          <div>Denied Refund/Return</div>
+                        </div>
+                      </div>
+                      {/* <div className="flex items-center justify-center w-full">
                         <button
                           onClick={this.handleRefundUpdate}
                           className="focus:outline-none transition duration-150 ease-in-out hover:bg-cyan-700 bg-cyan-700 rounded text-white px-8 py-2 text-sm"
@@ -358,7 +456,7 @@ class RefundsIndex extends React.Component {
                         <button className="focus:outline-none ml-3 bg-gray-100 dark:bg-gray-700 dark:border-gray-700 dark:hover:bg-gray-600 transition duration-150 text-gray-600 dark:text-gray-400 ease-in-out hover:border-gray-400 hover:bg-gray-300 border rounded px-8 py-2 text-sm">
                           Cancel
                         </button>
-                        {/* <div
+                        <div
 													className="w-full flex justify-center py-12 items-center"
 													id="button"
 												>
@@ -368,8 +466,8 @@ class RefundsIndex extends React.Component {
 													>
 														Open Modal
 													</button>
-												</div> */}
-                      </div>
+												</div> 
+                      </div> */}
                       <div
                         onClick={this.handleCloseViewMoreModal}
                         className="cursor-pointer absolute top-0 right-0 mt-4 mr-5 text-gray-400 hover:text-gray-600 dark:text-gray-400 transition duration-150 ease-in-out"
@@ -399,6 +497,11 @@ class RefundsIndex extends React.Component {
             </div>
           </div>
         </div>
+        <RefundTableExportModal
+          OnToggleExportTable={this.OnToggleExportTable}
+          // filteredData={filteredData}
+          table_export_modal={this.state.table_export_modal}
+        />
       </>
     );
   }

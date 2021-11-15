@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import TransactionView from "./TransactionView";
 import { TransactionsTableExportModal } from "./Print/TransactionsTableExportModal";
+import swal from "sweetalert";
 let filteredData = [];
 let Transactions = [];
 class TransactionSettingIndex extends React.Component {
@@ -21,6 +22,7 @@ class TransactionSettingIndex extends React.Component {
     showMoreOption: false,
     showMoreOptionTransacId: 0,
     TransactionToShow: "",
+    table_export_modal: false,
   };
   // setSeeMore(transaction_id) {
   //   return (e) => {
@@ -57,8 +59,53 @@ class TransactionSettingIndex extends React.Component {
     this.setState({ table_export_modal: !this.state.table_export_modal });
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
-    document.getElementById("Body").classList.toggle("overflow-hidden");
   };
+  handleArchiveTransaction(transactionID) {
+    return (event) => {
+      event.preventDefault();
+
+      swal(
+        "Are you sure you want to delete this transaction?\n If you are sure, type in your password:",
+        {
+          content: {
+            element: "input",
+            attributes: {
+              placeholder: "Type your password",
+              type: "password",
+            },
+          },
+          icon: "warning",
+          buttons: {
+            confirm: {
+              text: "Confirm",
+              visible: true,
+              className: "",
+              closeModal: true,
+            },
+            cancel: {
+              text: "Cancel",
+              value: false,
+              value: "cancel",
+              visible: true,
+              className: "",
+              closeModal: true,
+            },
+          },
+          dangerMode: true,
+        }
+      ).then((value) => {
+        if (value === "Nicksstonecold2017") {
+          // const formData = new FormData();
+          // formData.append("status", false);
+          // this.props.changeSupplierStatus(transactionID, formData);
+          swal("Successfully deleted!", "", "success");
+        } else if (value === "cancel") {
+        } else {
+          swal("Invalid password!", "", "error");
+        }
+      });
+    };
+  }
   render() {
     //returning the search filtered
     console.log(this.props.transactions);
@@ -77,6 +124,9 @@ class TransactionSettingIndex extends React.Component {
         totalProfit: trans.totalProfit,
         quantity: trans.quantity,
         mode_of_payment: trans.payment_method,
+        payment_details: trans.payment_details,
+        contact_number: trans.contact_number,
+        address: trans.address,
       })
     );
     filteredData = [];
@@ -229,15 +279,16 @@ class TransactionSettingIndex extends React.Component {
                           <th className="text-sm pr-4 whitespace-no-wrap ">
                             Cost Price
                           </th>
-                          <th className="text-sm pr-4 whitespace-no-wrap ">
+                          {/* <th className="text-sm pr-4 whitespace-no-wrap ">
                             QTY
-                          </th>
+                          </th> */}
                         </div>
                       </th>
-                      <th className="pr-4 text-md">Total Amount</th>
-                      <th className="pr-4 text-md">Total Profit</th>
-                      <th className="pr-4 text-md">Total number of items</th>
-                      <th className="pr-4 text-md">Mode of Payment</th>
+                      <th className="pr-4 text-md">Total amount</th>
+                      <th className="pr-4 text-md">Total profit</th>
+                      {/* <th className="pr-4 text-md">Total number of items</th> */}
+                      <th className="pr-4 text-md">Mode of payment</th>
+                      <th className="pr-4 text-md">Payment details</th>
                       <th className="pr-4 text-md">More</th>
                     </tr>
                   </thead>
@@ -252,6 +303,8 @@ class TransactionSettingIndex extends React.Component {
                         </td>
                         <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           {transaction.creator}
+                          <div className="my-2">{transaction.address}</div>
+                          <div>{transaction.contact_number}</div>
                         </td>
                         <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           {transaction.created_at}
@@ -283,9 +336,9 @@ class TransactionSettingIndex extends React.Component {
                                 ₱{transac.product.price}
                               </td>
 
-                              <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
+                              {/* <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
                                 {transac.quantity}
-                              </td>
+                              </td> */}
                             </tr>
                           ))}
                         </td>
@@ -296,11 +349,14 @@ class TransactionSettingIndex extends React.Component {
                         <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           ₱{transaction.totalProfit}
                         </td>
-                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                        {/* <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           {transaction.quantity}
-                        </td>
+                        </td> */}
                         <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           {transaction.mode_of_payment}
+                        </td>
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                          {transaction.payment_details}
                         </td>
                         <td className="pr-8 relative">
                           <button
@@ -323,7 +379,12 @@ class TransactionSettingIndex extends React.Component {
                                 >
                                   View
                                 </li>
-                                <li className="cursor-pointer text-sm leading-3 py-3 hover:bg-red-500 hover:text-white px-3 font-normal">
+                                <li
+                                  onClick={this.handleArchiveTransaction(
+                                    transaction.id
+                                  )}
+                                  className="cursor-pointer text-sm leading-3 py-3 hover:bg-red-500 hover:text-white px-3 font-normal"
+                                >
                                   Delete
                                 </li>
                               </ul>

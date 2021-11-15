@@ -71,13 +71,7 @@ export const deleteSupplier = (SupplierID) => (dispatch, getState) => {
         payload: SupplierID,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Supplier Deletion Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };
 export const addSupplier = (data) => (dispatch, getState) => {
   axios
@@ -89,13 +83,7 @@ export const addSupplier = (data) => (dispatch, getState) => {
         payload: res.data,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Supplier Addition Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };
 export const updateSupplier = (SupplierID, data) => (dispatch, getState) => {
   axios
@@ -107,13 +95,7 @@ export const updateSupplier = (SupplierID, data) => (dispatch, getState) => {
         payload: res.data,
       });
     })
-    .catch((err) =>
-      swal({
-        title: "Supplier Update Failed",
-        text: "Error : " + err,
-        icon: "error",
-      })
-    );
+    .catch((err) => console.log(err));
 };
 
 export const changeSupplierStatus =
@@ -126,11 +108,5 @@ export const changeSupplierStatus =
           payload: res.data,
         });
       })
-      .catch((err) =>
-        swal({
-          title: "Change Status Failed",
-          text: "Error : " + err,
-          icon: "error",
-        })
-      );
+      .catch((err) => console.log(err));
   };

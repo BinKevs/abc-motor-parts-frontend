@@ -72,13 +72,7 @@ export const changeAccountStatus =
           payload: res.data,
         });
       })
-      .catch((err) =>
-        swal({
-          title: "Change Status Failed",
-          text: "Error : " + err,
-          icon: "error",
-        })
-      );
+      .catch((err) => console.log(err));
   };
 
 export const login = (username, password) => (dispatch) => {
@@ -109,7 +103,20 @@ export const login = (username, password) => (dispatch) => {
     });
 };
 export const register =
-  ({ username, password, email, first_name, last_name }) =>
+  ({
+    username,
+    password,
+    email,
+    first_name,
+    last_name,
+    region,
+    province,
+    city,
+    barangay,
+    street,
+    contact_number,
+    birthdate,
+  }) =>
   (dispatch) => {
     const config = {
       headers: {
@@ -122,6 +129,13 @@ export const register =
       email,
       first_name,
       last_name,
+      region,
+      province,
+      city,
+      barangay,
+      street,
+      contact_number,
+      birthdate,
     });
     axios
       .post(URL_IMPORT + "/api/auth/register", body, config)
@@ -130,6 +144,7 @@ export const register =
           type: REGISTER_SUCCESS,
           payload: res.data,
         });
+        console.log(res);
       })
       .catch((err) => {
         console.log(err);

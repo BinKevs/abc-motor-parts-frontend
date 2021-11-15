@@ -153,6 +153,7 @@ const ProductModal = (props) => {
                                 type="text"
                                 name="product_name_attribute"
                                 value={product_name_attribute}
+                                onChange={onChange}
                                 placeholder="Product name"
                               />
                             </div>
@@ -163,6 +164,7 @@ const ProductModal = (props) => {
                                 type="text"
                                 name="variant_attribute"
                                 value={variant_attribute}
+                                onChange={onChange}
                                 placeholder="Variant attribute"
                               />
                             </div>
@@ -238,11 +240,11 @@ const ProductModal = (props) => {
                               required
                               onChange={onChange}
                             /> */}
-                            <label class="w-64 mx-auto bg-white flex flex-col items-center  rounded-3xl  shadow-md tracking-wide uppercase border-4 border-blue cursor-pointer hover:bg-gray-800 hover:text-white text-gray-800 ease-linear transition-all duration-150">
+                            <label class="w-64 py-10 mx-auto bg-white flex flex-col items-center  rounded-3xl  shadow-md tracking-wide uppercase border-4 border-blue cursor-pointer hover:bg-gray-800 hover:text-white text-gray-800 ease-linear transition-all duration-150">
                               <div className="flex flex-col  items-center my-auto">
                                 <i class="fas fa-cloud-upload-alt fa-3x"></i>
-                                <span class="mt-2 text-base leading-normal">
-                                  Select a file
+                                <span class="mt-2 text-sm">
+                                  Select image/s and/or video/s
                                 </span>
                               </div>
                               <input

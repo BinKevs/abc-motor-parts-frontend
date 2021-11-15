@@ -111,44 +111,49 @@ const InventoryModal = (props) => {
                           </select>
                         </div>
                       </div>
-                      <div class="mt-5 flex flex-col md:flex-row justify-center space-x-0 md:space-x-2">
-                        {cost_price === "" ? (
-                          ""
-                        ) : (
-                          <span className="text-xs text-center font-normal">
-                            Cost Price
-                          </span>
-                        )}
+                      {!EditButtonIsClicked ? (
+                        <div class="mt-5 flex flex-col md:flex-row justify-center space-x-0 md:space-x-2">
+                          {cost_price === "" ? (
+                            ""
+                          ) : (
+                            <span className="text-xs text-center font-normal">
+                              Cost Price
+                            </span>
+                          )}
 
-                        <div class="mb-5">
-                          <input
-                            className="w-full border rounded-md pl-4 py-2 focus:ring-0 focus:border-cyan-700"
-                            type="text"
-                            name="cost_price"
-                            onChange={onChange}
-                            value={cost_price}
-                            placeholder="Cost Price"
-                          />
-                        </div>
-                        {price === "" ? (
-                          ""
-                        ) : (
-                          <span className="text-xs text-center font-normal">
-                            Retail Price
-                          </span>
-                        )}
+                          <div class="mb-5">
+                            <input
+                              className="w-full border rounded-md pl-4 py-2 focus:ring-0 focus:border-cyan-700"
+                              type="text"
+                              name="cost_price"
+                              onChange={onChange}
+                              value={cost_price}
+                              placeholder="Cost Price"
+                            />
+                          </div>
+                          {price === "" ? (
+                            ""
+                          ) : (
+                            <span className="text-xs text-center font-normal">
+                              Retail Price
+                            </span>
+                          )}
 
-                        <div class="mb-5">
-                          <input
-                            className="w-full border rounded-md pl-4 py-2 focus:ring-0 focus:border-cyan-700"
-                            type="text"
-                            name="price"
-                            onChange={onChange}
-                            value={price}
-                            placeholder="Retail Price"
-                          />
+                          <div class="mb-5">
+                            <input
+                              className="w-full border rounded-md pl-4 py-2 focus:ring-0 focus:border-cyan-700"
+                              type="text"
+                              name="price"
+                              onChange={onChange}
+                              value={price}
+                              placeholder="Retail Price"
+                            />
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        ""
+                      )}
+
                       <div class="relative z-0 w-full mb-5">
                         <label for="product" class="block my-2">
                           Select Variation
@@ -182,8 +187,7 @@ const InventoryModal = (props) => {
                                         className="text-dark"
                                         key={productVariationFetch.id}
                                       >
-                                        {productVariationFetch.color}/{" "}
-                                        {productVariationFetch.size}
+                                        {productVariationFetch.variation}
                                       </option>
                                     )
                                   )

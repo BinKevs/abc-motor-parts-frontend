@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import noImageAvailable from "../../../no-image-available.png";
-import video1 from "../../../Group2.mp4";
+
 import ReactPlayer from "react-player";
 import { connect } from "react-redux";
 const RefundsModal = (props) => {
@@ -68,11 +68,8 @@ const RefundsModal = (props) => {
 
                                 <div>
                                   {refund_item.product
-                                    ? refund_item.product_variation_info.color
-                                    : ""}
-                                  /
-                                  {refund_item.product
-                                    ? refund_item.product_variation_info.size
+                                    ? refund_item.product_variation_info
+                                        .variation
                                     : ""}
                                 </div>
                                 <div className="flex justify-between">
@@ -121,13 +118,29 @@ const RefundsModal = (props) => {
 
                     <section class="h-full overflow-auto p-8 w-full px-3 flex flex-col">
                       <header class="border-dashed border-2 border-gray-400 py-6 flex flex-col justify-center items-center">
-                        <label class="cursor-pointer mt-2 rounded-sm px-3 py-1 bg-gray-200 hover:bg-gray-300 focus:shadow-outline focus:outline-none">
+                        {/* <label class="cursor-pointer mt-2 rounded-sm px-3 py-1 bg-gray-200 hover:bg-gray-300 focus:shadow-outline focus:outline-none">
                           Upload a file
                           <input
                             type="file"
                             name="RefundVideo"
                             onChange={onChange}
                             className="hidden"
+                          />
+                        </label> */}
+                        <label class="w-64 py-10 mx-auto bg-white flex flex-col items-center  rounded-3xl  shadow-md tracking-wide uppercase border-4 border-blue cursor-pointer hover:bg-gray-800 hover:text-white text-gray-800 ease-linear transition-all duration-150">
+                          <div className="flex flex-col  items-center my-auto">
+                            <i class="fas fa-cloud-upload-alt fa-3x"></i>
+                            <span class="mt-2 text-base leading-normal">
+                              Select a video
+                            </span>
+                          </div>
+                          <input
+                            class="hidden"
+                            type="file"
+                            multiple
+                            name="RefundVideo"
+                            required
+                            onChange={onChange}
                           />
                         </label>
                       </header>
@@ -140,7 +153,10 @@ const RefundsModal = (props) => {
                       >
                         Submit
                       </button>
-                      <button className="focus:outline-none ml-3 bg-gray-100 dark:bg-gray-700 dark:border-gray-700 dark:hover:bg-gray-600 transition duration-150 text-gray-600 dark:text-gray-400 ease-in-out hover:border-gray-400 hover:bg-gray-300 border rounded px-8 py-2 text-sm">
+                      <button
+                        onClick={handleToggleModalRefundClose}
+                        className="focus:outline-none ml-3 bg-gray-100 dark:bg-gray-700 dark:border-gray-700 dark:hover:bg-gray-600 transition duration-150 text-gray-600 dark:text-gray-400 ease-in-out hover:border-gray-400 hover:bg-gray-300 border rounded px-8 py-2 text-sm"
+                      >
                         Cancel
                       </button>
                     </div>

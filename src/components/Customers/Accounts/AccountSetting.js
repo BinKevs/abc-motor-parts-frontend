@@ -17,6 +17,7 @@ import {
   barangays,
 } from "select-philippines-address";
 import ContactDetails from "./ContactDetails";
+import DatePicker from "react-datepicker";
 let NavButton = document.getElementsByClassName("NavButton");
 let SectionPanelActive = document.getElementsByClassName("SectionPanelActive");
 let NavButtonActive = document.getElementsByClassName("NavButtonActive");
@@ -42,6 +43,9 @@ class AccountSetting extends React.Component {
     cityCode: "",
     barangayCode: "",
     street: "",
+    BirthInputDate: "",
+    Birtdate: "",
+    profileImage: "",
   };
   onChange = (e) => {
     this.setState({
@@ -64,6 +68,10 @@ class AccountSetting extends React.Component {
         : "",
       email: this.props.AuthReducer.user
         ? this.props.AuthReducer.user.email
+        : "",
+      Birtdate: this.props.AuthReducer ? this.props.AuthReducer.birthdate : "",
+      profileImage: this.props.AuthReducer
+        ? this.props.AuthReducer.profileImage
         : "",
     });
   }
@@ -159,7 +167,7 @@ class AccountSetting extends React.Component {
     });
   };
   render() {
-    console.log(this.props.AuthReducer.user);
+    console.log(this.props.AuthReducer);
     return (
       <>
         {" "}
@@ -316,16 +324,42 @@ class AccountSetting extends React.Component {
                               Username is required
                             </span>
                           </div>
+                          <div class="flex flex-col w-full mb-5">
+                            <label
+                              for="BirthInputDate"
+                              class="text-gray-800 mb-2"
+                            >
+                              Birth date
+                            </label>
+                            <div>{this.state.Birtdate}</div>
+
+                            <DatePicker
+                              selected={this.state.BirthInputDate}
+                              onChange={(date) =>
+                                this.setState({ BirthInputDate: date })
+                              }
+                              value={this.state.BirthInputDate}
+                              closeOnScroll={true}
+                              placeholderText="Select Birth Date"
+                              className="my-1 px-1 py-1 border-2 text-md rounded-l w-full text-center"
+                            />
+                          </div>
                         </div>
                         <div className=" inline-block order-first md:order-last align-middle mx-auto md:mx-0">
                           <img
-                            className="border-4 rounded-3xl"
-                            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuoovVYEMl5PlyrnrmjPY_0bH_k0RaXYByiMVOWeEhWeG9wxWP2ozVw0Ab51hiQzxErpo&usqp=CAU"
+                            className="border-4 rounded-3xl mx-auto w-80"
+                            src={this.state.profileImage}
                             alt=""
                           />
+                          <label class="flex flex-col items-center px-2 py-2 bg-gray-400 text-white rounded-md shadow-md border-2 uppercase font-semibold cursor-pointer">
+                            <span class="mt-2 text-base leading-normal">
+                              Change profile picture
+                            </span>
+                            <input type="file" class="hidden" />
+                          </label>
                         </div>
                       </div>
-                      <div class="mt-5 w-full md:w-1/2 flex justify-center">
+                      <div class="mb-5 w-full md:w-1/2 flex justify-center items-center">
                         {this.state.edit_account_info ? (
                           <button
                             onClick={this.handleEditAccountInfoSubmit}

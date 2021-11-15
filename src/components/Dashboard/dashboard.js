@@ -13,6 +13,12 @@ let monthlySalesTransaction = 0;
 let dailySalesTransaction = 0;
 let weeklySalesTransaction = 0;
 let totalSalesTransaction = 0;
+
+let monthlyProfitTransaction = 0;
+let dailyProfitTransaction = 0;
+let weeklyProfitTransaction = 0;
+let totalProfitTransaction = 0;
+
 let ReorderProduct = 0;
 let ZeroProduct = 0;
 let ProductCount = 0;
@@ -62,6 +68,10 @@ class DashboardIndex extends React.Component {
     dailySalesTransaction = 0;
     weeklySalesTransaction = 0;
     totalSalesTransaction = 0;
+    monthlyProfitTransaction = 0;
+    dailyProfitTransaction = 0;
+    weeklyProfitTransaction = 0;
+    totalProfitTransaction = 0;
     ReorderProduct = 0;
     ZeroProduct = 0;
     ProductCount = 0;
@@ -71,6 +81,7 @@ class DashboardIndex extends React.Component {
       transactionsFilteredDateSeparated.push({
         id: filteredTransactionObject.id,
         totalAmount: filteredTransactionObject.totalAmount,
+        totalProfit: filteredTransactionObject.totalProfit,
         month: filteredTransactionObject.created_at.split(" ")[0],
         day: filteredTransactionObject.created_at.split(" ")[1],
         year: filteredTransactionObject.created_at.split(" ")[2],
@@ -95,21 +106,30 @@ class DashboardIndex extends React.Component {
       totalSalesTransaction += parseInt(
         transactionsFilteredDateSeparated[i].totalAmount
       );
+      totalProfitTransaction += parseInt(
+        transactionsFilteredDateSeparated[i].totalProfit
+      );
       //Fetch montly sales
       if (year === DateNow[3]) {
         if (month === DateNow[1]) {
           monthlySalesTransaction += parseInt(
             transactionsFilteredDateSeparated[i].totalAmount
           );
+          monthlyProfitTransaction += parseInt(
+            transactionsFilteredDateSeparated[i].totalProfit
+          );
           //Fetch daily sales
           if (day === DateNow[2]) {
             dailySalesTransaction += parseInt(
               transactionsFilteredDateSeparated[i].totalAmount
             );
-            transactionsDailyFiltered.push({
-              totalAmount: transactionsFilteredDateSeparated[i].totalAmount,
-              date: transactionsFilteredDateSeparated[i].time,
-            });
+            dailyProfitTransaction += parseInt(
+              transactionsFilteredDateSeparated[i].totalProfit
+            );
+            // transactionsDailyFiltered.push({
+            //   totalAmount: transactionsFilteredDateSeparated[i].totalAmount,
+            //   date: transactionsFilteredDateSeparated[i].time,
+            // });
           }
         }
       }
@@ -130,10 +150,16 @@ class DashboardIndex extends React.Component {
               weeklySalesTransaction += parseInt(
                 transactionsFilteredDateSeparated[i].totalAmount
               );
+              weeklyProfitTransaction += parseInt(
+                transactionsFilteredDateSeparated[i].totalAmount
+              );
             }
           } else {
             if (day >= StartDayOfTheWeek[2] && day <= EndDayOfTheWeek[2]) {
               weeklySalesTransaction += parseInt(
+                transactionsFilteredDateSeparated[i].totalAmount
+              );
+              weeklyProfitTransaction += parseInt(
                 transactionsFilteredDateSeparated[i].totalAmount
               );
             }
@@ -240,7 +266,7 @@ class DashboardIndex extends React.Component {
                       Total Profit
                     </h5>
                     <h3 class="font-bold text-3xl">
-                      ₱{this.numberWithCommas(totalSalesTransaction)}
+                      ₱{this.numberWithCommas(totalProfitTransaction)}
                       <span class="text-green-500">
                         <i class="fas fa-caret-up"></i>
                       </span>
@@ -300,7 +326,7 @@ class DashboardIndex extends React.Component {
                       Monthly Profit (June)
                     </h5>
                     <h3 class="font-bold text-3xl">
-                      ₱{this.numberWithCommas(monthlySalesTransaction)}
+                      ₱{this.numberWithCommas(monthlyProfitTransaction)}
                       <span class="text-green-500">
                         <i class="fas fa-caret-up"></i>
                       </span>
@@ -360,7 +386,7 @@ class DashboardIndex extends React.Component {
                       Daily Profit
                     </h5>
                     <h3 class="font-bold text-3xl">
-                      ₱{this.numberWithCommas(dailySalesTransaction)}
+                      ₱{this.numberWithCommas(dailyProfitTransaction)}
                       <span class="text-red-500">
                         <i class="fas fa-caret-down"></i>
                       </span>
@@ -420,7 +446,7 @@ class DashboardIndex extends React.Component {
                       Weekly Profit
                     </h5>
                     <h3 class="font-bold text-3xl">
-                      ₱{this.numberWithCommas(weeklySalesTransaction)}
+                      ₱{this.numberWithCommas(weeklyProfitTransaction)}
                       <span class="text-red-500">
                         <i class="fas fa-caret-down"></i>
                       </span>
@@ -541,7 +567,7 @@ class DashboardIndex extends React.Component {
 								/>
 							</div>
 						</div> */}
-            <div className="w-6/12 overflow-x-auto p-5">
+            <div className="w-full md:w-6/12 overflow-x-auto p-5">
               <div className="bg-white border-b-4 border-red-600 rounded-lg shadow-xl p-5">
                 <h2 className="text-red-600 text-2xl">
                   We're running out of stock in the following items
@@ -577,7 +603,7 @@ class DashboardIndex extends React.Component {
                 </table>
               </div>
             </div>
-            <div className="w-6/12 overflow-x-auto p-5">
+            <div className="w-full md:w-6/12 overflow-x-auto p-5">
               <div className="bg-white border-b-4 border-teal_custom rounded-lg shadow-xl p-5">
                 <h2 className="text-gray-700 text-2xl">Top Selling Products</h2>
                 <table className="min-w-full ">

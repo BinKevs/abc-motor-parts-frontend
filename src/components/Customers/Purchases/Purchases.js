@@ -8,7 +8,7 @@ import {
   addReview,
 } from "../../../store/actions/transaction/transactions.js";
 import { getReviewList } from "../../../store/actions/product/products";
-import video1 from "../../../Group2.mp4";
+
 import ReactPlayer from "react-player";
 import noImageAvailable from "../../../no-image-available.png";
 import ReviewsModal from "./ReviewsModal";
@@ -148,6 +148,7 @@ class PurchasesIndex extends React.Component {
       showRefundInfo: true,
       showModalRefund: !this.state.showModalRefund,
     });
+    this.props.history.push("/Home");
   };
 
   handleToggleModalRefund = (refund_item) => {
@@ -195,12 +196,14 @@ class PurchasesIndex extends React.Component {
   render() {
     filteredTransactionData = [];
     filteredTransactionData = this.props.transactions.filter((item) => {
-      return this.state.filter_nav === "All"
-        ? item.order_status.toString().includes("")
-        : this.state.filter_nav === "To Ship"
-        ? item.order_status.toString().includes(this.state.filter_nav) ||
-          item.order_status.toString().includes("Preferring")
-        : item.order_status.toString().includes(this.state.filter_nav);
+      return this.props.AuthReducer.user.id === item.user
+        ? this.state.filter_nav === "All"
+          ? item.order_status.toString().includes("")
+          : this.state.filter_nav === "To Ship"
+          ? item.order_status.toString().includes(this.state.filter_nav) ||
+            item.order_status.toString().includes("Preferring")
+          : item.order_status.toString().includes(this.state.filter_nav)
+        : "";
     });
     return (
       <>
@@ -306,12 +309,7 @@ class PurchasesIndex extends React.Component {
                               <div>
                                 {
                                   refund.transaction_item.product_variation_info
-                                    .color
-                                }
-                                /
-                                {
-                                  refund.transaction_item.product_variation_info
-                                    .size
+                                    .variation
                                 }
                               </div>
                               <div className="flex justify-between">
@@ -425,7 +423,7 @@ class PurchasesIndex extends React.Component {
                                 <img
                                   className=" border-gray-400 border-2 my-auto mx-auto md:mx-0 max-h-56 object-cover object-center rounded-3xl"
                                   src={
-                                    item.product.file_content
+                                    item.product.file_content[0].image
                                       ? item.product.file_content[0].image
                                       : noImageAvailable
                                   }
@@ -437,8 +435,7 @@ class PurchasesIndex extends React.Component {
                                 <div>{item.product.name}</div>
 
                                 <div>
-                                  {item.product_variation_info.color}/
-                                  {item.product_variation_info.size}
+                                  {item.product_variation_info.variation}
                                 </div>
                                 <div className="flex justify-between">
                                   <div>x{item.quantity}</div>
@@ -504,7 +501,7 @@ class PurchasesIndex extends React.Component {
                             </div>
                           ))}
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex flex-col md:flex-row justify-between">
                           {transaction.tracking_number ? (
                             <div className="my-5">
                               <span className="text-md text-gray-700">

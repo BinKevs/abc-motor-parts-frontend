@@ -313,7 +313,8 @@ class MainLayout extends React.Component {
   handleLogout = (e) => {
     e.preventDefault();
     this.props.logout();
-    window.location.href = "https://abc-motor-parts.herokuapp.com/login";
+    // window.location.href = "https://abc-motor-parts.herokuapp.com/login";
+    this.props.history.push("/login");
   };
   setDropDown = (e) => {
     e.preventDefault();

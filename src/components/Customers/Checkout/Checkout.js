@@ -932,8 +932,7 @@ class Checkout extends React.Component {
                         <div className="flex flex-col items-center justify-center space-y-2 bg-white shadow-lg z-10 rounded-xl p-4 m-3 w-full md:w-2/5">
                           {/* <h1 class="text-white text-xl font-bold">PayMaya</h1> */}
                           <img
-                            src="
-                          http://www.panaybroadband.com.ph/img/bca-index/paymaya.png"
+                            src="https://1.bp.blogspot.com/-NWeX5tZvNh8/XbgOjEzDHHI/AAAAAAAABDY/i3mUsvPs_voc3AedE1QarN1tiQ-1z_95gCEwYBhgL/s1600/images.png"
                             alt=""
                           />
                           <h1 class="text-gray-400 text-md font-medium">

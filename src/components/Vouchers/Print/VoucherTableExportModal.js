@@ -2,6 +2,7 @@ import React from "react";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import ReactToPrint from "react-to-print";
 import { VoucherTablePrint } from "./VoucherTablePrint";
+import { Export2Doc } from "../../../Helpers/functions";
 export class VoucherTableExportModal extends React.PureComponent {
   render() {
     const { handleToggleExportTable, vouchers } = this.props;
@@ -36,7 +37,10 @@ export class VoucherTableExportModal extends React.PureComponent {
                     sheet="Supplier-table"
                     buttonText="Excel"
                   />
-                  <button className="bg-blue-500 h-12 rounded text-white w-full my-8">
+                  <button
+                    onClick={Export2Doc("voucherTable", "Voucher-Table")}
+                    className="bg-blue-500 h-12 rounded text-white w-full my-8"
+                  >
                     Word
                   </button>
                   <div class="text-left p-0 mb-8">

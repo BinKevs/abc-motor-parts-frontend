@@ -8,7 +8,7 @@ import swal from "sweetalert";
 import { Redirect } from "react-router-dom";
 import { getTransactionList } from "../../store/actions/transaction/transactions.js";
 import CartIndex from "../Customers/Cart/CartIndex";
-import { URL_IMPORT } from "../../Helpers/constant";
+import { URL_FOR_LOGIN, URL_IMPORT } from "../../Helpers/constant";
 let Variablequantity = 0;
 class MainLayout extends React.Component {
   state = {
@@ -313,7 +313,8 @@ class MainLayout extends React.Component {
   handleLogout = (e) => {
     e.preventDefault();
     this.props.logout();
-    window.location.href = "https://abc-motor-parts.herokuapp.com";
+    window.location.href = URL_FOR_LOGIN;
+    // window.location.href = "http://abc-motor-parts.store/login";
   };
   setDropDown = (e) => {
     e.preventDefault();
@@ -367,14 +368,36 @@ class MainLayout extends React.Component {
         </div>
         <nav class="bg-gray-800 pt-2 pb-1 px-1 mt-0 h-auto fixed w-full z-20 top-0">
           <div class="flex flex-wrap justify-between items-center">
-            <Link
-              to="/products/All"
-              replace
-              class="flex pt-2 w-1/2 md:w-1/3 justify-start text-white"
-            >
-              <i class="far fa-motorcycle fa-2x px-3 "></i>
-              <h1 class="font-Montserrat text-base">ABC Motor Parts</h1>
-            </Link>
+            {this.props.AuthReducer.user ? (
+              this.props.AuthReducer.user.is_staff ? (
+                <Link
+                  to="/dashboard"
+                  replace
+                  class="flex pt-2 w-1/2 md:w-1/3 justify-start text-white"
+                >
+                  <i class="far fa-motorcycle fa-2x px-3 "></i>
+                  <h1 class="font-Montserrat text-base">ABC Motor Parts</h1>
+                </Link>
+              ) : (
+                <Link
+                  to="/products/All"
+                  replace
+                  class="flex pt-2 w-1/2 md:w-1/3 justify-start text-white"
+                >
+                  <i class="far fa-motorcycle fa-2x px-3 "></i>
+                  <h1 class="font-Montserrat text-base">ABC Motor Parts</h1>
+                </Link>
+              )
+            ) : (
+              <Link
+                to="/products/All"
+                replace
+                class="flex pt-2 w-1/2 md:w-1/3 justify-start text-white"
+              >
+                <i class="far fa-motorcycle fa-2x px-3 "></i>
+                <h1 class="font-Montserrat text-base">ABC Motor Parts</h1>
+              </Link>
+            )}
 
             <div
               class="flex
@@ -390,40 +413,85 @@ class MainLayout extends React.Component {
 							items-center"
               >
                 <div class="relative inline-block space-x-4 lg:mr-2 py-2">
-                  <div
-                    onClick={this.handleCartShow}
-                    // onMouseLeave={this.handleCartShow}
-                    className={
-                      this.props.AuthReducer.user
-                        ? this.props.AuthReducer.user.is_staff
-                          ? "hidden"
-                          : "inline-block space-x-2 text-white cursor-pointer"
-                        : ""
-                    }
-                  >
-                    <i class="fad fa-shopping-cart"></i>
-                    <span>Cart</span>
-                    <span className="rounded-full px-1 bg-red-600">
-                      {this.state.quantity}
-                    </span>
-                  </div>
-                  <button
-                    onClick={this.setDropDown}
-                    class=" text-white focus:outline-none"
-                  >
-                    {" "}
-                    <span class="pr-2">
-                      <i class="fad fa-user-friends"></i>
-                    </span>{" "}
-                    Hi, User{" "}
-                    <svg
-                      class="h-3 fill-current inline"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                    </svg>
-                  </button>
+                  {this.props.AuthReducer.user ? (
+                    this.props.AuthReducer.user.is_staff ? (
+                      <button
+                        onClick={this.setDropDown}
+                        class=" text-white focus:outline-none"
+                      >
+                        {" "}
+                        <span class="pr-2">
+                          <i class="fad fa-user-friends"></i>
+                        </span>{" "}
+                        Hi, User{" "}
+                        <svg
+                          class="h-3 fill-current inline"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                        </svg>
+                      </button>
+                    ) : (
+                      <>
+                        <div
+                          onClick={this.handleCartShow}
+                          // onMouseLeave={this.handleCartShow}
+                          className={
+                            "inline-block space-x-2 text-white cursor-pointer"
+                          }
+                        >
+                          <i class="fad fa-shopping-cart"></i>
+                          <span>Cart</span>
+                          <span className="rounded-full px-1 bg-red-600">
+                            {this.state.quantity}
+                          </span>
+                        </div>
+                        <button
+                          onClick={this.setDropDown}
+                          class=" text-white focus:outline-none"
+                        >
+                          {" "}
+                          <span class="pr-2">
+                            <i class="fad fa-user-friends"></i>
+                          </span>{" "}
+                          Hi, User{" "}
+                          <svg
+                            class="h-3 fill-current inline"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                          </svg>
+                        </button>
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <div
+                        onClick={this.handleCartShow}
+                        // onMouseLeave={this.handleCartShow}
+                        className={
+                          "inline-block space-x-2 text-white cursor-pointer"
+                        }
+                      >
+                        <i class="fad fa-shopping-cart"></i>
+                        <span>Cart</span>
+                        <span className="rounded-full px-1 bg-red-600">
+                          {this.state.quantity}
+                        </span>
+                      </div>
+                      <Link to="/login">
+                        <button class=" text-white focus:outline-none">
+                          {" "}
+                          <span class="pr-2">
+                            <i class="fa fa-sign-in"></i>
+                          </span>{" "}
+                          Login{" "}
+                        </button>
+                      </Link>
+                    </>
+                  )}
 
                   <div
                     id="myDropdown"
@@ -503,46 +571,91 @@ class MainLayout extends React.Component {
             </div>
           </div>
         </nav>
-        <div
-          className={
-            this.props.AuthReducer.user
-              ? this.props.AuthReducer.user.is_staff
-                ? "hidden fixed w-full z-10 top-12 bg-gradient-to-r from-gray-800 to-teal_custom_darker "
-                : "fixed w-full z-10 top-12 bg-gradient-to-r from-gray-800 to-teal_custom_darker "
-              : ""
-          }
-        >
-          <div className="container mx-auto px-6 py-3">
-            <nav className={"flex justify-center items-center mt-4"}>
-              {/* flex-col sm:flex-row */}
-              <div className="flex text-lg font-semibold tracking-wide">
-                <Link
-                  to="/Home"
-                  className="text-white hover:underline mx-3 mt-0 "
-                >
-                  Home
-                </Link>
-                <Link
-                  to="/products/All"
-                  className="text-white hover:underline mx-3 mt-0"
-                >
-                  Shop
-                </Link>
+        {this.props.AuthReducer.user ? (
+          this.props.AuthReducer.user.is_staff ? (
+            ""
+          ) : (
+            <div
+              className={
+                "fixed w-full z-10 top-12 bg-gradient-to-r from-gray-800 to-teal_custom_darker "
+              }
+            >
+              <div className="container mx-auto px-6 py-3">
+                <nav className={"flex justify-center items-center mt-4"}>
+                  {/* flex-col sm:flex-row */}
+                  <div className="flex text-lg font-semibold tracking-wide">
+                    <Link
+                      to="/home"
+                      className="text-white hover:underline mx-3 mt-0 "
+                    >
+                      Home
+                    </Link>
+                    <Link
+                      to="/products/All"
+                      className="text-white hover:underline mx-3 mt-0"
+                    >
+                      Shop
+                    </Link>
 
-                <Link
-                  to="/Categories"
-                  className=" text-white hover:underline mx-3 mt-0"
-                >
-                  Categories
-                </Link>
+                    <Link
+                      to="/categories"
+                      className=" text-white hover:underline mx-3 mt-0"
+                    >
+                      Categories
+                    </Link>
 
-                <div className=" text-white hover:underline mx-3 mt-0">
-                  About
-                </div>
+                    <Link
+                      to="/about"
+                      className=" text-white hover:underline mx-3 mt-0"
+                    >
+                      About
+                    </Link>
+                  </div>
+                </nav>
               </div>
-            </nav>
+            </div>
+          )
+        ) : (
+          <div
+            className={
+              "fixed w-full z-10 top-12 bg-gradient-to-r from-gray-800 to-teal_custom_darker "
+            }
+          >
+            <div className="container mx-auto px-6 py-3">
+              <nav className={"flex justify-center items-center mt-4"}>
+                {/* flex-col sm:flex-row */}
+                <div className="flex text-lg font-semibold tracking-wide">
+                  <Link
+                    to="/home"
+                    className="text-white hover:underline mx-3 mt-0 "
+                  >
+                    Home
+                  </Link>
+                  <Link
+                    to="/products/All"
+                    className="text-white hover:underline mx-3 mt-0"
+                  >
+                    Shop
+                  </Link>
+
+                  <Link
+                    to="/categories"
+                    className=" text-white hover:underline mx-3 mt-0"
+                  >
+                    Categories
+                  </Link>
+
+                  <Link
+                    to="/about"
+                    className=" text-white hover:underline mx-3 mt-0"
+                  >
+                    About
+                  </Link>
+                </div>
+              </nav>
+            </div>
           </div>
-        </div>
+        )}
 
         <div class="relative flex flex-col lg:flex-row bg-gray-800">
           {this.props.AuthReducer.user ? (
@@ -955,13 +1068,13 @@ class MainLayout extends React.Component {
         </div>
 
         <footer
-          className={
+          className={`bg-gray-800 pt-6 sm:mt-6 ${
             this.props.AuthReducer.user
               ? this.props.AuthReducer.user.is_staff
-                ? "hidden bg-gray-800 pt-6 sm:mt-6 "
-                : "bg-gray-800 pt-6 sm:mt-6 "
+                ? "hidden"
+                : ""
               : ""
-          }
+          } `}
         >
           <div class="max-w-6xl m-auto text-gray-800 flex flex-wrap justify-left">
             <div class="p-5 w-1/2 sm:w-4/12 md:w-3/12">
@@ -969,30 +1082,30 @@ class MainLayout extends React.Component {
                 Navigation
               </div>
 
-              <a
-                href="#"
+              <Link
+                to="/Home"
                 class="my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
               >
                 Home
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                to="/products/All"
                 class="my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
               >
                 Shop
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                to="/Categories"
                 class="my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
               >
                 Categories
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                to="/about"
                 class="my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
               >
                 About
-              </a>
+              </Link>
             </div>
 
             <div class="p-5 w-1/2 sm:w-4/12 md:w-3/12">
@@ -1000,42 +1113,36 @@ class MainLayout extends React.Component {
                 Categories
               </div>
 
-              <a
-                href="#"
+              <Link
+                to="/products/Engine Parts and Accessories"
                 class="my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
               >
                 Engine Parts and Accessories
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                to="/products/Exhaust"
                 class="my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
               >
                 Exhaust
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                to="/products/Fuel and Air"
                 class="my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
               >
                 Fuel and Air
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                to="/products/Drive"
                 class="my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
               >
                 Drive
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                to="/products/Brakes"
                 class="my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
               >
                 Brakes
-              </a>
-              <a
-                href="#"
-                class="my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
-              >
-                Drive
-              </a>
+              </Link>
             </div>
 
             <div class="p-5 w-1/2 sm:w-4/12 md:w-3/12">
@@ -1043,24 +1150,35 @@ class MainLayout extends React.Component {
                 Policy
               </div>
 
-              <a
-                href="#"
-                class="my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
+              <Link
+                to="/terms-conditions"
+                target="_blank"
+                class="cursor-pointer my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
               >
                 Terms of Use
-              </a>
-              <a
-                href="#"
-                class="my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
+              </Link>
+              <Link
+                to="/privacy-policy"
+                target="_blank"
+                class="cursor-pointer my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
               >
                 Privacy Policy
-              </a>
-              <a
-                href="#"
-                class="my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
+              </Link>
+              <Link
+                to="/return-policy"
+                target="_blank"
+                class="cursor-pointer my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
+              >
+                Return Policy
+              </Link>
+
+              <Link
+                to="/shipping-policy"
+                target="_blank"
+                class="cursor-pointer my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
               >
                 Shipping Policy
-              </a>
+              </Link>
             </div>
 
             <div class="p-5 w-1/2 sm:w-4/12 md:w-3/12">
@@ -1069,20 +1187,23 @@ class MainLayout extends React.Component {
               </div>
 
               <a
-                href="#"
-                class="my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
+                href="https://www.facebook.com/bykuya27/"
+                target="__blank"
+                class="cursor-pointer my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
               >
                 Buenaseda, Kevin Bryan
               </a>
               <a
-                href="#"
-                class="my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
+                href="https://www.facebook.com/chountal14"
+                target="__blank"
+                class="cursor-pointer my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
               >
                 Lamera, Chountal Louise
               </a>
               <a
-                href="#"
-                class="my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
+                href="https://www.facebook.com/hillo.cabello"
+                target="__blank"
+                class="cursor-pointer my-3 block text-gray-300 hover:text-gray-100 text-md font-medium duration-700"
               >
                 Mancio, Cedrick
               </a>

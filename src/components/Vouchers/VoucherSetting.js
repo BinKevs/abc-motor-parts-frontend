@@ -4,9 +4,12 @@ import {
   getVoucherList,
   addVoucher,
   updateVoucher,
+  changeVoucherStatus,
 } from "../../store/actions/product/products";
 import swal from "sweetalert";
 import { VoucherTableExportModal } from "./Print/VoucherTableExportModal";
+import { CheckPassword } from "../../Helpers/functions";
+let passwordVerified;
 class VoucherSetting extends React.Component {
   componentDidMount() {
     this.props.getVoucherList();
@@ -23,6 +26,7 @@ class VoucherSetting extends React.Component {
     showVoucherModal: false,
     EditButtonClicked: false,
     table_export_modal: false,
+    search: "",
   };
   handleAddSubmitVoucher = (e) => {
     e.preventDefault();
@@ -101,14 +105,26 @@ class VoucherSetting extends React.Component {
           dangerMode: true,
         }
       ).then((value) => {
-        if (value === "Nicksstonecold2017") {
-          // const formData = new FormData();
-          // formData.append("status", false);
-          // this.props.changeSupplierStatus(voucherID, formData);
-          swal("Successfully deleted!", "", "success");
-        } else if (value === "cancel") {
+        const formPassword = new FormData();
+        formPassword.append("password", value);
+        if (value === "cancel") {
         } else {
-          swal("Invalid password!", "", "error");
+          CheckPassword(
+            this.props.AuthReducer.user.id,
+            formPassword,
+            this.props.AuthReducer.token
+          )
+            .then((data) => {
+              if (data === "Valid") {
+                const formData = new FormData();
+                formData.append("status", false);
+                this.props.changeVoucherStatus(voucherID, formData);
+                swal("Successfully deleted voucher!", "", "success");
+              } else {
+                swal("Invalid password!", "", "error");
+              }
+            })
+            .catch((err) => console.log(err));
         }
       });
     };
@@ -120,6 +136,20 @@ class VoucherSetting extends React.Component {
     document.documentElement.scrollTop = 0;
   };
   render() {
+    let lowercasedFilter = this.state.search.toLowerCase();
+    let filteredData;
+
+    filteredData = this.props.vouchers.filter((voucher) => {
+      if (voucher.status)
+        if (lowercasedFilter === "") {
+          return voucher;
+        } else {
+          return voucher.code
+            .toString()
+            .toLowerCase()
+            .includes(lowercasedFilter);
+        }
+    });
     return (
       <>
         <div class="bg-gray-100 flex-1 mt-20 md:mt-14 pb-24 md:pb-5">
@@ -167,6 +197,7 @@ class VoucherSetting extends React.Component {
                       <input
                         type="text"
                         name="search"
+                        onChange={this.onChange}
                         placeholder=" "
                         required
                         class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
@@ -196,75 +227,79 @@ class VoucherSetting extends React.Component {
                     </tr>
                   </thead>
                   <tbody>
-                    {this.props.vouchers.map((voucher) => (
-                      <tr className="h-24 border-gray-300 dark:border-gray-200 border-b">
-                        <td className="pl-14 text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                          {voucher.id}
-                        </td>
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                          {voucher.code}
-                        </td>
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                          {voucher.value}
-                        </td>
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                          {voucher.voucher_status_details}
-                        </td>
-                        {/* <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                    {filteredData.map((voucher) =>
+                      voucher.status ? (
+                        <tr className="h-24 border-gray-300 dark:border-gray-200 border-b">
+                          <td className="pl-14 text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                            {voucher.id}
+                          </td>
+                          <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                            {voucher.code}
+                          </td>
+                          <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                            {voucher.value}
+                          </td>
+                          <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                            {voucher.voucher_status_details}
+                          </td>
+                          {/* <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
                           {voucher.status ? "True" : "False"}
                         </td> */}
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                          {voucher.created_at}
-                        </td>
-                        {/* <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                          <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                            {voucher.created_at}
+                          </td>
+                          {/* <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
                           {voucher.status ? "Available" : "Unavailable"}
                         </td> */}
 
-                        <td className="pr-8 relative">
-                          <button className="button-see-more text-gray-500 rounded cursor-pointer border border-transparent focus:outline-none">
-                            <div className="seeMore absolute left-0 top-0 mt-2 -ml-20 shadow-md z-10 w-32">
-                              <ul className="bg-white shadow rounded p-2">
-                                <li
-                                  onClick={this.handleOpenUpdateVoucherModal(
-                                    voucher.id,
-                                    voucher.code,
-                                    voucher.value
-                                  )}
-                                  className="cursor-pointer text-gray-600  text-sm leading-3 py-3 hover:bg-teal_custom hover:text-white px-3 font-normal"
-                                >
-                                  Edit
-                                </li>
-                                <li
-                                  onClick={this.handleArchiveVoucher(
-                                    voucher.id
-                                  )}
-                                  className="cursor-pointer text-sm leading-3 py-3 hover:bg-red-500 hover:text-white px-3 font-normal"
-                                >
-                                  Delete
-                                </li>
-                              </ul>
-                            </div>
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="icon icon-tabler icon-tabler-dots-vertical dropbtn"
-                              width={28}
-                              height={28}
-                              viewBox="0 0 24 24"
-                              strokeWidth="1.5"
-                              stroke="currentColor"
-                              fill="none"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <path stroke="none" d="M0 0h24v24H0z" />
-                              <circle cx={12} cy={12} r={1} />
-                              <circle cx={12} cy={19} r={1} />
-                              <circle cx={12} cy={5} r={1} />
-                            </svg>
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                          <td className="pr-8 relative">
+                            <button className="button-see-more text-gray-500 rounded cursor-pointer border border-transparent focus:outline-none">
+                              <div className="seeMore absolute left-0 top-0 mt-2 -ml-20 shadow-md z-10 w-32">
+                                <ul className="bg-white shadow rounded p-2">
+                                  <li
+                                    onClick={this.handleOpenUpdateVoucherModal(
+                                      voucher.id,
+                                      voucher.code,
+                                      voucher.value
+                                    )}
+                                    className="cursor-pointer text-gray-600  text-sm leading-3 py-3 hover:bg-teal_custom hover:text-white px-3 font-normal"
+                                  >
+                                    Edit
+                                  </li>
+                                  <li
+                                    onClick={this.handleArchiveVoucher(
+                                      voucher.id
+                                    )}
+                                    className="cursor-pointer text-sm leading-3 py-3 hover:bg-red-500 hover:text-white px-3 font-normal"
+                                  >
+                                    Delete
+                                  </li>
+                                </ul>
+                              </div>
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="icon icon-tabler icon-tabler-dots-vertical dropbtn"
+                                width={28}
+                                height={28}
+                                viewBox="0 0 24 24"
+                                strokeWidth="1.5"
+                                stroke="currentColor"
+                                fill="none"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <path stroke="none" d="M0 0h24v24H0z" />
+                                <circle cx={12} cy={12} r={1} />
+                                <circle cx={12} cy={19} r={1} />
+                                <circle cx={12} cy={5} r={1} />
+                              </svg>
+                            </button>
+                          </td>
+                        </tr>
+                      ) : (
+                        ""
+                      )
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -398,10 +433,14 @@ class VoucherSetting extends React.Component {
     );
   }
 }
-const mapStateToProps = (state) => ({ vouchers: state.products.vouchers });
+const mapStateToProps = (state) => ({
+  vouchers: state.products.vouchers,
+  AuthReducer: state.AuthReducer,
+});
 
 export default connect(mapStateToProps, {
   getVoucherList,
   addVoucher,
   updateVoucher,
+  changeVoucherStatus,
 })(VoucherSetting);

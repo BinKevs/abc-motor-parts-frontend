@@ -7,6 +7,7 @@ import {
   DELETE_PRODUCT,
   ADD_PRODUCT,
   CHANGE_PRODUCT_STATUS,
+  CHANGE_VOUCHER_STATUS,
   UPDATE_PRODUCT,
   GET_CATEGORY_LIST,
   ADD_CATEGORY,
@@ -207,6 +208,23 @@ export const getVoucherList = () => (dispatch, getState) => {
     })
     .catch((err) => console.log(err));
 };
+export const changeVoucherStatus =
+  (VoucherID, data) => (dispatch, getState) => {
+    axios
+      .put(
+        URL_IMPORT + "/api/vouchers/" + VoucherID + "/",
+        data,
+        tokenConfig(getState)
+      )
+      .then((res) => {
+        dispatch({
+          type: CHANGE_VOUCHER_STATUS,
+          payload: res.data,
+        });
+      })
+      .catch((err) => console.log(err));
+  };
+
 export const addVoucher = (data) => (dispatch, getState) => {
   axios
     .post(URL_IMPORT + "/api/vouchers/", data, tokenConfig(getState))

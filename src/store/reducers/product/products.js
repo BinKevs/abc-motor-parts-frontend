@@ -14,6 +14,7 @@ import {
   UPDATE_PRODUCT_VARIATION,
   ADD_PRODUCT_VARIATION,
   CHANGE_PRODUCT_STATUS,
+  CHANGE_VOUCHER_STATUS,
   ADD_VOUCHER,
   UPDATE_VOUCHER,
 } from "../../actions/product/actionTypes";
@@ -81,6 +82,14 @@ export default function (state = initialState, action) {
         products: [
           action.payload,
           ...state.products.filter((prod) => prod.id !== action.payload.id),
+        ],
+      };
+    case CHANGE_VOUCHER_STATUS:
+      return {
+        ...state,
+        vouchers: [
+          action.payload,
+          ...state.vouchers.filter((vouch) => vouch.id !== action.payload.id),
         ],
       };
 

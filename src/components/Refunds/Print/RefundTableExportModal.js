@@ -1,18 +1,16 @@
 import React from "react";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import ReactToPrint from "react-to-print";
-// import { ProductTablePrint } from "./ProductTablePrint";
+import { RefundTablePrint } from "./RefundTablePrint";
+import { Export2Doc } from "../../../Helpers/functions";
 export class RefundTableExportModal extends React.PureComponent {
   render() {
-    const { OnToggleExportTable, filteredData } = this.props;
+    const { OnToggleExportTable, filteredData, table_export_modal } =
+      this.props;
 
     return (
       <>
-        <div
-          class={
-            this.props.table_export_modal ? "h-screen " : "h-screen hidden"
-          }
-        >
+        <div class={table_export_modal ? "h-screen " : "h-screen hidden"}>
           <div class="mx-auto max-w-screen-lg h-full">
             <div
               className="z-20 absolute top-0 right-0 bottom-0 left-0"
@@ -41,7 +39,10 @@ export class RefundTableExportModal extends React.PureComponent {
                       sheet="Product-table"
                       buttonText="Excel"
                     />
-                    <button className="bg-blue-500 h-12 rounded text-white w-full my-8">
+                    <button
+                      onClick={Export2Doc("refundTable", "Refund-Table")}
+                      className="bg-blue-500 h-12 rounded text-white w-full my-8"
+                    >
                       Word
                     </button>
                     <div class="text-left p-0 mb-8">
@@ -90,10 +91,10 @@ export class RefundTableExportModal extends React.PureComponent {
           </div>
         </div>
         <div className="hidden">
-          {/* <ProductTablePrint
-            filteredDataFrom={filteredData}
+          <RefundTablePrint
+            filteredDataFromMain={filteredData}
             ref={(el) => (this.componentRef = el)}
-          /> */}
+          />
         </div>
       </>
     );

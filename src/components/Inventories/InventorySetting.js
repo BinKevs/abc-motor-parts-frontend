@@ -8,6 +8,7 @@ import {
   getInventory,
   addInventory,
   updateInventory,
+  changeInventoryStatus,
 } from "../../store/actions/inventory/inventories";
 import { getSupplierList } from "../../store/actions/supplier/suppliers";
 import {
@@ -18,8 +19,9 @@ import InventoryModal from "./InventoryModal";
 import DatePicker from "react-datepicker";
 
 import { InventoriesTableExportModal } from "./Print/InventoriesTableExportModal";
+import { CheckPassword } from "../../Helpers/functions";
+let passwordVerified;
 let EditButtonIsClicked = false;
-
 let inventories = [];
 let filteredData = [];
 class InventorySettingIndex extends React.Component {
@@ -161,7 +163,6 @@ class InventorySettingIndex extends React.Component {
   handleArchiveInventory(inventoryID) {
     return (event) => {
       event.preventDefault();
-
       swal(
         "Are you sure you want to delete this inventory?\n If you are sure, type in your password:",
         {
@@ -192,14 +193,26 @@ class InventorySettingIndex extends React.Component {
           dangerMode: true,
         }
       ).then((value) => {
-        if (value === "Nicksstonecold2017") {
-          // const formData = new FormData();
-          // formData.append("status", false);
-          // this.props.changeSupplierStatus(inventoryID, formData);
-          swal("Successfully deleted!", "", "success");
-        } else if (value === "cancel") {
+        const formPassword = new FormData();
+        formPassword.append("password", value);
+        if (value === "cancel") {
         } else {
-          swal("Invalid password!", "", "error");
+          CheckPassword(
+            this.props.AuthReducer.user.id,
+            formPassword,
+            this.props.AuthReducer.token
+          )
+            .then((data) => {
+              if (data === "Valid") {
+                const formData = new FormData();
+                formData.append("status", false);
+                this.props.changeInventoryStatus(inventoryID, formData);
+                swal("Successfully deleted inventory!", "", "success");
+              } else {
+                swal("Invalid password!", "", "error");
+              }
+            })
+            .catch((err) => console.log(err));
         }
       });
     };
@@ -211,15 +224,17 @@ class InventorySettingIndex extends React.Component {
     inventories = [];
     filteredData = [];
     this.props.inventories.map((inventory) =>
-      inventories.push({
-        id: inventory.id,
-        supplier: inventory.supplier_info.name,
-        product: inventory.product_info.name,
-        product_variation: inventory.product_variation_info.variation,
-        SKU: inventory.product_variation_info.SKU,
-        new_stock: inventory.new_stock,
-        created_at: inventory.created_at,
-      })
+      inventory.status
+        ? inventories.push({
+            id: inventory.id,
+            supplier: inventory.supplier_info.name,
+            product: inventory.product_info.name,
+            product_variation: inventory.product_variation_info.variation,
+            SKU: inventory.product_variation_info.SKU,
+            new_stock: inventory.new_stock,
+            created_at: inventory.created_at,
+          })
+        : ""
     );
     // This will filter the data from inventories array filtered at the top
     const lowercasedFilter = search.toLowerCase();
@@ -503,6 +518,7 @@ class InventorySettingIndex extends React.Component {
   }
 }
 const mapStateToProps = (state) => ({
+  AuthReducer: state.AuthReducer,
   inventories: state.inventories.inventories,
   inventory: state.inventories.inventory,
   suppliers: state.suppliers.suppliers,
@@ -519,4 +535,5 @@ export default connect(mapStateToProps, {
   deleteInventory,
   updateInventory,
   getCategoryList,
+  changeInventoryStatus,
 })(InventorySettingIndex);

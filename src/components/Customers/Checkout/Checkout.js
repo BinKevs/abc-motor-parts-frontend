@@ -19,6 +19,7 @@ import {
   cities,
   barangays,
 } from "select-philippines-address";
+import swal from "sweetalert";
 let shippingFee = 0;
 let TotalAmountToPay = 0;
 let totalProfit = 0;
@@ -67,6 +68,8 @@ class Checkout extends React.Component {
     street: "",
     ref_number_gcash: "",
     phone_number_gcash: "",
+    ref_number_paymaya: "",
+    phone_number_paymaya: "",
   };
   onChange = (e) => {
     this.setState({
@@ -213,32 +216,90 @@ class Checkout extends React.Component {
     this.props.clearCart();
     this.props.history.push("/Home");
   };
-  handleUpdateContact = (AddressID) => {
-    return (event) => {
-      event.preventDefault();
-      const { regionValue, provinceValue, cityValue, barangayValue, street } =
-        this.state;
-      const data = {
-        region: regionValue,
-        province: provinceValue,
-        city: cityValue,
-        barangay: barangayValue,
-        street,
-      };
-      this.props.UpdateAddress(AddressID, data);
-      this.setState({
-        showModalAddress: !this.state.showModalAddress,
-        regionValue: "",
-        provinceValue: "",
-        cityValue: "",
-        barangayValue: "",
-        regionCode: "",
-        provinceCode: "",
-        cityCode: "",
-        barangayCode: "",
-        street: "",
-      });
+  handleSubmitPayMaya = (event) => {
+    event.preventDefault();
+    let quantity = 0;
+    this.props.cartItems.map((item) => (quantity += item.quantity));
+    const address =
+      this.props.AuthReducer.addresses.street +
+      " " +
+      this.props.AuthReducer.addresses.barangay +
+      " " +
+      this.props.AuthReducer.addresses.city +
+      " " +
+      this.props.AuthReducer.addresses.province +
+      " " +
+      this.props.AuthReducer.addresses.region;
+    const contact_number = this.props.AuthReducer.contact_number;
+    const action_done = "Transaction Added";
+    const order_status = "Pending (Checking Payment)";
+
+    const items = this.props.cartItems;
+    const { ref_number_paymaya, phone_number_paymaya, voucher_id } = this.state;
+    const payment_method_gcash =
+      "Ref No. : " +
+      ref_number_paymaya +
+      " Phone No. : " +
+      phone_number_paymaya;
+    const data = {
+      totalProfit: this.HandleDecimalPlaces(totalProfit),
+      totalAmount: this.HandleDecimalPlaces(
+        TotalAmountToPay - this.state.voucher_value
+      ),
+      shippingCost: this.HandleDecimalPlaces(shippingFee),
+      quantity,
+      items,
+      action_done,
+      payment_method: "Paymaya",
+      payment_details: payment_method_gcash,
+      voucher_status_details:
+        "Redeemed by : " +
+        this.props.AuthReducer.user.username +
+        " at " +
+        DateNow,
+      voucher_id: voucher_id,
+      order_status,
+      address,
+      contact_number,
     };
+    this.props.addTransaction(data);
+    this.props.clearCart();
+    this.props.history.push("/Home");
+  };
+
+  handleUpdateContact = (event) => {
+    event.preventDefault();
+    const {
+      regionValue,
+      provinceValue,
+      cityValue,
+      barangayValue,
+      street,
+      contact_number,
+    } = this.state;
+    const data = {
+      region: regionValue,
+      province: provinceValue,
+      city: cityValue,
+      barangay: barangayValue,
+      street,
+      contact_number,
+      address_id: this.props.AuthReducer.addresses.id,
+    };
+    this.props.UpdateAddress(this.props.AuthReducer.account.id, data);
+    this.setState({
+      showModalAddress: !this.state.showModalAddress,
+      regionValue: "",
+      provinceValue: "",
+      cityValue: "",
+      barangayValue: "",
+      regionCode: "",
+      provinceCode: "",
+      cityCode: "",
+      barangayCode: "",
+      street: "",
+      contact_number: "",
+    });
   };
   handleModalContact = (e) => {
     e.preventDefault();
@@ -305,7 +366,7 @@ class Checkout extends React.Component {
     this.props.addTransaction(data);
     this.props.getTransactionList();
     this.props.clearCart();
-    this.props.history.push("/Home");
+    this.props.history.push("/home");
   }
   handleModalEWallet = (e) => {
     e.preventDefault();
@@ -331,14 +392,20 @@ class Checkout extends React.Component {
   };
   handleVoucherApply = (e) => {
     e.preventDefault();
+
     this.props.vouchers.map((voucher) =>
-      this.state.voucher_code === voucher.code
-        ? this.setState({
+      this.state.voucher_code === voucher.code &&
+      voucher.voucher_status_details === "Not yet redeemed"
+        ? (this.setState({
             voucher_id: voucher.id,
             voucher_value: voucher.value,
             showModalVoucher: !this.state.showModalVoucher,
-          })
-        : ""
+          }),
+          swal("Successfully applied voucher!", "", "success"))
+        : (this.setState({
+            showModalVoucher: !this.state.showModalVoucher,
+          }),
+          swal("Voucher do not exist!", "", "info"))
     );
     window.scrollTo({ top: this.state.currentScrollState, behavior: "smooth" });
   };
@@ -515,11 +582,21 @@ class Checkout extends React.Component {
                       <div class="px-4 py-3 text-sm font-semibold">
                         <label class="inline-flex items-center mt-3">
                           <span class="ml-2">
-                            {this.props.AuthReducer.addresses.street}{" "}
-                            {this.props.AuthReducer.addresses.barangay}{" "}
-                            {this.props.AuthReducer.addresses.city}{" "}
-                            {this.props.AuthReducer.addresses.province}{" "}
-                            {this.props.AuthReducer.addresses.region}{" "}
+                            {this.props.AuthReducer.addresses
+                              ? this.props.AuthReducer.addresses.street
+                              : ""}
+                            {this.props.AuthReducer.addresses
+                              ? this.props.AuthReducer.addresses.barangay
+                              : ""}
+                            {this.props.AuthReducer.addresses
+                              ? this.props.AuthReducer.addresses.city
+                              : ""}
+                            {this.props.AuthReducer.addresses
+                              ? this.props.AuthReducer.addresses.province
+                              : ""}
+                            {this.props.AuthReducer.addresses
+                              ? this.props.AuthReducer.addresses.region
+                              : ""}
                           </span>
                         </label>
                       </div>
@@ -556,7 +633,7 @@ class Checkout extends React.Component {
                         <div class="px-4 py-3 text-sm font-semibold">
                           <label class="inline-flex items-center mt-3">
                             <span class="ml-2">
-                              {this.props.AuthReducer.contact_numbers}
+                              {this.props.AuthReducer.contact_number}
                             </span>
                           </label>
                         </div>
@@ -944,16 +1021,21 @@ class Checkout extends React.Component {
                           <input
                             className="w-full border rounded-md pl-4 py-2 focus:ring-0 focus:border-cyan-700"
                             type="text"
-                            name="reference_number"
+                            onChange={this.onChange}
+                            name="ref_number_paymaya"
+                            value={this.state.ref_number_paymaya}
                             placeholder="Reference Number"
                           />
                           <input
                             className="w-full border rounded-md pl-4 py-2 focus:ring-0 focus:border-cyan-700"
                             type="text"
-                            name="phone_number"
+                            onChange={this.onChange}
+                            name="phone_number_paymaya"
+                            value={this.state.phone_number_paymaya}
                             placeholder="Your Phone Number"
                           />
                           <button
+                            onClick={this.handleSubmitPayMaya}
                             type="submit"
                             className="focus:outline-none transition duration-150 ease-in-out hover:bg-cyan-700 bg-cyan-700 rounded text-white px-8 py-2 text-sm"
                           >
@@ -1000,7 +1082,6 @@ class Checkout extends React.Component {
           handleUpdateContact={this.handleUpdateContact}
           onChange={this.onChange}
           handleModalContact={this.handleModalContact}
-          address={this.props.AuthReducer.addresses}
         />
         <VoucherModal
           state={this.state}

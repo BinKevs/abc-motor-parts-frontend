@@ -1,6 +1,7 @@
 import React from "react";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import ReactToPrint from "react-to-print";
+import { Export2Doc } from "../../../Helpers/functions";
 import { TransactionsTablePrint } from "./TransactionsTablePrint";
 export class TransactionsTableExportModal extends React.PureComponent {
   render() {
@@ -36,7 +37,13 @@ export class TransactionsTableExportModal extends React.PureComponent {
                     sheet="Transactions-table"
                     buttonText="Excel"
                   />
-                  <button className="bg-blue-500 h-12 rounded text-white w-full my-8">
+                  <button
+                    onClick={Export2Doc(
+                      "transactionTable",
+                      "Transaction-Table"
+                    )}
+                    className="bg-blue-500 h-12 rounded text-white w-full my-8"
+                  >
                     Word
                   </button>
                   <div class="text-left p-0 mb-8">

@@ -14,6 +14,8 @@ import {
 import SupplierModal from "./SupplierModal";
 import { SupplierTableExportModal } from "./Print/SupplierTableExportModal";
 import swal from "sweetalert";
+import { CheckPassword } from "../../Helpers/functions";
+let passwordVerified;
 let EditButtonIsClicked = false;
 
 class SupplierSettingIndex extends React.Component {
@@ -217,14 +219,26 @@ class SupplierSettingIndex extends React.Component {
           dangerMode: true,
         }
       ).then((value) => {
-        if (value === "Nicksstonecold2017") {
-          const formData = new FormData();
-          formData.append("status", false);
-          this.props.changeSupplierStatus(supplierID, formData);
-          swal("Successfully deleted!", "", "success");
-        } else if (value === "cancel") {
+        const formPassword = new FormData();
+        formPassword.append("password", value);
+        if (value === "cancel") {
         } else {
-          swal("Invalid password!", "", "error");
+          CheckPassword(
+            this.props.AuthReducer.user.id,
+            formPassword,
+            this.props.AuthReducer.token
+          )
+            .then((data) => {
+              if (data === "Valid") {
+                const formData = new FormData();
+                formData.append("status", false);
+                this.props.changeSupplierStatus(supplierID, formData);
+                swal("Successfully deleted supplier!", "", "success");
+              } else {
+                swal("Invalid password!", "", "error");
+              }
+            })
+            .catch((err) => console.log(err));
         }
       });
     };
@@ -484,6 +498,7 @@ const mapStateToProps = (state) => ({
   total: state.suppliers.total,
   next: state.suppliers.next,
   previous: state.suppliers.previous,
+  AuthReducer: state.AuthReducer,
 });
 
 export default connect(mapStateToProps, {

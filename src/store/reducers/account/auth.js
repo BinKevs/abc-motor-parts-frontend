@@ -15,7 +15,12 @@ import {
   UPDATE_ACCOUNT,
   UPDATE_ADDRESS,
   CHANGE_ACCOUNT_STATUS,
+  CHANGE_PASSWORD,
+  CREATE_ADMIN_ACCOUNT,
+  CHECK_PASSWORD,
 } from "../../actions/account/types";
+import { HandleSuccessMessages } from "../../../Helpers/functions";
+import { URL_IMPORT } from "../../../Helpers/constant";
 const initialState = {
   token: localStorage.getItem("token"),
   isAuthenticated: null,
@@ -29,7 +34,8 @@ const initialState = {
   account: {},
   activity_log: [],
   attendance_log: [],
-  profileImage: "",
+  profile_image: "",
+  AdminPasswordValidate: "",
 };
 
 const AuthReducer = (state = initialState, action) => {
@@ -59,6 +65,12 @@ const AuthReducer = (state = initialState, action) => {
         isLoading: false,
         user: action.payload,
       };
+    case CREATE_ADMIN_ACCOUNT:
+      return {
+        ...state,
+        accounts: [action.payload, ...state.accounts],
+      };
+
     case ADD_ACCOUNT:
       return {
         ...state,
@@ -67,8 +79,14 @@ const AuthReducer = (state = initialState, action) => {
     case UPDATE_ACCOUNT:
       return {
         ...state,
+        account: action.payload,
         user: action.payload.user,
+        addresses: action.payload.address,
+        contact_number: action.payload.contact_number,
+        birthdate: action.payload.birthdate,
+        profile_image: URL_IMPORT + action.payload.profile_image,
       };
+
     case CHANGE_ACCOUNT_STATUS:
       return {
         ...state,
@@ -80,20 +98,26 @@ const AuthReducer = (state = initialState, action) => {
     case UPDATE_ADDRESS:
       return {
         ...state,
-        addresses: action.payload,
+        addresses: action.payload.address,
+        contact_number: action.payload.contact_number,
+      };
+    case CHECK_PASSWORD:
+      return {
+        ...state,
+        AdminPasswordValidate: action.payload.password,
       };
     case USER_LOADED:
       return {
         ...state,
+        account: action.payload,
         user: action.payload.user,
         addresses: action.payload.address,
         contact_number: action.payload.contact_number,
         isAuthenticated: true,
         isLoading: false,
         is_superuser: action.payload.user.is_superuser,
-
         birthdate: action.payload.birthdate,
-        profileImage: "http://127.0.0.1:8000" + action.payload.profile_image,
+        profile_image: URL_IMPORT + action.payload.profile_image,
       };
     case GET_ACCOUNT_LIST:
       return {
@@ -115,6 +139,9 @@ const AuthReducer = (state = initialState, action) => {
         ...state,
         attendance_log: action.payload,
       };
+    case CHANGE_PASSWORD:
+      localStorage.removeItem("token");
+
     case LOGIN_FAIL:
     case AUTH_ERROR:
     case LOGOUT_SUCCESS:

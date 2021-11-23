@@ -1,15 +1,31 @@
 import React from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { getSupplierList } from "../../store/actions/supplier/suppliers";
+import {
+  getSupplierList,
+  changeSupplierStatus,
+} from "../../store/actions/supplier/suppliers";
 import {
   getProductList,
   changeProductStatus,
 } from "../../store/actions/product/products";
-import { getAccountList } from "../../store/actions/account/auth";
-import { getInventoryList } from "../../store/actions/inventory/inventories";
-import { getTransactionList } from "../../store/actions/transaction/transactions.js";
-import { getVoucherList } from "../../store/actions/product/products";
+import {
+  getAccountList,
+  changeAccountStatus,
+  CheckAdminPassword,
+} from "../../store/actions/account/auth";
+import {
+  getInventoryList,
+  changeInventoryStatus,
+} from "../../store/actions/inventory/inventories";
+import {
+  getTransactionList,
+  changeTransactionStatus,
+} from "../../store/actions/transaction/transactions.js";
+import {
+  getVoucherList,
+  changeVoucherStatus,
+} from "../../store/actions/product/products";
 import "react-accessible-accordion/dist/fancy-example.css";
 import {
   Accordion,
@@ -19,9 +35,18 @@ import {
   AccordionItemPanel,
 } from "react-accessible-accordion";
 import swal from "sweetalert";
-let ItemAdded = false;
+import { CheckPassword } from "../../Helpers/functions";
+import { TimeScale } from "chart.js";
+let passwordVerified = false;
 class Archive extends React.Component {
-  state = { search: "" };
+  state = {
+    searchProduct: "",
+    searchSupplier: "",
+    searchAccount: "",
+    searchInventory: "",
+    searchTransaction: "",
+    searchVoucher: "",
+  };
 
   componentDidMount() {
     this.props.getSupplierList();
@@ -31,78 +56,400 @@ class Archive extends React.Component {
     this.props.getTransactionList();
     this.props.getVoucherList();
   }
-  handleRetriveProduct(productID) {
+
+  handleRetriveProduct = (ProductID) => {
     return (event) => {
       event.preventDefault();
-      swal("Do you really want to delete this?", {
-        buttons: {
-          catch: {
-            text: "Yes",
-            value: "delete",
+      swal("To retrive this product?\n You need to type in your password:", {
+        content: {
+          element: "input",
+          attributes: {
+            placeholder: "Type your password",
+            type: "password",
           },
-          cancel: "No",
+        },
+        icon: "info",
+        buttons: {
+          confirm: {
+            text: "Confirm",
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
+          cancel: {
+            text: "Cancel",
+            value: "cancel",
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
         },
       }).then((value) => {
-        switch (value) {
-          case "delete":
-            const formData = new FormData();
-            formData.append("status", true);
-            this.props.changeProductStatus(productID, formData);
-            swal("Successfully retrive product!", "success");
-            break;
-          default:
-            break;
+        const formPassword = new FormData();
+        formPassword.append("password", value);
+        if (value === "cancel") {
+        } else {
+          CheckPassword(
+            this.props.AuthReducer.user.id,
+            formPassword,
+            this.props.AuthReducer.token
+          )
+            .then((data) => {
+              if (data === "Valid") {
+                const formData = new FormData();
+                formData.append("status", true);
+                this.props.changeProductStatus(ProductID, formData);
+                swal("Successfully retrived product!", "", "success");
+              } else {
+                swal("Invalid password!", "", "error");
+              }
+            })
+            .catch((err) => console.log(err));
+        }
+      });
+    };
+  };
+  handleRetriveSupplier(supplierID) {
+    return (event) => {
+      event.preventDefault();
+
+      swal("To retrive this supplier?\n You need to type in your password:", {
+        content: {
+          element: "input",
+          attributes: {
+            placeholder: "Type your password",
+            type: "password",
+          },
+        },
+        icon: "info",
+        buttons: {
+          confirm: {
+            text: "Confirm",
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
+          cancel: {
+            text: "Cancel",
+            value: false,
+            value: "cancel",
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
+        },
+      }).then((value) => {
+        const formPassword = new FormData();
+        formPassword.append("password", value);
+        if (value === "cancel") {
+        } else {
+          CheckPassword(
+            this.props.AuthReducer.user.id,
+            formPassword,
+            this.props.AuthReducer.token
+          )
+            .then((data) => {
+              if (data === "Valid") {
+                const formData = new FormData();
+                formData.append("status", true);
+                this.props.changeSupplierStatus(supplierID, formData);
+                swal("Successfully retrived supplier!", "", "success");
+              } else {
+                swal("Invalid password!", "", "error");
+              }
+            })
+            .catch((err) => console.log(err));
         }
       });
     };
   }
+  handleRetriveAccount(accountID) {
+    return (event) => {
+      event.preventDefault();
+
+      swal("To retrive this account?\n You need to type in your password:", {
+        content: {
+          element: "input",
+          attributes: {
+            placeholder: "Type your password",
+            type: "password",
+          },
+        },
+        icon: "info",
+        buttons: {
+          confirm: {
+            text: "Confirm",
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
+          cancel: {
+            text: "Cancel",
+            value: false,
+            value: "cancel",
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
+        },
+      }).then((value) => {
+        const formPassword = new FormData();
+        formPassword.append("password", value);
+        if (value === "cancel") {
+        } else {
+          CheckPassword(
+            this.props.AuthReducer.user.id,
+            formPassword,
+            this.props.AuthReducer.token
+          )
+            .then((data) => {
+              if (data === "Valid") {
+                const formData = new FormData();
+                formData.append("status", true);
+                this.props.changeAccountStatus(accountID, formData);
+                swal("Successfully retrived account!", "", "success");
+              } else {
+                swal("Invalid password!", "", "error");
+              }
+            })
+            .catch((err) => console.log(err));
+        }
+      });
+    };
+  }
+  handleRetriveInventory(inventoryID) {
+    return (event) => {
+      event.preventDefault();
+      swal("To retrive this inventory?\n You need to type in your password:", {
+        content: {
+          element: "input",
+          attributes: {
+            placeholder: "Type your password",
+            type: "password",
+          },
+        },
+        icon: "info",
+        buttons: {
+          confirm: {
+            text: "Confirm",
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
+          cancel: {
+            text: "Cancel",
+            value: false,
+            value: "cancel",
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
+        },
+      }).then((value) => {
+        const formPassword = new FormData();
+        formPassword.append("password", value);
+        if (value === "cancel") {
+        } else {
+          CheckPassword(
+            this.props.AuthReducer.user.id,
+            formPassword,
+            this.props.AuthReducer.token
+          )
+            .then((data) => {
+              if (data === "Valid") {
+                const formData = new FormData();
+                formData.append("status", true);
+                this.props.changeInventoryStatus(inventoryID, formData);
+                swal("Successfully retrived inventory!", "", "success");
+              } else {
+                swal("Invalid password!", "", "error");
+              }
+            })
+            .catch((err) => console.log(err));
+        }
+      });
+    };
+  }
+  handleRetriveTransaction(transactionID) {
+    return (event) => {
+      event.preventDefault();
+
+      swal(
+        "To retrive this transaction?\n You need to type in your password:",
+        {
+          content: {
+            element: "input",
+            attributes: {
+              placeholder: "Type your password",
+              type: "password",
+            },
+          },
+          icon: "info",
+          buttons: {
+            confirm: {
+              text: "Confirm",
+              visible: true,
+              className: "",
+              closeModal: true,
+            },
+            cancel: {
+              text: "Cancel",
+              value: false,
+              value: "cancel",
+              visible: true,
+              className: "",
+              closeModal: true,
+            },
+          },
+        }
+      ).then((value) => {
+        const formPassword = new FormData();
+        formPassword.append("password", value);
+        if (value === "cancel") {
+        } else {
+          CheckPassword(
+            this.props.AuthReducer.user.id,
+            formPassword,
+            this.props.AuthReducer.token
+          )
+            .then((data) => {
+              if (data === "Valid") {
+                const formData = new FormData();
+                formData.append("status", true);
+                this.props.changeTransactionStatus(transactionID, formData);
+                swal("Successfully retrived transaction!", "", "success");
+              } else {
+                swal("Invalid password!", "", "error");
+              }
+            })
+            .catch((err) => console.log(err));
+        }
+      });
+    };
+  }
+  handleRetriveVoucher(voucherID) {
+    return (event) => {
+      event.preventDefault();
+
+      swal("To retrive this voucher?\n You need to type in your password:", {
+        content: {
+          element: "input",
+          attributes: {
+            placeholder: "Type your password",
+            type: "password",
+          },
+        },
+        icon: "info",
+        buttons: {
+          confirm: {
+            text: "Confirm",
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
+          cancel: {
+            text: "Cancel",
+            value: false,
+            value: "cancel",
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
+        },
+      }).then((value) => {
+        const formPassword = new FormData();
+        formPassword.append("password", value);
+        if (value === "cancel") {
+        } else {
+          CheckPassword(
+            this.props.AuthReducer.user.id,
+            formPassword,
+            this.props.AuthReducer.token
+          )
+            .then((data) => {
+              if (data === "Valid") {
+                const formData = new FormData();
+                formData.append("status", true);
+                this.props.changeVoucherStatus(voucherID, formData);
+                swal("Successfully retrived voucher!", "", "success");
+              } else {
+                swal("Invalid password!", "", "error");
+              }
+            })
+            .catch((err) => console.log(err));
+        }
+      });
+    };
+  }
+  onChange = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
+  };
   render() {
-    let lowercasedFilter = this.state.search.toLowerCase();
+    let lowercasedFilterProduct = this.state.searchProduct.toLowerCase();
+    let lowercasedFilterSupplier = this.state.searchSupplier.toLowerCase();
+    let lowercasedFilterAccount = this.state.searchAccount.toLowerCase();
+    let lowercasedFilterInventory = this.state.searchInventory.toLowerCase();
+    let lowercasedFilterTransaction =
+      this.state.searchTransaction.toLowerCase();
+    let lowercasedFilterVoucher = this.state.searchVoucher.toLowerCase();
     let filteredDataSupplier;
     let filteredDataProduct;
     let filteredDataAccounts;
-    let products;
-    let Accounts;
-    // This will filter the data from supplier
+    let filteredDataInventory;
+    let filteredDataTransaction;
+    let filteredDataVoucher;
+    filteredDataSupplier = [];
     filteredDataSupplier = this.props.suppliers.filter((supplier) => {
       if (!supplier.status)
-        if (lowercasedFilter === "") {
-          return supplier;
-        } else {
-          return supplier.name
-            .toString()
-            .toLowerCase()
-            .includes(lowercasedFilter);
-        }
+        return supplier.name
+          .toString()
+          .toLowerCase()
+          .includes(lowercasedFilterSupplier);
     });
     filteredDataProduct = [];
-    products = [];
-    this.props.products.map((product) =>
-      products.push({
-        id: product.id,
-        name: product.name,
-        status: product.status,
-      })
-    );
-    filteredDataProduct = products.filter((product) => {
+    filteredDataProduct = this.props.products.filter((product) => {
       if (!product.status)
-        return (
-          product.name.toString().toLowerCase().includes(lowercasedFilter) ||
-          product.product_id.toString().toLowerCase().includes(lowercasedFilter)
-        );
+        return product.name
+          .toString()
+          .toLowerCase()
+          .includes(lowercasedFilterProduct);
     });
-    Accounts = [];
-    this.props.accounts.map((account) =>
-      Accounts.push({
-        id: account.id,
-        username: account.user.username,
-        email: account.user.email,
-        status: account.user.is_active,
-        name: account.user.last_name + " " + account.user.first_name,
-      })
-    );
-    filteredDataAccounts = Accounts.filter((account) => {
-      if (!account.status) return account;
+    filteredDataAccounts = [];
+    filteredDataAccounts = this.props.accounts.filter((account) => {
+      if (!account.user.is_active && account.user.is_superuser)
+        return account.user.username
+          .toString()
+          .toLowerCase()
+          .includes(lowercasedFilterAccount);
+    });
+
+    filteredDataInventory = [];
+    filteredDataInventory = this.props.inventories.filter((inventory) => {
+      if (!inventory.status)
+        return inventory.product_info.name
+          .toString()
+          .toLowerCase()
+          .includes(lowercasedFilterInventory);
+    });
+    filteredDataTransaction = [];
+    filteredDataTransaction = this.props.transactions.filter((trans) => {
+      if (!trans.status)
+        return trans.user_info.name
+          .split(" ")[0]
+          .toString()
+          .toLowerCase()
+          .includes(lowercasedFilterTransaction);
+    });
+    filteredDataVoucher = [];
+    filteredDataVoucher = this.props.vouchers.filter((voucher) => {
+      if (!voucher.status)
+        return voucher.code
+          .split(" ")[0]
+          .toString()
+          .toLowerCase()
+          .includes(lowercasedFilterVoucher);
     });
     return (
       <>
@@ -136,11 +483,11 @@ class Archive extends React.Component {
                           <div class="relative w-full">
                             <input
                               type="text"
-                              name="search"
+                              name="searchProduct"
                               placeholder=" "
                               required
                               class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
-                              // onChange={this.onChange}
+                              onChange={this.onChange}
                               // value={this.state.search}
                             />
                             <label
@@ -212,12 +559,11 @@ class Archive extends React.Component {
                           <div class="relative w-full">
                             <input
                               type="text"
-                              name="search"
+                              name="searchSupplier"
                               placeholder=" "
                               required
                               class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
-                              // onChange={this.onChange}
-                              // value={this.state.search}
+                              onChange={this.onChange}
                             />
                             <label
                               for="search"
@@ -251,7 +597,12 @@ class Archive extends React.Component {
                                 {supplier.name}
                               </td>
                               <td className="pr-8 relative">
-                                <div className="cursor-pointer text-sm bg-teal_custom text-white px-3 py-3 font-normal hover:bg-gray-600 text-center">
+                                <div
+                                  onClick={this.handleRetriveSupplier(
+                                    supplier.id
+                                  )}
+                                  className="cursor-pointer text-sm bg-teal_custom text-white px-3 py-3 font-normal hover:bg-gray-600 text-center"
+                                >
                                   Retrive
                                 </div>
                               </td>
@@ -282,12 +633,11 @@ class Archive extends React.Component {
                           <div class="relative w-full">
                             <input
                               type="text"
-                              name="search"
+                              name="searchAccount"
                               placeholder=" "
                               required
                               class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
-                              // onChange={this.onChange}
-                              // value={this.state.search}
+                              onChange={this.onChange}
                             />
                             <label
                               for="search"
@@ -306,7 +656,6 @@ class Archive extends React.Component {
                           <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
                             <th className="pl-14 pr-6 text-md">ID</th>
                             <th className=" pr-6 text-md">Username</th>
-                            <th className="pl-14 pr-6 text-md">Name</th>
                             <th className=" pr-6 text-md">Email</th>
                           </tr>
                         </thead>
@@ -320,17 +669,20 @@ class Archive extends React.Component {
                                 {account.id}
                               </td>
                               <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                                {account.username}
+                                {account.user.username}
                               </td>
+
                               <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                                {account.name}
-                              </td>
-                              <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                                {account.email}
+                                {account.user.email}
                               </td>
 
                               <td className="pr-8 relative">
-                                <div className="cursor-pointer text-sm bg-teal_custom text-white px-3 py-3 font-normal hover:bg-gray-600 text-center">
+                                <div
+                                  onClick={this.handleRetriveAccount(
+                                    account.user.id
+                                  )}
+                                  className="cursor-pointer text-sm bg-teal_custom text-white px-3 py-3 font-normal hover:bg-gray-600 text-center"
+                                >
                                   Retrive
                                 </div>
                               </td>
@@ -361,12 +713,11 @@ class Archive extends React.Component {
                           <div class="relative w-full">
                             <input
                               type="text"
-                              name="search"
+                              name="searchInventory"
                               placeholder=" "
                               required
                               class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
-                              // onChange={this.onChange}
-                              // value={this.state.search}
+                              onChange={this.onChange}
                             />
                             <label
                               for="search"
@@ -390,7 +741,7 @@ class Archive extends React.Component {
                           </tr>
                         </thead>
                         <tbody>
-                          {this.props.inventories.map((inventory) => (
+                          {filteredDataInventory.map((inventory) => (
                             <tr
                               key={inventory.id}
                               className="h-24 border-gray-300 dark:border-gray-200 border-b"
@@ -410,7 +761,12 @@ class Archive extends React.Component {
                               </td>
 
                               <td className="pr-8 relative">
-                                <div className="cursor-pointer text-sm bg-teal_custom text-white px-3 py-3 font-normal hover:bg-gray-600 text-center">
+                                <div
+                                  onClick={this.handleRetriveInventory(
+                                    inventory.id
+                                  )}
+                                  className="cursor-pointer text-sm bg-teal_custom text-white px-3 py-3 font-normal hover:bg-gray-600 text-center"
+                                >
                                   Retrive
                                 </div>
                               </td>
@@ -441,12 +797,11 @@ class Archive extends React.Component {
                           <div class="relative w-full">
                             <input
                               type="text"
-                              name="search"
+                              name="searchTransaction"
                               placeholder=" "
                               required
                               class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
-                              // onChange={this.onChange}
-                              // value={this.state.search}
+                              onChange={this.onChange}
                             />
                             <label
                               for="search"
@@ -470,7 +825,7 @@ class Archive extends React.Component {
                           </tr>
                         </thead>
                         <tbody>
-                          {this.props.transactions.map((trans) => (
+                          {filteredDataTransaction.map((trans) => (
                             <tr
                               key={trans.id}
                               className="h-24 border-gray-300 dark:border-gray-200 border-b"
@@ -514,7 +869,12 @@ class Archive extends React.Component {
                               </td>
 
                               <td className="pr-8 relative">
-                                <div className="cursor-pointer text-sm bg-teal_custom text-white px-3 py-3 font-normal hover:bg-gray-600 text-center">
+                                <div
+                                  onClick={this.handleRetriveTransaction(
+                                    trans.id
+                                  )}
+                                  className="cursor-pointer text-sm bg-teal_custom text-white px-3 py-3 font-normal hover:bg-gray-600 text-center"
+                                >
                                   Retrive
                                 </div>
                               </td>
@@ -545,12 +905,11 @@ class Archive extends React.Component {
                           <div class="relative w-full">
                             <input
                               type="text"
-                              name="search"
+                              name="searchVoucher"
                               placeholder=" "
                               required
                               class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
-                              // onChange={this.onChange}
-                              // value={this.state.search}
+                              onChange={this.onChange}
                             />
                             <label
                               for="search"
@@ -573,7 +932,7 @@ class Archive extends React.Component {
                           </tr>
                         </thead>
                         <tbody>
-                          {this.props.vouchers.map((voucher) => (
+                          {filteredDataVoucher.map((voucher) => (
                             <tr
                               key={voucher.id}
                               className="h-24 border-gray-300 dark:border-gray-200 border-b"
@@ -589,7 +948,12 @@ class Archive extends React.Component {
                               </td>
 
                               <td className="pr-8 relative">
-                                <div className="cursor-pointer text-sm bg-teal_custom text-white px-3 py-3 font-normal hover:bg-gray-600 text-center">
+                                <div
+                                  onClick={this.handleRetriveVoucher(
+                                    voucher.id
+                                  )}
+                                  className="cursor-pointer text-sm bg-teal_custom text-white px-3 py-3 font-normal hover:bg-gray-600 text-center"
+                                >
                                   Retrive
                                 </div>
                               </td>
@@ -615,6 +979,8 @@ const mapStateToProps = (state) => ({
   inventories: state.inventories.inventories,
   transactions: state.transactions.transactions,
   vouchers: state.products.vouchers,
+  AuthReducer: state.AuthReducer,
+  AdminPasswordValidate: state.AuthReducer.AdminPasswordValidate,
 });
 
 export default connect(mapStateToProps, {
@@ -625,4 +991,10 @@ export default connect(mapStateToProps, {
   getTransactionList,
   getVoucherList,
   changeProductStatus,
+  changeSupplierStatus,
+  changeAccountStatus,
+  changeInventoryStatus,
+  changeTransactionStatus,
+  changeVoucherStatus,
+  CheckAdminPassword,
 })(Archive);

@@ -175,11 +175,7 @@ class Home extends React.Component {
                       <h2 className="text-2xl text-white font-semibold">
                         Use "90off" on your first purchase
                       </h2>
-                      <p className="mt-2 text-gray-400">
-                        Lorem ipsum dolor, sit amet consectetur adipisicing
-                        elit. Tempore facere provident molestias ipsam sint
-                        voluptatum pariatur.
-                      </p>
+                      <p className="mt-2 text-gray-400">As our</p>
                       <Link to="/products/All">
                         <button className="flex items-center mt-4 px-3 py-2 bg-blue-600 text-white text-sm uppercase font-medium rounded hover:bg-blue-500 focus:outline-none focus:bg-blue-500">
                           <span>Shop Now</span>
@@ -213,9 +209,9 @@ class Home extends React.Component {
                           Brakes
                         </h2>
                         <p className="mt-2 text-gray-400">
-                          Lorem ipsum dolor, sit amet consectetur adipisicing
-                          elit. Tempore facere provident molestias ipsam sint
-                          voluptatum pariatur.
+                          After machining, they are media tumbled for a smooth
+                          finish and then hard anodized for superior strength
+                          and performance.
                         </p>
                         <Link to="/products/Brakes">
                           <button className="flex items-center mt-4 px-3 py-2 bg-blue-600 text-white text-sm uppercase font-medium rounded hover:bg-blue-500 focus:outline-none focus:bg-blue-500">
@@ -249,9 +245,10 @@ class Home extends React.Component {
                           Tires and Wheels
                         </h2>
                         <p className="mt-2 text-gray-400">
-                          Lorem ipsum dolor, sit amet consectetur adipisicing
-                          elit. Tempore facere provident molestias ipsam sint
-                          voluptatum pariatur.
+                          Designed and tested to withstand the harshest
+                          conditions. Its proven superior wear life and better
+                          resistance to cutting and chipping make it the number
+                          one choice for all terrain adventuring.
                         </p>
                         <Link to="/products/Tires and Wheels">
                           <button className="flex items-center mt-4 px-3 py-2 bg-blue-600 text-white text-sm uppercase font-medium rounded hover:bg-blue-500 focus:outline-none focus:bg-blue-500">
@@ -287,9 +284,9 @@ class Home extends React.Component {
                           Engine Parts and Accessories
                         </h2>
                         <p className="mt-2 text-gray-400">
-                          Lorem ipsum dolor, sit amet consectetur adipisicing
-                          elit. Tempore facere provident molestias ipsam sint
-                          voluptatum pariatur.
+                          Hand machined, carefully polished and bathed in
+                          lustrous chrome, faceted edges catch and refract light
+                          adding a dynamic design element to your engine.
                         </p>
                         <Link to="/products/Engine Parts and Accessories">
                           <button className="flex items-center mt-4 px-3 py-2 bg-blue-600 text-white text-sm uppercase font-medium rounded hover:bg-blue-500 focus:outline-none focus:bg-blue-500">
@@ -323,9 +320,10 @@ class Home extends React.Component {
                           Exhaust
                         </h2>
                         <p className="mt-2 text-gray-400">
-                          Lorem ipsum dolor, sit amet consectetur adipisicing
-                          elit. Tempore facere provident molestias ipsam sint
-                          voluptatum pariatur.
+                          Solidly constructed from a highly polished 304 grade
+                          stainless steel and with a lifetime warranty you can
+                          guarantee it will look good on your bike for many
+                          years to come.
                         </p>
                         <Link to="/products/Exhaust">
                           <button className="flex items-center mt-4 px-3 py-2 bg-blue-600 text-white text-sm uppercase font-medium rounded hover:bg-blue-500 focus:outline-none focus:bg-blue-500">
@@ -412,9 +410,11 @@ class Home extends React.Component {
               ))}
             </div>
             <div className="pt-3">
-              <div class="cursor-pointer bg-teal_custom hover:bg-teal_custom_darker p-2 shadow text-xl text-white text-center w-full md:w-2/5 mx-auto">
-                <h3 class="font-semibold ">See more products</h3>
-              </div>
+              <Link to="/products/All" className="pt-3 cursor-pointer">
+                <div class="cursor-pointer bg-teal_custom hover:bg-teal_custom_darker p-2 shadow text-xl text-white text-center w-full md:w-2/5 mx-auto">
+                  <h3 class="font-semibold ">See more products</h3>
+                </div>
+              </Link>
             </div>
           </div>
         </div>

@@ -10,12 +10,14 @@ import {
 import DatePicker from "react-datepicker";
 import { RefundTableExportModal } from "./Print/RefundTableExportModal";
 let status = "";
+let filteredData = [];
 class RefundsIndex extends React.Component {
   state = {
     showViewMoreModal: false,
     refundInfo: "",
     response: "",
     InputDate: "",
+    FilterStatus: "",
     table_export_modal: "",
   };
   componentDidMount() {
@@ -139,7 +141,26 @@ class RefundsIndex extends React.Component {
   };
   render() {
     const { refundInfo } = this.state;
-    console.log(this.state);
+
+    let InputDateDateSeparated = this.state.InputDate.toString().split(" ");
+    filteredData = [];
+
+    filteredData = this.props.refunds.filter((refund) =>
+      refund.status.toString().includes(this.state.FilterStatus)
+    );
+    if (this.state.InputDate !== "") {
+      filteredData = filteredData.filter((refund) =>
+        refund.created_at
+          .toString()
+          .includes(
+            InputDateDateSeparated[1] +
+              " " +
+              InputDateDateSeparated[2] +
+              " " +
+              InputDateDateSeparated[3]
+          )
+      );
+    }
     return (
       <>
         <div class="bg-gray-100 flex-1 mt-20 md:mt-14 pb-24 md:pb-5">
@@ -162,28 +183,6 @@ class RefundsIndex extends React.Component {
                     </div>
                   </div>
                 </div>
-                {/* <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center justify-end">
-                  <div className="lg:ml-6 flex items-center">
-                    <div class="relative w-full">
-                      <input
-                        type="text"
-                        name="search"
-                        placeholder=" "
-                        required
-                        class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
-                        // onChange={this.onChange}
-                        // value={this.state.search}
-                      />
-                      <label
-                        for="search"
-                        class="absolute duration-300 top-3 -z-1 origin-0 text-gray-500"
-                      >
-                        Search
-                      </label>
-                    </div>
-                    <i class="fad fa-search fa-lg"></i>
-                  </div>
-                </div> */}
               </div>
               <div className="w-full overflow-x-auto">
                 <table className="min-w-full bg-white">
@@ -213,25 +212,22 @@ class RefundsIndex extends React.Component {
                       <th className="pr-6 text-md">
                         Status
                         <select
-                          // onChange={this.onChange}
-                          name="categoryForDropDownSelect"
+                          onChange={this.onChange}
+                          name="FilterStatus"
                           class="w-full h-8 border rounded-lg text-xs my-2"
                         >
-                          <option>Filter Status</option>
-                          {/* {this.props.categories.map((category) => ( */}
-                          {/* value={category.name} */}
-                          <option>Accepted</option>
-                          <option>Denied</option>
-                          <option>Pending</option>
+                          <option value="">Filter Status</option>
 
-                          {/* // ))} */}
+                          <option value="Accepted">Accepted</option>
+                          <option value="Denied">Denied</option>
+                          <option value="Pending">Pending</option>
                         </select>
                       </th>
                       <th className="pr-6 text-md">Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {this.props.refunds.map((refund) => (
+                    {filteredData.map((refund) => (
                       <tr
                         key={refund.id}
                         className="h-24 border-gray-300 border-b "
@@ -499,7 +495,7 @@ class RefundsIndex extends React.Component {
         </div>
         <RefundTableExportModal
           OnToggleExportTable={this.OnToggleExportTable}
-          // filteredData={filteredData}
+          filteredData={filteredData}
           table_export_modal={this.state.table_export_modal}
         />
       </>

@@ -36,24 +36,33 @@ import AttendanceLog from "../components/Accounts/AttendanceLog";
 import AccountsIndex from "../components/Accounts/AccountSetting/AccountsIndex";
 import AccountSettingsMenu from "../components/Accounts/AccountSetting/AccountSettingsMenu";
 import CustomerAccountSetting from "../components/Accounts/AccountSetting/CustomerAccountSetting";
+import ShippingPolicy from "../components/Policy/ShippingPolicy";
+import TermsAndCondition from "../components/Policy/TermsAndCondition";
+import ReturnPolicy from "../components/Policy/ReturnPolicy";
+import PrivacyPolicy from "../components/Policy/PrivacyPolicy";
+
+import About from "../components/Policy/About";
 
 import PrivateRoute from "../Helpers/PrivateRoute";
 function MainBaseRouter() {
   return (
     <>
       <Switch>
-        <PrivateRoute
+        <Route
           exact
           path="/products/:categoryName"
           component={ProductListIndexOnlineCustomer}
         />
-        <PrivateRoute
-          exact
-          path="/product/:productID"
-          component={ProductDetails}
-        />
-        <PrivateRoute exact path="/Home" component={Home} />
-        <PrivateRoute exact path="/Categories" component={Categories} />
+        <Route exact path="/product/:productID" component={ProductDetails} />
+        <Route exact path="/home" component={Home} />
+        <Route exact path="/" component={Home} />
+        <Route exact path="/categories" component={Categories} />
+        <Route exact path="/about" component={About} />
+
+        <Route exact path="/terms-conditions" component={TermsAndCondition} />
+        <Route exact path="/shipping-policy" component={ShippingPolicy} />
+        <Route exact path="/return-policy" component={ReturnPolicy} />
+        <Route exact path="/privacy-policy" component={PrivacyPolicy} />
 
         <PrivateRoute exact path="/vouchers" component={VoucherSetting} />
         <PrivateRoute exact path="/refunds" component={RefundsIndex} />

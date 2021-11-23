@@ -15,6 +15,8 @@ class TransactionOrders extends React.Component {
     transactionId: 0,
     tracking_number: "",
     table_export_modal: false,
+    InputDate: "",
+    FilterStatus: "",
   };
   componentDidMount() {
     this.props.getTransactionList();
@@ -80,11 +82,28 @@ class TransactionOrders extends React.Component {
     document.documentElement.scrollTop = 0;
   };
   render() {
+    console.log(this.state);
+    let InputDateDateSeparated = this.state.InputDate.toString().split(" ");
     filteredData = [];
-    filteredData = this.props.transactions.filter((item) => {
-      return item.order_status !== "Complete";
-    });
-    console.log(filteredData);
+
+    filteredData = this.props.transactions
+      .filter((item) => item.order_status !== "Complete")
+      .filter((item) =>
+        item.order_status.toString().includes(this.state.FilterStatus)
+      );
+    if (this.state.InputDate !== "") {
+      filteredData = filteredData.filter((item) =>
+        item.created_at
+          .toString()
+          .includes(
+            InputDateDateSeparated[1] +
+              " " +
+              InputDateDateSeparated[2] +
+              " " +
+              InputDateDateSeparated[3]
+          )
+      );
+    }
     return (
       <>
         <div class="bg-gray-100 flex-1 mt-20 md:mt-14 pb-24 md:pb-5">
@@ -129,49 +148,50 @@ class TransactionOrders extends React.Component {
                   </div>
                 </div> */}
               </div>
-              {filteredData.length > 0 ? (
-                <div className="w-full overflow-x-auto">
-                  <table className="min-w-full bg-white">
-                    <thead>
-                      <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
-                        <th className="pl-14 pr-6 text-md">User</th>
 
-                        <th className="pr-6 text-md w-2/12">
-                          {" "}
-                          <div>Date</div>
-                          <DatePicker
-                            selected={this.state.InputDate}
-                            onChange={(date) =>
-                              this.setState({ InputDate: date })
-                            }
-                            value={this.state.InputDate}
-                            closeOnScroll={true}
-                            placeholderText="Select Date"
-                            className="my-1 px-1 py-1 border-2 rounded-l"
-                          />
-                        </th>
-                        <th className="  pr-6 text-md">Product</th>
+              <div className="w-full overflow-x-auto">
+                <table className="min-w-full bg-white">
+                  <thead>
+                    <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
+                      <th className="pl-14 pr-6 text-md">User</th>
 
-                        <th className="pr-6 text-md">
-                          Status
-                          <select
-                            // onChange={this.onChange}
-                            name="categoryForDropDownSelect"
-                            class="w-full h-8 border rounded-lg text-xs my-2"
-                          >
-                            <option>Filter Status</option>
-                            {/* {this.props.categories.map((category) => ( */}
-                            {/* value={category.name} */}
-                            <option>Cancel Order</option>
-                            <option>Pending</option>
-                            <option>Preferring</option>
-                            <option>To Ship</option>
-                            <option>To Receive</option>
-                            {/* // ))} */}
-                          </select>
-                        </th>
-                      </tr>
-                    </thead>
+                      <th className="pr-6 text-md w-2/12">
+                        {" "}
+                        <div>Date</div>
+                        <DatePicker
+                          selected={this.state.InputDate}
+                          onChange={(date) =>
+                            this.setState({ InputDate: date })
+                          }
+                          value={this.state.InputDate}
+                          closeOnScroll={true}
+                          placeholderText="Select Date"
+                          className="my-1 px-1 py-1 border-2 rounded-l"
+                        />
+                      </th>
+                      <th className="  pr-6 text-md">Product</th>
+
+                      <th className="pr-6 text-md">
+                        Status
+                        <select
+                          onChange={this.onChange}
+                          name="FilterStatus"
+                          class="w-full h-8 border rounded-lg text-xs my-2"
+                        >
+                          <option value="">Filter Status</option>
+                          {/* {this.props.categories.map((category) => ( */}
+                          {/* value={category.name} */}
+                          <option value="Cancel Order">Cancel Order</option>
+                          <option value="Pending">Pending</option>
+                          <option value="Preferring">Preferring</option>
+                          <option value="To Ship">To Ship</option>
+                          <option value="To Receive">To Receive</option>
+                          {/* // ))} */}
+                        </select>
+                      </th>
+                    </tr>
+                  </thead>
+                  {filteredData.length > 0 ? (
                     <tbody>
                       {filteredData.map((trans) => (
                         <tr
@@ -229,17 +249,22 @@ class TransactionOrders extends React.Component {
                         </tr>
                       ))}
                     </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="text-center text-gray-500">
-                  <i class="fal fa-clipboard-list-check fa-7x"></i>
-                  <div className="font-semibold text-xl">No order/s yet.</div>
-                  <div className="font-semibold text-xl">
-                    Try refreshing the page.
+                  ) : (
+                    ""
+                  )}
+                </table>
+                {filteredData.length > 0 ? (
+                  ""
+                ) : (
+                  <div className="text-center text-gray-500 p-28">
+                    <i class="fal fa-clipboard-list-check fa-7x"></i>
+                    <div className="font-semibold text-xl">No order/s yet.</div>
+                    <div className="font-semibold text-xl">
+                      Try refreshing the page.
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>

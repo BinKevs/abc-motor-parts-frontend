@@ -13,6 +13,7 @@ import {
   ADD_REFUND,
   GET_REFUND_LIST,
   UPDATE_REFUND,
+  CHANGE_TRANSACTION_STATUS,
 } from "./actionTypes";
 import swal from "sweetalert";
 import { HandleSuccessMessages } from "../../../Helpers/functions";
@@ -72,6 +73,18 @@ export const updateTransaction =
         console.log("Transaction Updated");
         dispatch({
           type: UPDATE_TRANSACTION,
+          payload: res.data,
+        });
+      })
+      .catch((err) => console.log(err));
+  };
+export const changeTransactionStatus =
+  (TransactionID, data) => (dispatch, getState) => {
+    axios
+      .put(url + TransactionID + "/", data, tokenConfig(getState))
+      .then((res) => {
+        dispatch({
+          type: CHANGE_TRANSACTION_STATUS,
           payload: res.data,
         });
       })

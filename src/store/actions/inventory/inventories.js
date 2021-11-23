@@ -7,6 +7,7 @@ import {
   DELETE_INVENTORY,
   ADD_INVENTORY,
   UPDATE_INVENTORY,
+  CHANGE_INVENTORY_STATUS,
 } from "./actionTypes";
 import { HandleSuccessMessages } from "../../../Helpers/functions";
 import swal from "sweetalert";
@@ -89,3 +90,15 @@ export const updateInventory = (InventoryID, data) => (dispatch, getState) => {
     })
     .catch((err) => console.log(err));
 };
+export const changeInventoryStatus =
+  (InventoryID, data) => (dispatch, getState) => {
+    axios
+      .put(url + InventoryID + "/", data, tokenConfig(getState))
+      .then((res) => {
+        dispatch({
+          type: CHANGE_INVENTORY_STATUS,
+          payload: res.data,
+        });
+      })
+      .catch((err) => console.log(err));
+  };

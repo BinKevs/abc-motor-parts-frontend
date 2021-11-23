@@ -22,7 +22,11 @@ import ProductModal from "./ProductModal";
 import CategoryModal from "./CategoryModal";
 import ProductVariation from "./ProductVariation";
 import { ProductsTableExportModal } from "./Print/ProductsTableExportModal";
-import { HandleDecimalPlaces, numberWithCommas } from "../../Helpers/functions";
+import {
+  HandleDecimalPlaces,
+  numberWithCommas,
+  CheckPassword,
+} from "../../Helpers/functions";
 let products = [];
 
 let FilesArray = [];
@@ -30,6 +34,7 @@ let filteredData = [];
 let EditButtonProductIsClicked = false;
 let isImageChanged = false;
 let isItemAdded = false;
+let passwordVerified;
 class ProductSetting extends React.Component {
   static propTypes = {
     products: PropTypes.array.isRequired,
@@ -223,12 +228,10 @@ class ProductSetting extends React.Component {
         supplierID,
       } = this.state;
       const formData = new FormData();
-
       formData.append("name", productName);
       formData.append("description", description);
       formData.append("price", price);
       formData.append("cost_price", cost_price);
-
       formData.append("category", categoryID);
       formData.append("supplier", supplierID);
       this.props.updateProduct(productID, formData);
@@ -371,7 +374,6 @@ class ProductSetting extends React.Component {
   handleDeleteProduct = (ProductID) => {
     return (event) => {
       event.preventDefault();
-
       swal(
         "Are you sure you want to delete this product?\n If you are sure, type in your password:",
         {
@@ -392,7 +394,6 @@ class ProductSetting extends React.Component {
             },
             cancel: {
               text: "Cancel",
-              value: false,
               value: "cancel",
               visible: true,
               className: "",
@@ -402,36 +403,28 @@ class ProductSetting extends React.Component {
           dangerMode: true,
         }
       ).then((value) => {
-        if (value === "Nicksstonecold2017") {
-          const formData = new FormData();
-          formData.append("status", false);
-          this.props.changeProductStatus(ProductID, formData);
-          swal("Successfully deleted!", "", "success");
-        } else if (value === "cancel") {
+        const formPassword = new FormData();
+        formPassword.append("password", value);
+        if (value === "cancel") {
         } else {
-          swal("Invalid password!", "", "error");
+          CheckPassword(
+            this.props.AuthReducer.user.id,
+            formPassword,
+            this.props.AuthReducer.token
+          )
+            .then((data) => {
+              if (data === "Valid") {
+                const formData = new FormData();
+                formData.append("status", false);
+                this.props.changeProductStatus(ProductID, formData);
+                swal("Successfully deleted product!", "", "success");
+              } else {
+                swal("Invalid password!", "", "error");
+              }
+            })
+            .catch((err) => console.log(err));
         }
       });
-      // swal("Do you really want to delete this?", {
-      //   buttons: {
-      //     catch: {
-      //       text: "Yes",
-      //       value: "delete",
-      //     },
-      //     cancel: "No",
-      //   },
-      // }).then((value) => {
-      //   switch (value) {
-      //     case "delete":
-      //       const formData = new FormData();
-      //       formData.append("status", false);
-      //       this.props.changeProductStatus(ProductID, formData);
-      //       swal("Successfully deleted!", "", "success");
-      //       break;
-      //     default:
-      //       break;
-      //   }
-      // });
     };
   };
   ModalFunction() {
@@ -479,7 +472,7 @@ class ProductSetting extends React.Component {
     const formProductVariationData = new FormData();
     formProductVariationData.append("SKU", SKUProductVariation);
     formProductVariationData.append("stock", stockProductVariation);
-    formProductVariationData.append("variant", variantProductVariation);
+    formProductVariationData.append("variation", variantProductVariation);
     formProductVariationData.append("weight", weightProductVariation);
     formProductVariationData.append("product_id", this.props.product.id);
     this.props.addProductVariation(formProductVariationData);
@@ -670,7 +663,6 @@ class ProductSetting extends React.Component {
   };
 
   render() {
-    console.log(this.state.file_content);
     // destructure the products that came from the reducer so it will be easier to filter and show
     products = [];
     filteredData = [];
@@ -805,8 +797,9 @@ class ProductSetting extends React.Component {
 
                       <th className="pr-4 text-md">Product</th>
                       <th className="pr-4 text-md">(Variation) Stock</th>
-                      <th className="pr-4 text-md">Price</th>
                       <th className="pr-4 text-md">Cost Price</th>
+                      <th className="pr-4 text-md">Price</th>
+
                       <th className="pr-4 text-md">Profit</th>
                       <th className="text-gray-600  font-normal pr-4 text-left text-sm w-2/12">
                         <select
@@ -866,11 +859,12 @@ class ProductSetting extends React.Component {
                             : ""}
                         </td>
                         <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
-                          ₱{product.price}
-                        </td>
-                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           ₱{product.cost_price}
                         </td>
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                          ₱{product.price}
+                        </td>
+
                         <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           ₱
                           {HandleDecimalPlaces(
@@ -996,6 +990,7 @@ class ProductSetting extends React.Component {
   }
 }
 const mapStateToProps = (state) => ({
+  AuthReducer: state.AuthReducer,
   products: state.products.products,
   product: state.products.product,
   suppliers: state.suppliers.suppliers,

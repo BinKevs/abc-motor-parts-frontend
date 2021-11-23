@@ -1,12 +1,17 @@
 import React from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
-import { getTransactionList } from "../../store/actions/transaction/transactions.js";
+import {
+  getTransactionList,
+  changeTransactionStatus,
+} from "../../store/actions/transaction/transactions.js";
 import { Link } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import TransactionView from "./TransactionView";
 import { TransactionsTableExportModal } from "./Print/TransactionsTableExportModal";
 import swal from "sweetalert";
+import { CheckPassword } from "../../Helpers/functions";
+let passwordVerified;
 let filteredData = [];
 let Transactions = [];
 class TransactionSettingIndex extends React.Component {
@@ -94,14 +99,26 @@ class TransactionSettingIndex extends React.Component {
           dangerMode: true,
         }
       ).then((value) => {
-        if (value === "Nicksstonecold2017") {
-          // const formData = new FormData();
-          // formData.append("status", false);
-          // this.props.changeSupplierStatus(transactionID, formData);
-          swal("Successfully deleted!", "", "success");
-        } else if (value === "cancel") {
+        const formPassword = new FormData();
+        formPassword.append("password", value);
+        if (value === "cancel") {
         } else {
-          swal("Invalid password!", "", "error");
+          CheckPassword(
+            this.props.AuthReducer.user.id,
+            formPassword,
+            this.props.AuthReducer.token
+          )
+            .then((data) => {
+              if (data === "Valid") {
+                const formData = new FormData();
+                formData.append("status", false);
+                this.props.changeTransactionStatus(transactionID, formData);
+                swal("Successfully deleted transaction!", "", "success");
+              } else {
+                swal("Invalid password!", "", "error");
+              }
+            })
+            .catch((err) => console.log(err));
         }
       });
     };
@@ -113,21 +130,23 @@ class TransactionSettingIndex extends React.Component {
     Transactions = [];
 
     this.props.transactions.map((trans) =>
-      Transactions.push({
-        id: trans.id,
-        creator: trans.user_info.name
-          ? trans.user_info.name.split(" ")[0]
-          : "None",
-        items: trans.items,
-        created_at: trans.created_at,
-        totalAmount: trans.totalAmount,
-        totalProfit: trans.totalProfit,
-        quantity: trans.quantity,
-        mode_of_payment: trans.payment_method,
-        payment_details: trans.payment_details,
-        contact_number: trans.contact_number,
-        address: trans.address,
-      })
+      trans.status
+        ? Transactions.push({
+            id: trans.id,
+            creator: trans.user_info.name
+              ? trans.user_info.name.split(" ")[0]
+              : "None",
+            items: trans.items,
+            created_at: trans.created_at,
+            totalAmount: trans.totalAmount,
+            totalProfit: trans.totalProfit,
+            quantity: trans.quantity,
+            mode_of_payment: trans.payment_method,
+            payment_details: trans.payment_details,
+            contact_number: trans.contact_number,
+            address: trans.address,
+          })
+        : ""
     );
     filteredData = [];
     const lowercasedFilter = this.state.search.toLowerCase();
@@ -436,8 +455,10 @@ class TransactionSettingIndex extends React.Component {
 }
 const mapStateToProps = (state) => ({
   transactions: state.transactions.transactions,
+  AuthReducer: state.AuthReducer,
 });
 
 export default connect(mapStateToProps, {
   getTransactionList,
+  changeTransactionStatus,
 })(TransactionSettingIndex);

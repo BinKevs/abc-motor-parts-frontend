@@ -4,7 +4,7 @@ let DateNow = Date().toLocaleString().split(" ");
 export class VoucherTablePrint extends React.PureComponent {
   render() {
     return (
-      <div className="w-full p-10">
+      <div className="w-full p-10" id="voucherTable">
         <div class="mb-8 flex justify-between">
           <div>
             <h2 class="text-3xl font-bold mb-6 pb-2 tracking-wider uppercase">

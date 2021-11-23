@@ -10,7 +10,6 @@ const AddressModal = (props) => {
     handleUpdateContact,
     onChange,
     handleModalContact,
-    address,
   } = props;
   const {
     showModalAddress,
@@ -32,7 +31,7 @@ const AddressModal = (props) => {
             <div class="modal-overlay absolute w-full h-full z-25 bg-gray-900 opacity-50"></div>
             <div className="h-full overflow-auto w-full flex flex-col">
               <div className="m-2 md:m-12">
-                <form onSubmit={handleUpdateContact(address.id)} class="mt-9">
+                <form onSubmit={handleUpdateContact} class="mt-9">
                   <div className="relative p-4 md:p-8 bg-white dark:bg-gray-800 dark:border-gray-700 shadow-md rounded border border-gray-400 ">
                     <div class="text-left p-0 mb-8">
                       <div>

@@ -11,6 +11,7 @@ import {
   ADD_REFUND,
   GET_REFUND_LIST,
   UPDATE_REFUND,
+  CHANGE_TRANSACTION_STATUS,
 } from "../../actions/transaction/actionTypes";
 const initialState = {
   transactions: [],
@@ -40,6 +41,17 @@ export default function (state = initialState, action) {
           (transaction) => transaction.id !== action.payload
         ),
       };
+    case CHANGE_TRANSACTION_STATUS:
+      return {
+        ...state,
+        transactions: [
+          action.payload,
+          ...state.transactions.filter(
+            (transac) => transac.id !== action.payload.id
+          ),
+        ],
+      };
+
     case ADD_TRANSACTION:
       return {
         ...state,
@@ -51,16 +63,19 @@ export default function (state = initialState, action) {
         ...state,
         transaction: action.payload,
       };
+
     case UPDATE_TRANSACTION_STATUS:
+      const index = state.transactions.findIndex(
+        (tran) => tran.id === action.payload.id
+      );
+      const newArray = [...state.transactions];
+      newArray[index] = action.payload;
       return {
         ...state,
-        transactions: [
-          action.payload,
-          ...state.transactions.filter(
-            (items) => items.id !== action.payload.id
-          ),
-        ],
+
+        transactions: newArray,
       };
+
     case UPDATE_TRANSACTION_ITEMS:
       return {
         ...state,

@@ -84,9 +84,12 @@ class ProductListIndexOnlineCustomer extends React.Component {
 
     filteredDataProduct = products.filter((item) => {
       if (item.status) {
+        if (SearchFilter !== "") {
+          item.name.toString().toLowerCase().includes(SearchFilter);
+        }
         if (
-          SearchFilter === "" &&
-          (categoryFilter === "" || categoryFilter === "all")
+          (SearchFilter === "" && categoryFilter === "") ||
+          categoryFilter === "all"
         ) {
           return item;
         } else {
@@ -131,7 +134,6 @@ class ProductListIndexOnlineCustomer extends React.Component {
                     name="search"
                     placeholder="Search"
                     onChange={this.onChange}
-                    value={this.state.search}
                   />
                 </div>
               </div>

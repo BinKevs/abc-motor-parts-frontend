@@ -1,5 +1,5 @@
 import axios from "axios";
-import { URL_IMPORT } from "../../../Helpers/constant";
+import { URL_IMPORT, URL_FOR_LOGIN } from "../../../Helpers/constant";
 import {
   USER_LOADED,
   USER_LOADING,
@@ -17,9 +17,54 @@ import {
   UPDATE_ACCOUNT,
   UPDATE_ADDRESS,
   CHANGE_ACCOUNT_STATUS,
+  CHANGE_PASSWORD,
+  CREATE_ADMIN_ACCOUNT,
+  CHECK_PASSWORD,
 } from "./types";
 import swal from "sweetalert";
 import { HandleSuccessMessages } from "../../../Helpers/functions";
+export const ChangePassword = (UserID, data) => (dispatch, getState) => {
+  axios
+    .put(
+      URL_IMPORT + "/api/auth/ChangePassword/" + UserID + "/",
+      data,
+      tokenConfig(getState)
+    )
+    .then((res) => {
+      dispatch({
+        type: CHANGE_PASSWORD,
+        payload: res.data,
+      });
+      swal(
+        "Password successfully updated.\n Please login with you new password.",
+        "",
+        "success"
+      ).then(function () {
+        window.location.href = URL_FOR_LOGIN;
+      });
+    })
+    .catch((err) =>
+      swal("Incorect current password.\n Please try again.", "", "error")
+    );
+};
+
+export const CheckAdminPassword = (UserID, data) => (dispatch, getState) => {
+  axios
+    .put(
+      URL_IMPORT + "/api/auth/CheckPassword/" + UserID + "/",
+      data,
+      tokenConfig(getState)
+    )
+    .then((res) => {
+      dispatch({
+        type: CHECK_PASSWORD,
+        payload: res.data,
+      });
+      console.log(res);
+    })
+    .catch((err) => console.log(err));
+};
+
 export const loadUser = () => (dispatch, getState) => {
   dispatch({ type: USER_LOADING });
   axios
@@ -144,7 +189,66 @@ export const register =
           type: REGISTER_SUCCESS,
           payload: res.data,
         });
-        console.log(res);
+        swal({
+          title: "Success!",
+          text: "Congratulations, your account has been successfully created. :)",
+          icon: "success",
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        dispatch({
+          type: REGISTER_FAIL,
+        });
+      });
+  };
+export const createAdminAccount =
+  ({
+    username,
+    password,
+    email,
+    first_name,
+    last_name,
+    region,
+    province,
+    city,
+    barangay,
+    street,
+    contact_number,
+    birthdate,
+  }) =>
+  (dispatch) => {
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    const body = JSON.stringify({
+      username,
+      password,
+      email,
+      first_name,
+      last_name,
+      region,
+      province,
+      city,
+      barangay,
+      street,
+      contact_number,
+      birthdate,
+    });
+    axios
+      .post(URL_IMPORT + "/api/auth/admin/create", body, config)
+      .then((res) => {
+        dispatch({
+          type: CREATE_ADMIN_ACCOUNT,
+          payload: res.data,
+        });
+        swal({
+          title: "Success!",
+          text: "Congratulations, your account has been successfully created. :)",
+          icon: "success",
+        });
       })
       .catch((err) => {
         console.log(err);
@@ -235,7 +339,7 @@ export const UpdateAddress = (AddressID, data) => (dispatch, getState) => {
       tokenConfig(getState)
     )
     .then((res) => {
-      HandleSuccessMessages("Address Updated", "success");
+      HandleSuccessMessages("Contact Details Updated", "success");
       dispatch({
         type: UPDATE_ADDRESS,
         payload: res.data,

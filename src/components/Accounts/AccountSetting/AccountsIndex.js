@@ -6,16 +6,44 @@ import {
   getAccountList,
   getAccount,
   changeAccountStatus,
+  createAdminAccount,
 } from "../../../store/actions/account/auth";
+import {
+  regions,
+  provinces,
+  cities,
+  barangays,
+} from "select-philippines-address";
 import AccountFormModal from "./AccountFormModal";
 import { AccountTableExportModal } from "../Print/AccountTableExportModal";
 import { Link } from "react-router-dom";
 import swal from "sweetalert";
+import { CheckPassword } from "../../../Helpers/functions";
+import { phone } from "phone";
+import * as EmailValidator from "email-validator";
+var passwordValidator = require("password-validator");
+var schema = new passwordValidator();
+schema
+  .is()
+  .min(8)
+  .is()
+  .max(100)
+  .has()
+  .uppercase()
+  .has()
+  .lowercase()
+  .has()
+  .digits(2)
+  .has()
+  .not()
+  .spaces();
+let passwordError = [];
 let AccountsItems = [];
 let EditButtonIsClicked = false;
-let ItemAdded = false;
 class AccountsIndex extends React.Component {
   state = {
+    account_id: "",
+    account_user_id: "",
     search: "",
     username: "",
     email: "",
@@ -24,9 +52,42 @@ class AccountsIndex extends React.Component {
     password: "",
     password2: "",
     modal: false,
-    IsAdmin: false,
     table_export_modal: false,
+    contact_number: "",
+    regionData: [],
+    provinceData: [],
+    cityData: [],
+    barangayData: [],
+    regionValue: "",
+    provinceValue: "",
+    cityValue: "",
+    barangayValue: "",
+    regionCode: "",
+    provinceCode: "",
+    cityCode: "",
+    barangayCode: "",
+    street: "",
+    BirthInputDate: "",
+    birthdate: "",
+    emailError: false,
+    usernameError: false,
+    ConfirmPasswordError: false,
+    contactNumberError: false,
   };
+  convert(str) {
+    if (str === "") {
+      return "";
+    } else {
+      var date = new Date(str),
+        mnth = ("0" + (date.getMonth() + 1)).slice(-2),
+        day = ("0" + date.getDate()).slice(-2);
+      return (
+        [date.getFullYear(), mnth, day].join("-") +
+        " " +
+        [date.getHours(), date.getMinutes(), date.getSeconds()].join(":")
+      );
+    }
+  }
   setSeeMore(transaction_items_id) {
     return (e) => {
       e.preventDefault();
@@ -34,86 +95,279 @@ class AccountsIndex extends React.Component {
     };
   }
   componentDidMount() {
+    this.region();
     this.props.getAccountList();
   }
   componentDidUpdate(prevProps, prevState) {
     if (this.props.account !== prevProps.account) {
-      const { id, username, email, first_name, last_name, IsAdmin } =
-        this.props.account;
       this.setState({
-        id,
-        username,
-        email,
-        first_name,
-        last_name,
-        IsAdmin,
+        account_id: this.props.account.id,
+        account_user_id: this.props.account.user.id,
+        first_name: this.props.account
+          ? this.props.account.user.first_name
+          : "",
+        last_name: this.props.account ? this.props.account.user.last_name : "",
+        username: this.props.account ? this.props.account.user.username : "",
+        email: this.props.account ? this.props.account.user.email : "",
+        birthdate: this.props.account ? this.props.account.birthdate : "",
       });
-      this.props.getAccountList();
-    }
-    if (ItemAdded === true) {
-      this.props.getAccountList();
-      console.log(this.props.accounts);
-      ItemAdded = false;
+      // this.props.getAccountList();
     }
   }
-  handleCheck = (e) => {
-    this.setState({ IsAdmin: !this.state.IsAdmin });
-  };
+
   onChange = (e) => {
-    this.setState({
-      [e.target.name]: e.target.value,
-    });
+    if (e.target.name === "password") {
+      passwordError = schema.validate(e.target.value, { details: true });
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    } else if (e.target.name === "username") {
+      if (
+        this.props.accounts.some((acc) => acc.user.username === e.target.value)
+      ) {
+        this.setState({
+          usernameError: true,
+        });
+      } else {
+        this.setState({
+          usernameError: false,
+        });
+      }
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    } else if (e.target.name === "password2") {
+      if (this.state.password !== e.target.value) {
+        this.setState({
+          ConfirmPasswordError: true,
+        });
+      } else {
+        this.setState({
+          ConfirmPasswordError: false,
+        });
+      }
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    } else if (e.target.name === "email") {
+      if (EmailValidator.validate(e.target.value)) {
+        this.setState({
+          emailError: false,
+        });
+      } else {
+        this.setState({
+          emailError: true,
+        });
+      }
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    } else if (e.target.name === "contact_number") {
+      if (phone(e.target.value, { country: "PH" }).isValid) {
+        this.setState({
+          contactNumberError: false,
+        });
+      } else {
+        this.setState({
+          contactNumberError: true,
+        });
+      }
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    } else {
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    }
+  };
+  handleChangePassword = (event) => {
+    event.preventDefault();
+
+    const { old_password, password, password2 } = this.state;
+
+    if (password !== password2) {
+      swal(
+        "Password and confirm password do not match. Please try again.",
+        "",
+        "error"
+      );
+      this.setState({
+        password: "",
+        password2: "",
+      });
+    } else {
+      if (schema.validate(password)) {
+        const formPassword = new FormData();
+        formPassword.append("old_password", old_password);
+        formPassword.append("new_password", password2);
+        this.props.ChangePassword(this.props.AuthReducer.user.id, formPassword);
+      }
+    }
+  };
+  handleEditAccountInfoSubmit = (event) => {
+    event.preventDefault();
+    const {
+      first_name,
+      last_name,
+      username,
+      email,
+      BirthInputDate,
+      usernameError,
+      emailError,
+      account_user_id,
+      account_id,
+    } = this.state;
+    const formAccountInfoData = new FormData();
+    formAccountInfoData.append("first_name", first_name);
+    formAccountInfoData.append("last_name", last_name);
+    formAccountInfoData.append("username", username);
+    formAccountInfoData.append("email", email);
+    formAccountInfoData.append("status", true);
+    if (BirthInputDate !== "") {
+      formAccountInfoData.append("birthdate", this.convert(BirthInputDate));
+    }
+    formAccountInfoData.append("account", account_id);
+    if (username === this.props.AuthReducer.user.username) {
+      this.setState({
+        usernameError: false,
+      });
+    } else {
+      if (this.props.accounts.some((acc) => username === acc.user.username)) {
+        this.setState({
+          usernameError: true,
+        });
+      } else {
+        this.setState({
+          usernameError: false,
+        });
+        this.props.getAccountList();
+      }
+    }
+
+    if (EmailValidator.validate(email)) {
+      this.setState({
+        emailError: false,
+      });
+    } else {
+      this.setState({
+        emailError: true,
+      });
+    }
+
+    if (!usernameError && !emailError) {
+      this.props.UpdateAccount(account_user_id, formAccountInfoData);
+      this.setState({
+        edit_account_info: false,
+      });
+    }
   };
 
-  // Submit the state value to the store actions-accounts-auth-register
-  onSubmit = (e) => {
+  handleAddAccount = (e) => {
     e.preventDefault();
     const {
       username,
       email,
       first_name,
       last_name,
-      IsAdmin,
       password,
       password2,
+      regionValue,
+      provinceValue,
+      cityValue,
+      barangayValue,
+      street,
+      contact_number,
+      BirthInputDate,
+      usernameError,
+      ConfirmPasswordError,
+      passwordError,
+      emailError,
+      contactNumberError,
     } = this.state;
-    if (password !== password2) {
-      console.log("Passwords do not match");
+
+    const newUser = {
+      username,
+      password,
+      email,
+      first_name,
+      last_name,
+      region: regionValue,
+      province: provinceValue,
+      city: cityValue,
+      barangay: barangayValue,
+      street,
+      contact_number,
+      birthdate: BirthInputDate,
+    };
+    if (this.props.accounts.some((acc) => acc.user.username === username)) {
+      this.setState({
+        usernameError: true,
+      });
     } else {
-      const newUser = {
-        username,
-        password,
-        email,
-        first_name,
-        last_name,
-        is_superuser: IsAdmin,
-        is_active: true,
-      };
-      this.props.AddAccount(newUser);
+      this.setState({
+        usernameError: false,
+      });
+    }
+    if (password !== password2) {
+      this.setState({
+        ConfirmPasswordError: true,
+      });
+    } else {
+      this.setState({
+        ConfirmPasswordError: false,
+      });
+    }
+    if (schema.validate(password)) {
+      this.setState({
+        passwordError: false,
+      });
+    } else {
+      this.setState({
+        passwordError: false,
+      });
+    }
+    if (EmailValidator.validate(email)) {
+      this.setState({
+        emailError: false,
+      });
+    } else {
+      this.setState({
+        emailError: true,
+      });
+    }
+
+    if (phone(contact_number, { country: "PH" }).isValid) {
+      this.setState({
+        contactNumberError: false,
+      });
+    } else {
+      this.setState({
+        contactNumberError: true,
+      });
+    }
+    if (
+      !usernameError &&
+      !ConfirmPasswordError &&
+      !passwordError &&
+      !emailError &&
+      !contactNumberError
+    ) {
+      this.props.createAdminAccount(newUser);
     }
     this.ModalFunction();
-    this.props.getAccountList();
   };
-
   onUpdateSubmit = (AccountID) => {
     return (event) => {
       event.preventDefault();
-      const {
-        username,
-        email,
-        first_name,
-        last_name,
-        IsAdmin,
-        password,
-        password2,
-      } = this.state;
+      const { username, email, first_name, last_name, password, password2 } =
+        this.state;
       if (password !== password2) {
         console.log("Passwords do not match");
       } else {
         const newUser = {
           username,
           email,
-          is_superuser: IsAdmin,
           first_name,
           last_name,
           password,
@@ -121,7 +375,7 @@ class AccountsIndex extends React.Component {
         };
         this.props.UpdateAccount(AccountID, newUser);
       }
-      ItemAdded = true;
+
       this.props.getAccountList();
       this.ModalFunction();
     };
@@ -158,43 +412,17 @@ class AccountsIndex extends React.Component {
     this.setState({ modal: !this.state.modal });
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
-    document.getElementById("Body").classList.toggle("overflow-hidden");
   }
   OnToggleExportTable = (event) => {
     event.preventDefault();
     this.setState({ table_export_modal: !this.state.table_export_modal });
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
-    document.getElementById("Body").classList.toggle("overflow-hidden");
   };
   handleArchiveAccount(accountID) {
     return (event) => {
       event.preventDefault();
-      // swal("Do you really want to delete this?", {
-      //   buttons: {
-      //     catch: {
-      //       text: "Yes",
-      //       value: "delete",
-      //     },
-      //     cancel: "No",
-      //   },
-      // }).then((value) => {
-      //   switch (value) {
-      //     case "delete":
-      //       const formData = new FormData();
-      //       formData.append("status", false);
-      //       this.props.changeAccountStatus(accountID, formData);
-      //       swal(
-      //         "Successfully deleted!",
-      //         // "You can retrive it in the archives module.",
-      //         "",
-      //         "success"
-      //       );
-      //       break;
-      //     default:
-      //       break;
-      //   }
-      // });
+
       swal(
         "Are you sure you want to delete this Account?\n If you are sure, type in your password:",
         {
@@ -225,25 +453,94 @@ class AccountsIndex extends React.Component {
           dangerMode: true,
         }
       ).then((value) => {
-        if (value === "Nicksstonecold2017") {
-          // const formData = new FormData();
-          // formData.append("status", false);
-          // this.props.changeSupplierStatus(transactionID, formData);
-          swal("Successfully deleted!", "", "success");
-        } else if (value === "cancel") {
+        const formPassword = new FormData();
+        formPassword.append("password", value);
+        if (value === "cancel") {
         } else {
-          swal("Invalid password!", "", "error");
+          CheckPassword(
+            this.props.AuthReducer.user.id,
+            formPassword,
+            this.props.AuthReducer.token
+          )
+            .then((data) => {
+              if (data === "Valid") {
+                const formData = new FormData();
+                formData.append("status", false);
+                this.props.changeAccountStatus(accountID, formData);
+                swal("Successfully deleted account!", "", "success");
+              } else {
+                swal("Invalid password!", "", "error");
+              }
+            })
+            .catch((err) => console.log(err));
         }
       });
     };
   }
+  onChangeDate = (date) => {
+    this.setState({
+      BirthInputDate: date,
+    });
+  };
+  region = () => {
+    regions().then((response) => {
+      this.setState({
+        regionData: response,
+      });
+    });
+  };
+
+  province = (e) => {
+    this.setState({
+      regionValue: e.target.selectedOptions[0].text,
+      regionCode: e.target.value,
+    });
+    provinces(e.target.value).then((response) => {
+      this.setState({
+        provinceData: response,
+        cityData: [],
+        barangayData: [],
+      });
+    });
+  };
+
+  city = (e) => {
+    this.setState({
+      provinceValue: e.target.selectedOptions[0].text,
+      provinceCode: e.target.value,
+    });
+    cities(e.target.value).then((response) => {
+      this.setState({
+        cityData: response,
+      });
+    });
+  };
+
+  barangay = (e) => {
+    this.setState({
+      cityValue: e.target.selectedOptions[0].text,
+      cityCode: e.target.value,
+    });
+    barangays(e.target.value).then((response) => {
+      this.setState({
+        barangayData: response,
+      });
+    });
+  };
+
+  brgy = (e) => {
+    this.setState({
+      barangayValue: e.target.selectedOptions[0].text,
+      barangayCode: e.target.value,
+    });
+  };
   render() {
     //destructuring the dictionary for searching/ fetching purposes
-    console.log();
-    AccountsItems = [this.props.accounts];
+    AccountsItems = [];
     this.props.accounts.map((account) =>
       AccountsItems.push({
         id: account.user.id,
+        account_id: account.id,
         username: account.user.username,
         email: account.user.email,
         status: account.user.is_active,
@@ -251,13 +548,10 @@ class AccountsIndex extends React.Component {
         name: account.user.last_name + " " + account.user.first_name,
       })
     );
-    //returning the filtered data from search
+
     const lowercasedFilter = this.state.search.toLowerCase();
     const filteredData = AccountsItems.filter((item) => {
-      // return Object.keys(item).some((key) =>
-      // 	item[key].toString().toLowerCase().includes(lowercasedFilter)
-      // );
-      if (item.status) return item;
+      if (item.is_superuser) if (item.status) return item;
     });
     return (
       <>
@@ -292,26 +586,6 @@ class AccountsIndex extends React.Component {
                   </div>
                 </div>
                 <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center justify-end">
-                  {/* <div className="flex items-center lg:border-l lg:border-r border-gray-300 dark:border-gray-200 py-3 lg:py-0 lg:px-6">
-										<p
-											className="text-base text-gray-600 dark:text-gray-400"
-											id="page-view"
-										>
-											Viewing 1 - 20 of 60
-										</p>
-										<div
-											className="text-gray-600 dark:text-gray-400 ml-2 border-transparent border cursor-pointer rounded mr-4"
-											onclick="pageView(false)"
-										>
-											<i class="fad fa-angle-left fa-2x"></i>
-										</div>
-										<div
-											className="text-gray-600 dark:text-gray-400 border-transparent border rounded focus:outline-none cursor-pointer"
-											onclick="pageView(true)"
-										>
-											<i class="fad fa-angle-right fa-2x"></i>
-										</div>
-									</div> */}
                   <div className="lg:ml-6 flex items-center">
                     <div class="relative w-full">
                       <input
@@ -350,17 +624,10 @@ class AccountsIndex extends React.Component {
                       <th className="text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4">
                         Email
                       </th>
-                      {/* <th className="text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4">
-                        Status
-                      </th> */}
+
                       <th className="text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4">
                         More
                       </th>
-                      {/* <th className="space-x-2 text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4">
-                        						<span>Date</span>
-                        						<i class="fal fa-arrow-up fa-lg"></i>
-                        						<i class="fal fa-arrow-down"></i>
-                    						</th> */}
                     </tr>
                   </thead>
                   <tbody>
@@ -381,33 +648,15 @@ class AccountsIndex extends React.Component {
                         <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
                           {account.email}
                         </td>
-                        {/* <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                          {account.is_active ? "Active" : "Inactive"}{" "}
-                          <strong>
-                            {account.is_superuser ? "(Admin)" : ""}
-                          </strong>
-                        </td> */}
-                        {/* <td className="pr-6 whitespace-no-wrap">
-                        							<div className="flex items-center">
-                            						<div className="h-8 w-8">
-                               						 <img
-                                    					src="https://tuk-cdn.s3.amazonaws.com/assets/components/advance_tables/at_1.png"
-                                    					alt
-                                    					className="h-full w-full rounded-full overflow-hidden shadow"
-                                					/>
-                            						</div>
-                            						<p className="ml-2 text-gray-800 dark:text-gray-100 tracking-normal leading-4 text-sm">
-                                					Carrie Anthony
-                            							</p>
-                       								 </div>
-                    							</td> */}
+
                         <td className="pr-8 relative">
                           <button className="button-see-more text-gray-500 rounded cursor-pointer border border-transparent focus:outline-none">
                             <div className="seeMore absolute left-0 top-0 mt-2 -ml-20 shadow-md z-10 w-32">
                               <ul className="bg-white dark:bg-gray-800 shadow rounded p-2">
                                 <li
-                                  // onClick={this.onModalToggle}
-                                  onClick={this.onModalToggleEdit(account.id)}
+                                  onClick={this.onModalToggleEdit(
+                                    account.account_id
+                                  )}
                                   className="cursor-pointer text-gray-600 dark:text-gray-400 text-sm leading-3 tracking-normal py-3 hover:bg-teal_custom hover:text-white px-3 font-normal"
                                 >
                                   Edit
@@ -454,11 +703,19 @@ class AccountsIndex extends React.Component {
           onModalToggleAdd={this.onModalToggleAdd}
           state={this.state}
           onChange={this.onChange}
-          handleCheck={this.handleCheck}
           EditButtonIsClicked={EditButtonIsClicked}
           onEditCloseButton={this.onEditCloseButton}
-          onSubmit={this.onSubmit}
+          handleAddAccount={this.handleAddAccount}
           onUpdateSubmit={this.onUpdateSubmit}
+          passwordError={passwordError}
+          province={this.province}
+          region={this.region}
+          city={this.city}
+          barangay={this.barangay}
+          brgy={this.brgy}
+          onChangeDate={this.onChangeDate}
+          handleEditAccountInfoSubmit={this.handleEditAccountInfoSubmit}
+          handleChangePassword={this.handleChangePassword}
         />
         <div
           class={
@@ -478,6 +735,7 @@ const mapStateToProps = (state) => ({
   accounts: state.AuthReducer.accounts,
   account: state.AuthReducer.account,
   isAuthenticated: state.AuthReducer.isAuthenticated,
+  AuthReducer: state.AuthReducer,
 });
 
 export default connect(mapStateToProps, {
@@ -486,4 +744,5 @@ export default connect(mapStateToProps, {
   AddAccount,
   UpdateAccount,
   changeAccountStatus,
+  createAdminAccount,
 })(AccountsIndex);

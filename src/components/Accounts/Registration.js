@@ -2,18 +2,40 @@ import React from "react";
 import { Redirect } from "react-router-dom";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { register } from "../../store/actions/account/auth";
+import { register, getAccountList } from "../../store/actions/account/auth";
 import DatePicker from "react-datepicker";
+import { Link } from "react-router-dom";
 import {
   regions,
   provinces,
   cities,
   barangays,
 } from "select-philippines-address";
+import swal from "sweetalert";
+import { phone } from "phone";
+import * as EmailValidator from "email-validator";
+var passwordValidator = require("password-validator");
+var schema = new passwordValidator();
+schema
+  .is()
+  .min(8)
+  .is()
+  .max(100)
+  .has()
+  .uppercase()
+  .has()
+  .lowercase()
+  .has()
+  .digits(2)
+  .has()
+  .not()
+  .spaces();
+let passwordError = [];
 class Registration extends React.Component {
   state = {
     username: "",
     email: "",
+    contact_number: "",
     first_name: "",
     last_name: "",
     password: "",
@@ -32,6 +54,11 @@ class Registration extends React.Component {
     barangayCode: "",
     street: "",
     BirthInputDate: "",
+    usernameError: false,
+    emailError: false,
+    contactNumberError: false,
+    passwordError: "",
+    ConfirmPasswordError: "",
   };
   static propTypes = {
     register: PropTypes.func.isRequired,
@@ -39,6 +66,7 @@ class Registration extends React.Component {
   };
   componentDidMount() {
     this.region();
+    this.props.getAccountList();
   }
   // Submit the state value to the store actions-accounts-auth-register
   onSubmit = (e) => {
@@ -57,30 +85,150 @@ class Registration extends React.Component {
       street,
       contact_number,
       BirthInputDate,
+      usernameError,
+      ConfirmPasswordError,
+      passwordError,
+      emailError,
+      contactNumberError,
     } = this.state;
 
-    if (password !== password2) {
-      console.log("Passwords do not match");
+    const newUser = {
+      username,
+      password,
+      email,
+      first_name,
+      last_name,
+      region: regionValue,
+      province: provinceValue,
+      city: cityValue,
+      barangay: barangayValue,
+      street,
+      contact_number,
+      birthdate: BirthInputDate,
+    };
+    if (this.props.accounts.some((acc) => acc.user.username === username)) {
+      this.setState({
+        usernameError: true,
+      });
     } else {
-      const newUser = {
-        username,
-        password,
-        email,
-        first_name,
-        last_name,
-        region: regionValue,
-        province: provinceValue,
-        city: cityValue,
-        barangay: barangayValue,
-        street,
-        contact_number,
-        birthdate: BirthInputDate,
-      };
+      this.setState({
+        usernameError: false,
+      });
+    }
+    if (password !== password2) {
+      this.setState({
+        ConfirmPasswordError: true,
+      });
+    } else {
+      this.setState({
+        ConfirmPasswordError: false,
+      });
+    }
+    if (schema.validate(password)) {
+      this.setState({
+        passwordError: false,
+      });
+    } else {
+      this.setState({
+        passwordError: false,
+      });
+    }
+    if (EmailValidator.validate(email)) {
+      this.setState({
+        emailError: false,
+      });
+    } else {
+      this.setState({
+        emailError: true,
+      });
+    }
+
+    if (phone(contact_number, { country: "PH" }).isValid) {
+      this.setState({
+        contactNumberError: false,
+      });
+    } else {
+      this.setState({
+        contactNumberError: true,
+      });
+    }
+    if (
+      !usernameError &&
+      !ConfirmPasswordError &&
+      !passwordError &&
+      !emailError &&
+      !contactNumberError
+    ) {
       this.props.register(newUser);
-      console.log("Account created!");
     }
   };
-  onChange = (e) => this.setState({ [e.target.name]: e.target.value });
+
+  onChange = (e) => {
+    if (e.target.name === "password") {
+      passwordError = schema.validate(e.target.value, { details: true });
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    } else if (e.target.name === "username") {
+      if (
+        this.props.accounts.some((acc) => acc.user.username === e.target.value)
+      ) {
+        this.setState({
+          usernameError: true,
+        });
+      } else {
+        this.setState({
+          usernameError: false,
+        });
+      }
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    } else if (e.target.name === "password2") {
+      if (this.state.password !== e.target.value) {
+        this.setState({
+          ConfirmPasswordError: true,
+        });
+      } else {
+        this.setState({
+          ConfirmPasswordError: false,
+        });
+      }
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    } else if (e.target.name === "email") {
+      if (EmailValidator.validate(e.target.value)) {
+        this.setState({
+          emailError: false,
+        });
+      } else {
+        this.setState({
+          emailError: true,
+        });
+      }
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    } else if (e.target.name === "contact_number") {
+      if (phone(e.target.value, { country: "PH" }).isValid) {
+        this.setState({
+          contactNumberError: false,
+        });
+      } else {
+        this.setState({
+          contactNumberError: true,
+        });
+      }
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    } else {
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    }
+  };
   region = () => {
     regions().then((response) => {
       this.setState({
@@ -230,8 +378,8 @@ class Registration extends React.Component {
                     >
                       Email
                     </label>
-                    <span class="text-sm text-red-600 hidden" id="error">
-                      Email is required
+                    <span class="text-sm text-red-600" id="error">
+                      {this.state.emailError ? "Not a valid email" : ""}
                     </span>
                   </div>
                   <div class="relative z-0 w-full mb-5">
@@ -250,8 +398,8 @@ class Registration extends React.Component {
                     >
                       Username
                     </label>
-                    <span class="text-sm text-red-600 hidden" id="error">
-                      Username is required
+                    <span class="text-sm text-red-600" id="error">
+                      {this.state.usernameError ? "Username not available" : ""}
                     </span>
                   </div>
                   <div class="relative z-0 w-full mb-5">
@@ -270,9 +418,11 @@ class Registration extends React.Component {
                     >
                       Password
                     </label>
-                    <span class="text-sm text-red-600 hidden" id="error">
-                      Password is required
-                    </span>
+                    {passwordError.map((err) => (
+                      <div class="text-sm text-red-600" id="error">
+                        {err.message}
+                      </div>
+                    ))}
                   </div>
                   <div class="relative z-0 w-full mb-5">
                     <input
@@ -290,8 +440,10 @@ class Registration extends React.Component {
                     >
                       Confirm Password
                     </label>
-                    <span class="text-sm text-red-600 hidden" id="error">
-                      Confirm Password is required
+                    <span class="text-sm text-red-600" id="error">
+                      {this.state.ConfirmPasswordError
+                        ? "Password and Confirm Password do not match"
+                        : ""}
                     </span>
                   </div>
                 </div>
@@ -315,6 +467,15 @@ class Registration extends React.Component {
                     >
                       Contact Number
                     </label>
+                    <span class="text-sm text-red-600" id="error">
+                      {this.state.contactNumberError
+                        ? "Not a valid PH number"
+                        : contact_number.length > 10
+                        ? phone(contact_number, { country: "PH" }).isValid
+                          ? ""
+                          : "Not a valid PH number"
+                        : ""}
+                    </span>
                   </div>
                   <div class="relative z-0 w-full mb-5">
                     <label class="block my-2">Select Region</label>
@@ -446,18 +607,18 @@ class Registration extends React.Component {
               </div>
               <div class="mt-6 inline-block p-5 md:font-sans text-sm text-gray-800">
                 <span class="inline-block">
-                  <input type="checkbox" class="border-0 mr-2" />
+                  <input type="checkbox" required class="border-0 mr-2" />
                   By creating an account you are agreeing to our{" "}
                   <div>
-                    <a class="" href="#" target="_blank" data-test="Link">
+                    <Link to="/terms-conditions" target="_blank">
                       {" "}
                       <span class="underline">Terms and Conditions</span>{" "}
-                    </a>{" "}
+                    </Link>{" "}
                     and
-                    <a class="" href="#" target="" data-test="Link">
+                    <Link to="/privacy-policy" target="_blank">
                       {" "}
                       <span class="underline">Privacy Policy</span>{" "}
-                    </a>
+                    </Link>
                   </div>
                 </span>
               </div>
@@ -485,6 +646,9 @@ class Registration extends React.Component {
 const mapStateToProps = (state) => {
   return {
     isAuthenticated: state.AuthReducer.isAuthenticated,
+    accounts: state.AuthReducer.accounts,
   };
 };
-export default connect(mapStateToProps, { register })(Registration);
+export default connect(mapStateToProps, { register, getAccountList })(
+  Registration
+);

@@ -1,14 +1,15 @@
 import React from "react";
+import { HandleDecimalPlaces } from "../../../Helpers/functions";
 let DateNow = Date().toLocaleString().split(" ");
 
-export class SupplierTablePrint extends React.PureComponent {
+export class RefundTablePrint extends React.PureComponent {
   render() {
     return (
-      <div className="w-full p-10" id="supplierTable">
+      <div className="w-full p-10" id="refundTable">
         <div class="mb-8 flex justify-between">
           <div>
             <h2 class="text-3xl font-bold mb-6 pb-2 tracking-wider uppercase">
-              Supplier List
+              Refund List
             </h2>
 
             <div class="mb-1 flex items-center">
@@ -47,36 +48,42 @@ export class SupplierTablePrint extends React.PureComponent {
           </div>
         </div>
         <table
-          id="Supplier-table"
+          id="Product-table"
           className="min-w-full bg-white dark:bg-gray-800"
         >
           <thead>
             <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
-              <th className="pl-14 pr-6 text-md">ID</th>
-              <th className=" pr-6 text-md">Supplier</th>
-              <th className="  pr-6 text-md">Address</th>
-              <th className="pr-6 text-md">Phone Number</th>
+              <th className="pl-14 pr-6 text-md">Transaction Item ID</th>
+              <th className="pr-6 text-md">User</th>
+              <th className="pr-6 text-md">Product</th>
+              <th className="pr-6 text-md">Date</th>
+              <th className="pr-6 text-md">Status</th>
             </tr>
           </thead>
-
           <tbody>
-            {this.props.supplierProps.map((supplier) => (
-              <tr
-                key={supplier.id}
-                className="h-24 border-gray-300 dark:border-gray-200 border-b"
-              >
-                <td className="pl-14 text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                  {supplier.id}
+            {this.props.filteredDataFromMain.map((refund) => (
+              <tr key={refund.id} className="h-24 border-gray-300 border-b ">
+                <td className="pl-14 text-sm pr-6 whitespace-no-wrap text-gray-800  tracking-normal leading-4">
+                  {refund.id}
                 </td>
-                <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                  {supplier.name}
+                <td className="text-sm pr-6 whitespace-no-wrap text-gray-800  tracking-normal leading-4">
+                  {refund.user_info.name}
                 </td>
-                <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                  {supplier.address}
+                <td className="text-sm pr-6 whitespace-no-wrap text-gray-800  tracking-normal leading-4">
+                  <div>{refund.transaction_item.product.name}</div>
+                  <div>
+                    <p>
+                      Variant :{" "}
+                      {refund.transaction_item.product_variation_info.variation}
+                    </p>
+                  </div>
                 </td>
 
-                <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                  {supplier.phone_number}
+                <td className="text-sm pr-6 whitespace-no-wrap text-gray-800  tracking-normal leading-4">
+                  {refund.created_at}
+                </td>
+                <td className="text-sm pr-6 whitespace-no-wrap text-gray-800  tracking-normal leading-4">
+                  {refund.status}
                 </td>
               </tr>
             ))}

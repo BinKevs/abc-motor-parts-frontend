@@ -9,7 +9,13 @@ import {
 import { Link } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import { loadUser, UpdateAccount } from "../../../store/actions/account/auth";
+import {
+  loadUser,
+  UpdateAccount,
+  ChangePassword,
+  UpdateAddress,
+  getAccountList,
+} from "../../../store/actions/account/auth";
 import {
   regions,
   provinces,
@@ -18,9 +24,30 @@ import {
 } from "select-philippines-address";
 import ContactDetails from "./ContactDetails";
 import DatePicker from "react-datepicker";
+import swal from "sweetalert";
+import { phone } from "phone";
+import * as EmailValidator from "email-validator";
 let NavButton = document.getElementsByClassName("NavButton");
 let SectionPanelActive = document.getElementsByClassName("SectionPanelActive");
 let NavButtonActive = document.getElementsByClassName("NavButtonActive");
+var passwordValidator = require("password-validator");
+
+var schema = new passwordValidator();
+schema
+  .is()
+  .min(8)
+  .is()
+  .max(100)
+  .has()
+  .uppercase()
+  .has()
+  .lowercase()
+  .has()
+  .digits(2)
+  .has()
+  .not()
+  .spaces();
+let passwordError = [];
 
 class AccountSetting extends React.Component {
   state = {
@@ -44,18 +71,151 @@ class AccountSetting extends React.Component {
     barangayCode: "",
     street: "",
     BirthInputDate: "",
-    Birtdate: "",
-    profileImage: "",
+    birthdate: "",
+    profile_image: "",
+    profile_image_file: "",
+    old_password: "",
+    password: "",
+    password2: "",
+    usernameError: false,
+    emailError: false,
+    contactNumberError: false,
+    passwordError: "",
+    ConfirmPasswordError: "",
   };
-  onChange = (e) => {
-    this.setState({
-      [e.target.name]: e.target.value,
-    });
-  };
+  convert(str) {
+    if (str === "") {
+      return "";
+    } else {
+      var date = new Date(str),
+        mnth = ("0" + (date.getMonth() + 1)).slice(-2),
+        day = ("0" + date.getDate()).slice(-2);
+      return (
+        [date.getFullYear(), mnth, day].join("-") +
+        " " +
+        [date.getHours(), date.getMinutes(), date.getSeconds()].join(":")
+      );
+    }
+  }
 
+  // onChange = (e) => {
+  //   if (e.target.name === "profile_image_file") {
+  //     this.setState({
+  //       profile_image: URL.createObjectURL(e.target.files[0]),
+  //       [e.target.name]: e.target.files,
+  //     });
+  //   }
+  //   else if (e.target.name === "password") {
+  //     passwordError = schema.validate(e.target.value, { details: true });
+  //     this.setState({
+  //       [e.target.name]: e.target.value,
+  //     });
+  //   } else {
+  //     this.setState({
+  //       [e.target.name]: e.target.value,
+  //     });
+  //   }
+  // };
+  onChange = (e) => {
+    if (e.target.name === "username") {
+      if (e.target.value === this.props.AuthReducer.user.username) {
+        this.setState({
+          usernameError: false,
+        });
+      } else {
+        if (
+          this.props.accounts.some(
+            (acc) => acc.user.username === e.target.value
+          )
+        ) {
+          this.setState({
+            usernameError: true,
+          });
+        } else {
+          this.setState({
+            usernameError: false,
+          });
+        }
+      }
+
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    }
+    //  else if (e.target.name === "password2") {
+    //   if (this.state.password !== e.target.value) {
+    //     this.setState({
+    //       ConfirmPasswordError: true,
+    //     });
+    //   } else {
+    //     this.setState({
+    //       ConfirmPasswordError: false,
+    //     });
+    //   }
+    //   this.setState({
+    //     [e.target.name]: e.target.value,
+    //   });
+    // }
+    else if (e.target.name === "email") {
+      if (EmailValidator.validate(e.target.value)) {
+        this.setState({
+          emailError: false,
+        });
+      } else {
+        this.setState({
+          emailError: true,
+        });
+      }
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    } else if (e.target.name === "contact_number") {
+      if (phone(e.target.value, { country: "PH" }).isValid) {
+        this.setState({
+          contactNumberError: false,
+        });
+      } else {
+        this.setState({
+          contactNumberError: true,
+        });
+      }
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    } else {
+      this.setState({
+        [e.target.name]: e.target.value,
+      });
+    }
+  };
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.AuthReducer.user != prevProps.AuthReducer.user) {
+      this.setState({
+        first_name: this.props.AuthReducer.user
+          ? this.props.AuthReducer.user.first_name
+          : "",
+        last_name: this.props.AuthReducer.user
+          ? this.props.AuthReducer.user.last_name
+          : "",
+        username: this.props.AuthReducer.user
+          ? this.props.AuthReducer.user.username
+          : "",
+        email: this.props.AuthReducer.user
+          ? this.props.AuthReducer.user.email
+          : "",
+        birthdate: this.props.AuthReducer
+          ? this.props.AuthReducer.birthdate
+          : "",
+        profile_image: this.props.AuthReducer
+          ? this.props.AuthReducer.profile_image
+          : "",
+      });
+    }
+  }
   componentDidMount() {
     this.region();
-    // this.props.loadUser();
+    this.props.loadUser();
+    this.props.getAccountList();
     this.setState({
       first_name: this.props.AuthReducer.user
         ? this.props.AuthReducer.user.first_name
@@ -69,9 +229,9 @@ class AccountSetting extends React.Component {
       email: this.props.AuthReducer.user
         ? this.props.AuthReducer.user.email
         : "",
-      Birtdate: this.props.AuthReducer ? this.props.AuthReducer.birthdate : "",
-      profileImage: this.props.AuthReducer
-        ? this.props.AuthReducer.profileImage
+      birthdate: this.props.AuthReducer ? this.props.AuthReducer.birthdate : "",
+      profile_image: this.props.AuthReducer
+        ? this.props.AuthReducer.profile_image
         : "",
     });
   }
@@ -83,18 +243,92 @@ class AccountSetting extends React.Component {
   };
   handleEditAccountInfoSubmit = (event) => {
     event.preventDefault();
-    const { first_name, last_name, username, email } = this.state;
+    const {
+      first_name,
+      last_name,
+      username,
+      email,
+      BirthInputDate,
+      profile_image_file,
+      usernameError,
+      emailError,
+      contactNumberError,
+      contact_number,
+    } = this.state;
     const formAccountInfoData = new FormData();
     formAccountInfoData.append("first_name", first_name);
     formAccountInfoData.append("last_name", last_name);
     formAccountInfoData.append("username", username);
     formAccountInfoData.append("email", email);
-    this.props.UpdateAccount(97, formAccountInfoData);
-    this.setState({
-      edit_account_info: false,
-    });
-  };
+    formAccountInfoData.append("status", true);
+    if (BirthInputDate !== "") {
+      formAccountInfoData.append("birthdate", this.convert(BirthInputDate));
+    }
+    if (profile_image_file !== "") {
+      formAccountInfoData.append("profile_image", profile_image_file[0]);
+    }
+    formAccountInfoData.append("account", this.props.AuthReducer.account.id);
+    if (username === this.props.AuthReducer.user.username) {
+      this.setState({
+        usernameError: false,
+      });
+    } else {
+      if (this.props.accounts.some((acc) => username === acc.user.username)) {
+        this.setState({
+          usernameError: true,
+        });
+      } else {
+        this.setState({
+          usernameError: false,
+        });
+        this.props.getAccountList();
+      }
+    }
 
+    if (EmailValidator.validate(email)) {
+      this.setState({
+        emailError: false,
+      });
+    } else {
+      this.setState({
+        emailError: true,
+      });
+    }
+
+    if (!usernameError && !emailError) {
+      this.props.UpdateAccount(
+        this.props.AuthReducer.user.id,
+        formAccountInfoData
+      );
+      this.setState({
+        edit_account_info: false,
+      });
+    }
+  };
+  handleChangePassword = (event) => {
+    event.preventDefault();
+
+    const { old_password, password, password2 } = this.state;
+
+    if (password !== password2) {
+      swal(
+        "Password and confirm password do not match. Please try again.",
+        "",
+        "error"
+      );
+      this.setState({
+        password: "",
+        password2: "",
+      });
+    } else {
+      if (schema.validate(password)) {
+        const formPassword = new FormData();
+        formPassword.append("old_password", old_password);
+        formPassword.append("new_password", password2);
+        this.props.ChangePassword(this.props.AuthReducer.user.id, formPassword);
+      }
+    }
+  };
   handleToggleNavButton = (DivTarget) => {
     return (event) => {
       event.preventDefault();
@@ -113,6 +347,58 @@ class AccountSetting extends React.Component {
           .classList.remove("hidden");
       }
     };
+  };
+  handleUpdateContact = (event) => {
+    event.preventDefault();
+    const {
+      regionValue,
+      provinceValue,
+      cityValue,
+      barangayValue,
+      street,
+      contact_number,
+    } = this.state;
+    const formContactNumber = new FormData();
+    formContactNumber.append("region", regionValue);
+    formContactNumber.append("province", provinceValue);
+    formContactNumber.append("city", cityValue);
+    formContactNumber.append("barangay", barangayValue);
+    formContactNumber.append("street", street);
+    formContactNumber.append("address_id", this.props.AuthReducer.addresses.id);
+    formContactNumber.append("contact_number", contact_number);
+    if (phone(contact_number, { country: "PH" }).isValid) {
+      this.props.UpdateAddress(
+        this.props.AuthReducer.account.id,
+        formContactNumber
+      );
+      this.setState({
+        regionValue: "",
+        provinceValue: "",
+        cityValue: "",
+        barangayValue: "",
+        regionCode: "",
+        provinceCode: "",
+        cityCode: "",
+        barangayCode: "",
+        street: "",
+        contact_number: "",
+        contactNumberError: false,
+      });
+    } else {
+      this.setState({
+        contactNumberError: true,
+      });
+    }
+
+    // const data = {
+    //   region: regionValue,
+    //   province: provinceValue,
+    //   city: cityValue,
+    //   barangay: barangayValue,
+    //   street,
+    //   contact_number,
+    //   address_id: this.props.AuthReducer.addresses.id,
+    // };
   };
   region = () => {
     regions().then((response) => {
@@ -167,7 +453,6 @@ class AccountSetting extends React.Component {
     });
   };
   render() {
-    console.log(this.props.AuthReducer);
     return (
       <>
         {" "}
@@ -291,11 +576,9 @@ class AccountSetting extends React.Component {
                             >
                               Email
                             </label>
-                            <span
-                              class="text-sm text-red-600 hidden"
-                              id="error"
-                            >
-                              Email is required
+
+                            <span class="text-sm text-red-600" id="error">
+                              {this.state.emailError ? "Not a valid email" : ""}
                             </span>
                           </div>
                           <div class="relative z-0 w-full mb-5">
@@ -327,18 +610,23 @@ class AccountSetting extends React.Component {
                           <div class="flex flex-col w-full mb-5">
                             <label
                               for="BirthInputDate"
-                              class="text-gray-800 mb-2"
+                              class="text-gray-500 mb-2"
                             >
                               Birth date
                             </label>
-                            <div>{this.state.Birtdate}</div>
+                            {/* <div>{this.state.birthdate}</div> */}
 
                             <DatePicker
+                              disabled={!this.state.edit_account_info}
                               selected={this.state.BirthInputDate}
                               onChange={(date) =>
                                 this.setState({ BirthInputDate: date })
                               }
-                              value={this.state.BirthInputDate}
+                              value={
+                                this.state.BirthInputDate !== ""
+                                  ? this.state.BirthInputDate
+                                  : this.state.birthdate
+                              }
                               closeOnScroll={true}
                               placeholderText="Select Birth Date"
                               className="my-1 px-1 py-1 border-2 text-md rounded-l w-full text-center"
@@ -348,15 +636,24 @@ class AccountSetting extends React.Component {
                         <div className=" inline-block order-first md:order-last align-middle mx-auto md:mx-0">
                           <img
                             className="border-4 rounded-3xl mx-auto w-80"
-                            src={this.state.profileImage}
+                            src={this.state.profile_image}
                             alt=""
                           />
-                          <label class="flex flex-col items-center px-2 py-2 bg-gray-400 text-white rounded-md shadow-md border-2 uppercase font-semibold cursor-pointer">
-                            <span class="mt-2 text-base leading-normal">
-                              Change profile picture
-                            </span>
-                            <input type="file" class="hidden" />
-                          </label>
+                          {this.state.edit_account_info ? (
+                            <label class="flex flex-col items-center px-2 py-2 bg-gray-400 text-white rounded-md shadow-md border-2 uppercase font-semibold cursor-pointer">
+                              <span class="mt-2 text-base leading-normal">
+                                Change profile picture
+                              </span>
+                              <input
+                                onChange={this.onChange}
+                                name="profile_image_file"
+                                type="file"
+                                class="hidden"
+                              />
+                            </label>
+                          ) : (
+                            ""
+                          )}
                         </div>
                       </div>
                       <div class="mb-5 w-full md:w-1/2 flex justify-center items-center">
@@ -389,6 +686,8 @@ class AccountSetting extends React.Component {
               barangay={this.barangay}
               brgy={this.brgy}
               onChange={this.onChange}
+              AuthReducer={this.props.AuthReducer}
+              handleUpdateContact={this.handleUpdateContact}
             />
             <section class="mx-auto px-5 PasswordPanel hidden">
               <div class="w-full mb-8 rounded-lg shadow-lg ">
@@ -399,11 +698,33 @@ class AccountSetting extends React.Component {
                         Change your password here
                       </h1>
                     </div>
-                    <form class="mt-4">
+                    <form onSubmit={this.handleChangePassword} class="mt-4">
                       <div class="relative z-0 w-full mb-5">
                         <input
                           type="password"
+                          onChange={this.onChange}
+                          name="old_password"
+                          value={this.state.old_password}
+                          placeholder=" "
+                          required
+                          class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
+                        />
+                        <label
+                          for="old_password"
+                          class="absolute duration-300 top-3 -z-1 origin-0 text-gray-500"
+                        >
+                          Current Password
+                        </label>
+                        <span class="text-sm text-red-600 hidden" id="error">
+                          Password is required
+                        </span>
+                      </div>
+                      <div class="relative z-0 w-full mb-5">
+                        <input
+                          type="password"
+                          onChange={this.onChange}
                           name="password"
+                          value={this.state.password}
                           placeholder=" "
                           required
                           class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
@@ -414,20 +735,25 @@ class AccountSetting extends React.Component {
                         >
                           Password
                         </label>
-                        <span class="text-sm text-red-600 hidden" id="error">
-                          Password is required
-                        </span>
+
+                        {passwordError.map((err) => (
+                          <div class="text-sm text-red-600" id="error">
+                            {err.message}
+                          </div>
+                        ))}
                       </div>
                       <div class="relative z-0 w-full mb-5">
                         <input
                           type="password"
+                          onChange={this.onChange}
                           name="password2"
+                          value={this.state.password2}
                           placeholder=" "
                           required
                           class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
                         />
                         <label
-                          for="name"
+                          for="password2"
                           class="absolute duration-300 top-3 -z-1 origin-0 text-gray-500"
                         >
                           Confirm Password
@@ -458,8 +784,15 @@ class AccountSetting extends React.Component {
 const mapStateToProps = (state) => {
   return {
     AuthReducer: state.AuthReducer,
+    accounts: state.AuthReducer.accounts,
   };
 };
 export default withRouter(
-  connect(mapStateToProps, { loadUser, UpdateAccount })(AccountSetting)
+  connect(mapStateToProps, {
+    loadUser,
+    UpdateAccount,
+    ChangePassword,
+    UpdateAddress,
+    getAccountList,
+  })(AccountSetting)
 );

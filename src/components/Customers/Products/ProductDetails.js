@@ -10,6 +10,7 @@ import {
   HandleDecimalPlaces,
   numberWithCommas,
 } from "../../../Helpers/functions";
+import swal from "sweetalert";
 import noImageAvailable from "../../../no-image-available.png";
 let variation = [];
 let variantStock = 0;
@@ -56,6 +57,7 @@ class ProductDetails extends React.Component {
   ) {
     return (event) => {
       event.preventDefault();
+
       const product = {
         product_id,
         sku_id: SKU,
@@ -70,6 +72,7 @@ class ProductDetails extends React.Component {
         weight,
       };
       this.props.addToCart(product);
+      swal("Successfully added product to cart!", "", "success");
     };
   }
   static propTypes = {
@@ -408,6 +411,7 @@ class ProductDetails extends React.Component {
 
                 <div class="flex">
                   <button
+                    disabled={this.state.quantity < 1}
                     class="flex mx-auto text-white bg-teal_custom border-0 py-2 px-6 focus:outline-none hover:bg-gray-600 rounded cursor-pointer"
                     onClick={this.handleSubmitToCart(
                       product.id,

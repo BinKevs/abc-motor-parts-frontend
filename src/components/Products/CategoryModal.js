@@ -178,7 +178,14 @@ const CategoryModal = (props) => {
                       >
                         Submit
                       </button>
-                      <button className="focus:outline-none ml-3 bg-gray-100 dark:bg-gray-700 dark:border-gray-700 dark:hover:bg-gray-600 transition duration-150 text-gray-600 dark:text-gray-400 ease-in-out hover:border-gray-400 hover:bg-gray-300 border rounded px-8 py-2 text-sm">
+                      <button
+                        onClick={
+                          EditButtonCategoryIsClicked
+                            ? handleModalCategoryEditClose
+                            : handleModalCategoryAdd
+                        }
+                        className="focus:outline-none ml-3 bg-gray-100 dark:bg-gray-700 dark:border-gray-700 dark:hover:bg-gray-600 transition duration-150 text-gray-600 dark:text-gray-400 ease-in-out hover:border-gray-400 hover:bg-gray-300 border rounded px-8 py-2 text-sm"
+                      >
                         Cancel
                       </button>
                     </div>

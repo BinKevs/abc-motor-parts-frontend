@@ -4,6 +4,7 @@ import {
   DELETE_INVENTORY,
   ADD_INVENTORY,
   UPDATE_INVENTORY,
+  CHANGE_INVENTORY_STATUS,
 } from "../../actions/inventory/actionTypes";
 const initialState = {
   inventories: [],
@@ -33,6 +34,14 @@ export default function (state = initialState, action) {
       return {
         ...state,
         inventories: [action.payload, ...state.inventories],
+      };
+    case CHANGE_INVENTORY_STATUS:
+      return {
+        ...state,
+        inventories: [
+          action.payload,
+          ...state.inventories.filter((inv) => inv.id !== action.payload.id),
+        ],
       };
     case UPDATE_INVENTORY:
       return {

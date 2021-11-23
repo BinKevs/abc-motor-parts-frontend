@@ -1,5 +1,5 @@
 import React from "react";
-
+import { Link, withRouter } from "react-router-dom";
 class Categories extends React.Component {
   render() {
     return (
@@ -19,27 +19,29 @@ class Categories extends React.Component {
                     <div className="bg-gray-900 bg-opacity-50 flex items-center h-full">
                       <div className="px-10 max-w-xl">
                         <h2 className="text-2xl text-white font-semibold">
-                          Breaks
+                          Brakes
                         </h2>
                         <p className="mt-2 text-gray-400">
-                          Lorem ipsum dolor, sit amet consectetur adipisicing
-                          elit. Tempore facere provident molestias ipsam sint
-                          voluptatum pariatur.
+                          After machining, they are media tumbled for a smooth
+                          finish and then hard anodized for superior strength
+                          and performance.
                         </p>
-                        <button className="flex items-center mt-4 text-white text-sm uppercase font-medium rounded hover:underline focus:outline-none">
-                          <span>Shop Now</span>
-                          <svg
-                            className="h-5 w-5 mx-2"
-                            fill="none"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                          </svg>
-                        </button>
+                        <Link to="/products/Brakes">
+                          <button className="flex items-center mt-4 text-white text-sm uppercase font-medium rounded hover:underline focus:outline-none">
+                            <span>Shop Now</span>
+                            <svg
+                              className="h-5 w-5 mx-2"
+                              fill="none"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                          </button>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -53,27 +55,30 @@ class Categories extends React.Component {
                     <div className="bg-gray-900 bg-opacity-50 flex items-center h-full">
                       <div className="px-10 max-w-xl">
                         <h2 className="text-2xl text-white font-semibold">
-                          Tires
+                          Tires and Wheels
                         </h2>
                         <p className="mt-2 text-gray-400">
-                          Lorem ipsum dolor, sit amet consectetur adipisicing
-                          elit. Tempore facere provident molestias ipsam sint
-                          voluptatum pariatur.
+                          Designed and tested to withstand the harshest
+                          conditions. Its proven superior wear life and better
+                          resistance to cutting and chipping make it the number
+                          one choice for all terrain adventuring.
                         </p>
-                        <button className="flex items-center mt-4 text-white text-sm uppercase font-medium rounded hover:underline focus:outline-none">
-                          <span>Shop Now</span>
-                          <svg
-                            className="h-5 w-5 mx-2"
-                            fill="none"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                          </svg>
-                        </button>
+                        <Link to="/products/Tires and Wheels">
+                          <button className="flex items-center mt-4 text-white text-sm uppercase font-medium rounded hover:underline focus:outline-none">
+                            <span>Shop Now</span>
+                            <svg
+                              className="h-5 w-5 mx-2"
+                              fill="none"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                          </button>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -89,27 +94,29 @@ class Categories extends React.Component {
                     <div className="bg-gray-900 bg-opacity-50 flex items-center h-full">
                       <div className="px-10 max-w-xl">
                         <h2 className="text-2xl text-white font-semibold">
-                          Engine
+                          Engine Parts and Accessories
                         </h2>
                         <p className="mt-2 text-gray-400">
-                          Lorem ipsum dolor, sit amet consectetur adipisicing
-                          elit. Tempore facere provident molestias ipsam sint
-                          voluptatum pariatur.
+                          Hand machined, carefully polished and bathed in
+                          lustrous chrome, faceted edges catch and refract light
+                          adding a dynamic design element to your engine.
                         </p>
-                        <button className="flex items-center mt-4 text-white text-sm uppercase font-medium rounded hover:underline focus:outline-none">
-                          <span>Shop Now</span>
-                          <svg
-                            className="h-5 w-5 mx-2"
-                            fill="none"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                          </svg>
-                        </button>
+                        <Link to="/products/Engine Parts and Accessories">
+                          <button className="flex items-center mt-4 text-white text-sm uppercase font-medium rounded hover:underline focus:outline-none">
+                            <span>Shop Now</span>
+                            <svg
+                              className="h-5 w-5 mx-2"
+                              fill="none"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                          </button>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -126,24 +133,27 @@ class Categories extends React.Component {
                           Exhaust
                         </h2>
                         <p className="mt-2 text-gray-400">
-                          Lorem ipsum dolor, sit amet consectetur adipisicing
-                          elit. Tempore facere provident molestias ipsam sint
-                          voluptatum pariatur.
+                          Solidly constructed from a highly polished 304 grade
+                          stainless steel and with a lifetime warranty you can
+                          guarantee it will look good on your bike for many
+                          years to come.
                         </p>
-                        <button className="flex items-center mt-4 text-white text-sm uppercase font-medium rounded hover:underline focus:outline-none">
-                          <span>Shop Now</span>
-                          <svg
-                            className="h-5 w-5 mx-2"
-                            fill="none"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                          </svg>
-                        </button>
+                        <Link to="/products/Exhaust">
+                          <button className="flex items-center mt-4 text-white text-sm uppercase font-medium rounded hover:underline focus:outline-none">
+                            <span>Shop Now</span>
+                            <svg
+                              className="h-5 w-5 mx-2"
+                              fill="none"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                          </button>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -162,24 +172,27 @@ class Categories extends React.Component {
                           Crash Protection
                         </h2>
                         <p className="mt-2 text-gray-400">
-                          Lorem ipsum dolor, sit amet consectetur adipisicing
-                          elit. Tempore facere provident molestias ipsam sint
-                          voluptatum pariatur.
+                          Cycle gear, parts, apparel and accessories that
+                          absolutely offer the best in comfort, quality and
+                          protection every time you ride. Security, quality and
+                          protection you can trus
                         </p>
-                        <button className="flex items-center mt-4 text-white text-sm uppercase font-medium rounded hover:underline focus:outline-none">
-                          <span>Shop Now</span>
-                          <svg
-                            className="h-5 w-5 mx-2"
-                            fill="none"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                          </svg>
-                        </button>
+                        <Link to="/products/Crash Protection">
+                          <button className="flex items-center mt-4 text-white text-sm uppercase font-medium rounded hover:underline focus:outline-none">
+                            <span>Shop Now</span>
+                            <svg
+                              className="h-5 w-5 mx-2"
+                              fill="none"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                          </button>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -196,24 +209,29 @@ class Categories extends React.Component {
                           Suspension
                         </h2>
                         <p className="mt-2 text-gray-400">
-                          Lorem ipsum dolor, sit amet consectetur adipisicing
-                          elit. Tempore facere provident molestias ipsam sint
-                          voluptatum pariatur.
+                          Proprietary spring designs to their own
+                          industry-leading standards. Each series of Shock
+                          Spring is designed for your specific brand / model
+                          shock. The Factory Connection Shock Spring's fitment
+                          to each shock body is the absolute best in the
+                          industry.
                         </p>
-                        <button className="flex items-center mt-4 text-white text-sm uppercase font-medium rounded hover:underline focus:outline-none">
-                          <span>Shop Now</span>
-                          <svg
-                            className="h-5 w-5 mx-2"
-                            fill="none"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                          </svg>
-                        </button>
+                        <Link to="/products/Suspension">
+                          <button className="flex items-center mt-4 text-white text-sm uppercase font-medium rounded hover:underline focus:outline-none">
+                            <span>Shop Now</span>
+                            <svg
+                              className="h-5 w-5 mx-2"
+                              fill="none"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                          </button>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -232,24 +250,27 @@ class Categories extends React.Component {
                           Drive
                         </h2>
                         <p className="mt-2 text-gray-400">
-                          Lorem ipsum dolor, sit amet consectetur adipisicing
-                          elit. Tempore facere provident molestias ipsam sint
-                          voluptatum pariatur.
+                          All internal precision ground components are assembled
+                          using high-temperature, high load bearing moly grease
+                          to ensure maximum internal lubrication; engineered to
+                          provide superior performance.
                         </p>
-                        <button className="flex items-center mt-4 text-white text-sm uppercase font-medium rounded hover:underline focus:outline-none">
-                          <span>Shop Now</span>
-                          <svg
-                            className="h-5 w-5 mx-2"
-                            fill="none"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                          </svg>
-                        </button>
+                        <Link to="/products/Drive">
+                          <button className="flex items-center mt-4 text-white text-sm uppercase font-medium rounded hover:underline focus:outline-none">
+                            <span>Shop Now</span>
+                            <svg
+                              className="h-5 w-5 mx-2"
+                              fill="none"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                          </button>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -266,24 +287,26 @@ class Categories extends React.Component {
                           Lights
                         </h2>
                         <p className="mt-2 text-gray-400">
-                          Lorem ipsum dolor, sit amet consectetur adipisicing
-                          elit. Tempore facere provident molestias ipsam sint
-                          voluptatum pariatur.
+                          Highest grade materials including very high
+                          temperature copper windings, rubber seal, lead wires
+                          and connectors.
                         </p>
-                        <button className="flex items-center mt-4 text-white text-sm uppercase font-medium rounded hover:underline focus:outline-none">
-                          <span>Shop Now</span>
-                          <svg
-                            className="h-5 w-5 mx-2"
-                            fill="none"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-                          </svg>
-                        </button>
+                        <Link to="/products/Lights">
+                          <button className="flex items-center mt-4 text-white text-sm uppercase font-medium rounded hover:underline focus:outline-none">
+                            <span>Shop Now</span>
+                            <svg
+                              className="h-5 w-5 mx-2"
+                              fill="none"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                            </svg>
+                          </button>
+                        </Link>
                       </div>
                     </div>
                   </div>

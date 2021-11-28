@@ -145,6 +145,7 @@ class TransactionSettingIndex extends React.Component {
             payment_details: trans.payment_details,
             contact_number: trans.contact_number,
             address: trans.address,
+            order_status: trans.order_status,
           })
         : ""
     );
@@ -376,6 +377,13 @@ class TransactionSettingIndex extends React.Component {
                         </td>
                         <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
                           {transaction.payment_details}
+
+                          <div className="mt-2 font-semibold">
+                            Order Status :{" "}
+                            <span className="font-bold">
+                              {transaction.order_status}
+                            </span>
+                          </div>
                         </td>
                         <td className="pr-8 relative">
                           <button

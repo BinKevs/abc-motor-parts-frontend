@@ -194,7 +194,7 @@ class ProductDetails extends React.Component {
                     <img
                       alt="ecommerce"
                       id="featured"
-                      class="w-full object-cover object-center rounded-3xl border-2 border-gray-400 h-60 md:h-80"
+                      class="w-full object-cover object-center rounded-3xl border-2 border-gray-400 h-3/5 p-10"
                       src={
                         product.file_content
                           ? product.file_content[0].image

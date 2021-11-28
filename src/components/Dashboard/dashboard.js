@@ -59,11 +59,14 @@ class DashboardIndex extends React.Component {
   }
 
   render() {
+    let transactionItems = [];
+
     if (this.props.AuthReducer.user)
       if (!this.props.AuthReducer.user.is_staff) {
         return <Redirect to="/Home" />;
       }
     const { transactions, products, transaction_items } = this.props;
+
     monthlySalesTransaction = 0;
     dailySalesTransaction = 0;
     weeklySalesTransaction = 0;
@@ -77,18 +80,31 @@ class DashboardIndex extends React.Component {
     ProductCount = 0;
     transactionsFilteredDateSeparated = [];
     transactionsDailyFiltered = [];
-    transactions.map((filteredTransactionObject) =>
-      transactionsFilteredDateSeparated.push({
-        id: filteredTransactionObject.id,
-        totalAmount: filteredTransactionObject.totalAmount,
-        totalProfit: filteredTransactionObject.totalProfit,
-        month: filteredTransactionObject.created_at.split(" ")[0],
-        day: filteredTransactionObject.created_at.split(" ")[1],
-        year: filteredTransactionObject.created_at.split(" ")[2],
-        time: filteredTransactionObject.created_at.split(" ")[3],
-      })
-    );
-
+    transactions
+      .filter(
+        (transac) => transac.order_status === "Complete" && transac.status
+      )
+      .map((filteredTransactionObject) =>
+        transactionsFilteredDateSeparated.push({
+          id: filteredTransactionObject.id,
+          totalAmount: filteredTransactionObject.totalAmount,
+          totalProfit: filteredTransactionObject.totalProfit,
+          month: filteredTransactionObject.created_at.split(" ")[0],
+          day: filteredTransactionObject.created_at.split(" ")[1],
+          year: filteredTransactionObject.created_at.split(" ")[2],
+          time: filteredTransactionObject.created_at.split(" ")[3],
+        })
+      );
+    transactions
+      .filter(
+        (transac) => transac.order_status === "Complete" && transac.status
+      )
+      .map((filteredTransactionObject) =>
+        filteredTransactionObject.items.map((filteredTransactionItemsObject) =>
+          transactionItems.push(filteredTransactionItemsObject.product.id)
+        )
+      );
+    console.log(transactionItems);
     let [start, end] = this.GetWeekDates();
     var StartDayOfTheWeek = new Date(start.toLocaleString().split(",")[0])
       .toString()
@@ -173,21 +189,22 @@ class DashboardIndex extends React.Component {
       .filter((prod) => parseInt(prod.stock) < 10)
       .map((product) => (ReorderProduct += 1));
     //Fetch zero product
-    products
-      .filter((prod) => parseInt(prod.stock) < 1)
-      .map((product) => (ZeroProduct += 1));
-    //Fetch all product
-    products.map((product) => (ProductCount += 1));
-    //Fetch Combine product quantity sales
+    // products
+    //   .filter((prod) => parseInt(prod.stock) < 1)
+    //   .map((product) => (ZeroProduct += 1));
+    // //Fetch all product
+    // products.map((product) => (ProductCount += 1));
+    // //Fetch Combine product quantity sales
     transactionItemsFiltered = [];
-
-    transaction_items.map((filteredTransactionItemObject) =>
-      transactionItemsFiltered.push({
-        id: filteredTransactionItemObject.id,
-        productName: filteredTransactionItemObject.product.name,
-        quantity: filteredTransactionItemObject.quantity,
-      })
-    );
+    transaction_items
+      .filter((items) => transactionItems.includes(items.product.id))
+      .map((filteredTransactionItemObject) =>
+        transactionItemsFiltered.push({
+          id: filteredTransactionItemObject.id,
+          productName: filteredTransactionItemObject.product.name,
+          quantity: filteredTransactionItemObject.quantity,
+        })
+      );
     transactionItemsFilteredResult = [];
     transactionItemsFiltered.forEach(function (obj) {
       var productNameX = obj.productName;
@@ -620,7 +637,7 @@ class DashboardIndex extends React.Component {
                   <tbody>
                     {transactionItemsFilteredResult
                       .sort((a, b) => (a.quantity < b.quantity ? 1 : -1))
-                      .slice(0, 4)
+                      .slice(0, 9)
                       .map((item) => (
                         <tr
                           key={item.id}

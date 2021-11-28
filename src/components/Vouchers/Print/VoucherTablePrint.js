@@ -8,14 +8,14 @@ export class VoucherTablePrint extends React.PureComponent {
         <div class="mb-8 flex justify-between">
           <div>
             <h2 class="text-3xl font-bold mb-6 pb-2 tracking-wider uppercase">
-              Supplier List
+              Voucher List
             </h2>
 
             <div class="mb-1 flex items-center">
               <label class="w-32 text-gray-800 block font-bold text-xs uppercase tracking-wide">
-                Issued By :
+                Issued By
               </label>
-              <span class="mr-4 inline-block">: OwnerUser</span>
+              <span class="mr-4 inline-block">:</span>OwnerUser
               {/* {this.props.user.last_name + ' ' + this.props.user.first_name} */}
             </div>
             <div class="mb-1 flex items-center">

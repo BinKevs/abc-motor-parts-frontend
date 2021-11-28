@@ -8,14 +8,15 @@ export class InventoryTablePrint extends React.PureComponent {
         <div class="mb-8 flex justify-between">
           <div>
             <h2 class="text-3xl font-bold mb-6 pb-2 tracking-wider uppercase">
-              Inventory List
+              Archived Inventory
             </h2>
 
             <div class="mb-1 flex items-center">
               <label class="w-32 text-gray-800 block font-bold text-xs uppercase tracking-wide">
                 Issued By
               </label>
-              <span class="mr-4 inline-block">:</span>OwnerUser
+              <span class="mr-4 inline-block">:</span>
+              OwnerUser
               {/* {this.props.user.last_name + ' ' + this.props.user.first_name} */}
             </div>
             <div class="mb-1 flex items-center">
@@ -54,9 +55,8 @@ export class InventoryTablePrint extends React.PureComponent {
             <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
               <th className="pl-14 pr-6 text-md">ID</th>
               <th className=" pr-6 text-md">Product</th>
-              <th className="  pr-6 text-md">Stock Added</th>
-              <th className="pr-6 text-md">Supplier</th>
-              <th className="pr-6 text-md">Date</th>
+              <th className="pl-14 pr-6 text-md">Supplier</th>
+              <th className=" pr-6 text-md">Date</th>
             </tr>
           </thead>
           <tbody>
@@ -69,15 +69,12 @@ export class InventoryTablePrint extends React.PureComponent {
                   {inventory.id}
                 </td>
                 <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                  <div>{inventory.product}</div>({inventory.product_variation})
-                  <div>({inventory.SKU})</div>
+                  {inventory.product_info.name}
                 </td>
                 <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                  {inventory.new_stock}
+                  {inventory.supplier_info.name}
                 </td>
-                <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                  {inventory.supplier}
-                </td>
+
                 <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
                   {inventory.created_at}
                 </td>

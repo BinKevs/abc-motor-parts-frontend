@@ -1,6 +1,12 @@
 import React from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
+import { ProductsTableExportModal } from "./Product_Print/ProductsTableExportModal";
+import { SupplierTableExportModal } from "./Supplier_Print/SupplierTableExportModal";
+import { AccountTableExportModal } from "./Account_Print/AccountTableExportModal";
+import { InventoriesTableExportModal } from "./Inventory_Print/InventoriesTableExportModal";
+import { TransactionsTableExportModal } from "./Transaction_Print/TransactionsTableExportModal";
+import { VoucherTableExportModal } from "./Voucher_Print/VoucherTableExportModal";
 import {
   getSupplierList,
   changeSupplierStatus,
@@ -38,6 +44,12 @@ import swal from "sweetalert";
 import { CheckPassword } from "../../Helpers/functions";
 import { TimeScale } from "chart.js";
 let passwordVerified = false;
+let filteredDataSupplier;
+let filteredDataProduct;
+let filteredDataAccount;
+let filteredDataInventory;
+let filteredDataTransaction;
+let filteredDataVoucher;
 class Archive extends React.Component {
   state = {
     searchProduct: "",
@@ -46,6 +58,12 @@ class Archive extends React.Component {
     searchInventory: "",
     searchTransaction: "",
     searchVoucher: "",
+    table_export_modal_product: false,
+    table_export_modal_supplier: false,
+    table_export_modal_account: false,
+    table_export_modal_inventory: false,
+    table_export_modal_transaction: false,
+    table_export_modal_voucher: false,
   };
 
   componentDidMount() {
@@ -386,6 +404,54 @@ class Archive extends React.Component {
       [e.target.name]: e.target.value,
     });
   };
+  OnToggleExportTableProduct = (event) => {
+    event.preventDefault();
+    this.setState({
+      table_export_modal_product: !this.state.table_export_modal_product,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+  OnToggleExportTableSupplier = (event) => {
+    event.preventDefault();
+    this.setState({
+      table_export_modal_supplier: !this.state.table_export_modal_supplier,
+    });
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  };
+  OnToggleExportTableAccount = (event) => {
+    event.preventDefault();
+    this.setState({
+      table_export_modal_account: !this.state.table_export_modal_account,
+    });
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  };
+  OnToggleExportTableInventory = (event) => {
+    event.preventDefault();
+    this.setState({
+      table_export_modal_inventory: !this.state.table_export_modal_inventory,
+    });
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  };
+  handleToggleExportTableTransaction = (event) => {
+    event.preventDefault();
+    this.setState({
+      table_export_modal_transaction:
+        !this.state.table_export_modal_transaction,
+    });
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  };
+  handleToggleExportTableVoucher = (event) => {
+    event.preventDefault();
+    this.setState({
+      table_export_modal_voucher: !this.state.table_export_modal_voucher,
+    });
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  };
   render() {
     let lowercasedFilterProduct = this.state.searchProduct.toLowerCase();
     let lowercasedFilterSupplier = this.state.searchSupplier.toLowerCase();
@@ -394,12 +460,7 @@ class Archive extends React.Component {
     let lowercasedFilterTransaction =
       this.state.searchTransaction.toLowerCase();
     let lowercasedFilterVoucher = this.state.searchVoucher.toLowerCase();
-    let filteredDataSupplier;
-    let filteredDataProduct;
-    let filteredDataAccounts;
-    let filteredDataInventory;
-    let filteredDataTransaction;
-    let filteredDataVoucher;
+
     filteredDataSupplier = [];
     filteredDataSupplier = this.props.suppliers.filter((supplier) => {
       if (!supplier.status)
@@ -416,8 +477,8 @@ class Archive extends React.Component {
           .toLowerCase()
           .includes(lowercasedFilterProduct);
     });
-    filteredDataAccounts = [];
-    filteredDataAccounts = this.props.accounts.filter((account) => {
+    filteredDataAccount = [];
+    filteredDataAccount = this.props.accounts.filter((account) => {
       if (!account.user.is_active && account.user.is_superuser)
         return account.user.username
           .toString()
@@ -473,7 +534,10 @@ class Archive extends React.Component {
                     <div className="bg-white flex flex-col lg:flex-row p-4 lg:p-8 justify-end items-start lg:items-stretch w-full">
                       <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center justify-end">
                         <div className="lg:ml-6 flex items-start w-full">
-                          <div className="text-white cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-teal_custom transition duration-150 ease-in-out hover:bg-gray-600 w-12 h-12 rounded flex items-center justify-center">
+                          <div
+                            onClick={this.OnToggleExportTableProduct}
+                            className="text-white cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-teal_custom transition duration-150 ease-in-out hover:bg-gray-600 w-12 h-12 rounded flex items-center justify-center"
+                          >
                             <i class="fal fa-print fa-lg"></i>
                           </div>
                         </div>
@@ -488,7 +552,6 @@ class Archive extends React.Component {
                               required
                               class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
                               onChange={this.onChange}
-                              // value={this.state.search}
                             />
                             <label
                               for="search"
@@ -549,7 +612,10 @@ class Archive extends React.Component {
                     <div className="bg-white flex flex-col lg:flex-row p-4 lg:p-8 justify-end items-start lg:items-stretch w-full">
                       <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center justify-end">
                         <div className="lg:ml-6 flex items-start w-full">
-                          <div className="text-white cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-teal_custom transition duration-150 ease-in-out hover:bg-gray-600 w-12 h-12 rounded flex items-center justify-center">
+                          <div
+                            onClick={this.OnToggleExportTableSupplier}
+                            className="text-white cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-teal_custom transition duration-150 ease-in-out hover:bg-gray-600 w-12 h-12 rounded flex items-center justify-center"
+                          >
                             <i class="fal fa-print fa-lg"></i>
                           </div>
                         </div>
@@ -623,7 +689,10 @@ class Archive extends React.Component {
                     <div className="bg-white flex flex-col lg:flex-row p-4 lg:p-8 justify-end items-start lg:items-stretch w-full">
                       <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center justify-end">
                         <div className="lg:ml-6 flex items-start w-full">
-                          <div className="text-white cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-teal_custom transition duration-150 ease-in-out hover:bg-gray-600 w-12 h-12 rounded flex items-center justify-center">
+                          <div
+                            onClick={this.OnToggleExportTableAccount}
+                            className="text-white cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-teal_custom transition duration-150 ease-in-out hover:bg-gray-600 w-12 h-12 rounded flex items-center justify-center"
+                          >
                             <i class="fal fa-print fa-lg"></i>
                           </div>
                         </div>
@@ -660,7 +729,7 @@ class Archive extends React.Component {
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredDataAccounts.map((account) => (
+                          {filteredDataAccount.map((account) => (
                             <tr
                               key={account.id}
                               className="h-24 border-gray-300 dark:border-gray-200 border-b"
@@ -703,7 +772,10 @@ class Archive extends React.Component {
                     <div className="bg-white flex flex-col lg:flex-row p-4 lg:p-8 justify-end items-start lg:items-stretch w-full">
                       <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center justify-end">
                         <div className="lg:ml-6 flex items-start w-full">
-                          <div className="text-white cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-teal_custom transition duration-150 ease-in-out hover:bg-gray-600 w-12 h-12 rounded flex items-center justify-center">
+                          <div
+                            onClick={this.OnToggleExportTableInventory}
+                            className="text-white cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-teal_custom transition duration-150 ease-in-out hover:bg-gray-600 w-12 h-12 rounded flex items-center justify-center"
+                          >
                             <i class="fal fa-print fa-lg"></i>
                           </div>
                         </div>
@@ -787,7 +859,10 @@ class Archive extends React.Component {
                     <div className="bg-white flex flex-col lg:flex-row p-4 lg:p-8 justify-end items-start lg:items-stretch w-full">
                       <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center justify-end">
                         <div className="lg:ml-6 flex items-start w-full">
-                          <div className="text-white cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-teal_custom transition duration-150 ease-in-out hover:bg-gray-600 w-12 h-12 rounded flex items-center justify-center">
+                          <div
+                            onClick={this.handleToggleExportTableTransaction}
+                            className="text-white cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-teal_custom transition duration-150 ease-in-out hover:bg-gray-600 w-12 h-12 rounded flex items-center justify-center"
+                          >
                             <i class="fal fa-print fa-lg"></i>
                           </div>
                         </div>
@@ -895,7 +970,10 @@ class Archive extends React.Component {
                     <div className="bg-white flex flex-col lg:flex-row p-4 lg:p-8 justify-end items-start lg:items-stretch w-full">
                       <div className="w-full lg:w-2/3 flex flex-col lg:flex-row items-start lg:items-center justify-end">
                         <div className="lg:ml-6 flex items-start w-full">
-                          <div className="text-white cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-teal_custom transition duration-150 ease-in-out hover:bg-gray-600 w-12 h-12 rounded flex items-center justify-center">
+                          <div
+                            onClick={this.handleToggleExportTableVoucher}
+                            className="text-white cursor-pointer focus:outline-none border border-transparent focus:border-gray-800 focus:shadow-outline-gray bg-teal_custom transition duration-150 ease-in-out hover:bg-gray-600 w-12 h-12 rounded flex items-center justify-center"
+                          >
                             <i class="fal fa-print fa-lg"></i>
                           </div>
                         </div>
@@ -967,6 +1045,72 @@ class Archive extends React.Component {
               </Accordion>
             </div>
           </div>
+        </div>
+
+        <ProductsTableExportModal
+          OnToggleExportTable={this.OnToggleExportTableProduct}
+          filteredData={filteredDataProduct}
+          table_export_modal={this.state.table_export_modal_product}
+        />
+        <div
+          class={
+            this.state.table_export_modal_supplier
+              ? "h-screen "
+              : "h-screen hidden"
+          }
+        >
+          <SupplierTableExportModal
+            OnToggleExportTable={this.OnToggleExportTableSupplier}
+            suppliers={filteredDataSupplier}
+          />
+        </div>
+        <div
+          class={
+            this.state.table_export_modal_account
+              ? "h-screen "
+              : "h-screen hidden"
+          }
+        >
+          <AccountTableExportModal
+            OnToggleExportTable={this.OnToggleExportTableAccount}
+            accounts={filteredDataAccount}
+          />
+        </div>
+        <div
+          class={
+            this.state.table_export_modal_inventory
+              ? "h-screen "
+              : "h-screen hidden"
+          }
+        >
+          <InventoriesTableExportModal
+            OnToggleExportTable={this.OnToggleExportTableInventory}
+            inventories={filteredDataInventory}
+          />
+        </div>
+        <div
+          class={
+            this.state.table_export_modal_transaction
+              ? "h-screen "
+              : "h-screen hidden"
+          }
+        >
+          <TransactionsTableExportModal
+            handleToggleExportTable={this.handleToggleExportTableTransaction}
+            Transactions={filteredDataTransaction}
+          />
+        </div>
+        <div
+          class={
+            this.state.table_export_modal_voucher
+              ? "h-screen "
+              : "h-screen hidden"
+          }
+        >
+          <VoucherTableExportModal
+            handleToggleExportTable={this.handleToggleExportTableVoucher}
+            vouchers={filteredDataVoucher}
+          />
         </div>
       </>
     );

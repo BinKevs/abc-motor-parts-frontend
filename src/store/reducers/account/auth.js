@@ -18,6 +18,7 @@ import {
   CHANGE_PASSWORD,
   CREATE_ADMIN_ACCOUNT,
   CHECK_PASSWORD,
+  UPDATE_ADMIN_ACCOUNT,
 } from "../../actions/account/types";
 import { HandleSuccessMessages } from "../../../Helpers/functions";
 import { URL_IMPORT } from "../../../Helpers/constant";
@@ -86,6 +87,14 @@ const AuthReducer = (state = initialState, action) => {
         birthdate: action.payload.birthdate,
         profile_image: URL_IMPORT + action.payload.profile_image,
       };
+    case UPDATE_ADMIN_ACCOUNT:
+      return {
+        ...state,
+        accounts: [
+          action.payload,
+          ...state.accounts.filter((acc) => acc.id !== action.payload.id),
+        ],
+      };
 
     case CHANGE_ACCOUNT_STATUS:
       return {
@@ -141,6 +150,8 @@ const AuthReducer = (state = initialState, action) => {
       };
     case CHANGE_PASSWORD:
       localStorage.removeItem("token");
+
+    // case CHANGE_ADMIN_ACCOUNT_PASSWORD:
 
     case LOGIN_FAIL:
     case AUTH_ERROR:

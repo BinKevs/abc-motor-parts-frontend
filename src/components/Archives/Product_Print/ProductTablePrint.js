@@ -1,21 +1,22 @@
 import React from "react";
+import { HandleDecimalPlaces } from "../../../Helpers/functions";
 let DateNow = Date().toLocaleString().split(" ");
 
-export class InventoryTablePrint extends React.PureComponent {
+export class ProductTablePrint extends React.PureComponent {
   render() {
     return (
-      <div className="w-full p-10" id="inventoryTable">
+      <div className="w-full p-10" id="productTable">
         <div class="mb-8 flex justify-between">
           <div>
             <h2 class="text-3xl font-bold mb-6 pb-2 tracking-wider uppercase">
-              Inventory List
+              Archived Product
             </h2>
 
             <div class="mb-1 flex items-center">
               <label class="w-32 text-gray-800 block font-bold text-xs uppercase tracking-wide">
                 Issued By
               </label>
-              <span class="mr-4 inline-block">:</span>OwnerUser
+              <span class="mr-4 inline-block">:</span> OwnerUser
               {/* {this.props.user.last_name + ' ' + this.props.user.first_name} */}
             </div>
             <div class="mb-1 flex items-center">
@@ -47,39 +48,27 @@ export class InventoryTablePrint extends React.PureComponent {
           </div>
         </div>
         <table
-          id="inventory-table"
+          id="Product-table"
           className="min-w-full bg-white dark:bg-gray-800"
         >
           <thead>
             <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
               <th className="pl-14 pr-6 text-md">ID</th>
               <th className=" pr-6 text-md">Product</th>
-              <th className="  pr-6 text-md">Stock Added</th>
-              <th className="pr-6 text-md">Supplier</th>
-              <th className="pr-6 text-md">Date</th>
             </tr>
           </thead>
+
           <tbody>
-            {this.props.inventoryProps.map((inventory) => (
+            {this.props.filteredDataFrom.map((product) => (
               <tr
-                key={inventory.id}
+                key={product.id}
                 className="h-24 border-gray-300 dark:border-gray-200 border-b"
               >
-                <td className="pl-14 text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                  {inventory.id}
+                <td className="pl-12 text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                  {product.id}
                 </td>
                 <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                  <div>{inventory.product}</div>({inventory.product_variation})
-                  <div>({inventory.SKU})</div>
-                </td>
-                <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                  {inventory.new_stock}
-                </td>
-                <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                  {inventory.supplier}
-                </td>
-                <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                  {inventory.created_at}
+                  {product.name}
                 </td>
               </tr>
             ))}

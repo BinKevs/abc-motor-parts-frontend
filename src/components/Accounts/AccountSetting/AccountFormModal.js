@@ -759,6 +759,7 @@ const AccountFormModal = (props) => {
                         onChange={onChange}
                         name="old_password"
                         placeholder=" "
+                        value={old_password}
                         required
                         class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
                       />
@@ -777,6 +778,7 @@ const AccountFormModal = (props) => {
                         type="password"
                         onChange={onChange}
                         name="password"
+                        value={password}
                         placeholder=" "
                         required
                         class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
@@ -799,6 +801,7 @@ const AccountFormModal = (props) => {
                         type="password"
                         onChange={onChange}
                         name="password2"
+                        value={password2}
                         placeholder=" "
                         required
                         class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"

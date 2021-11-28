@@ -10,6 +10,7 @@ import swal from "sweetalert";
 import { VoucherTableExportModal } from "./Print/VoucherTableExportModal";
 import { CheckPassword } from "../../Helpers/functions";
 let passwordVerified;
+let filteredData;
 class VoucherSetting extends React.Component {
   componentDidMount() {
     this.props.getVoucherList();
@@ -31,7 +32,7 @@ class VoucherSetting extends React.Component {
   handleAddSubmitVoucher = (e) => {
     e.preventDefault();
     const { code, value } = this.state;
-    const voucher = { code, value };
+    const voucher = { code, value, voucher_status_details: "Not yet redeemed" };
     this.props.addVoucher(voucher);
     this.setState({
       code: "",
@@ -137,18 +138,10 @@ class VoucherSetting extends React.Component {
   };
   render() {
     let lowercasedFilter = this.state.search.toLowerCase();
-    let filteredData;
 
     filteredData = this.props.vouchers.filter((voucher) => {
       if (voucher.status)
-        if (lowercasedFilter === "") {
-          return voucher;
-        } else {
-          return voucher.code
-            .toString()
-            .toLowerCase()
-            .includes(lowercasedFilter);
-        }
+        return voucher.code.toString().toLowerCase().includes(lowercasedFilter);
     });
     return (
       <>
@@ -385,7 +378,10 @@ class VoucherSetting extends React.Component {
                         >
                           Submit
                         </button>
-                        <button className="focus:outline-none ml-3 bg-gray-100 dark:bg-gray-700 dark:border-gray-700 dark:hover:bg-gray-600 transition duration-150 text-gray-600 dark:text-gray-400 ease-in-out hover:border-gray-400 hover:bg-gray-300 border rounded px-8 py-2 text-sm">
+                        <button
+                          onClick={this.handleToggleModal}
+                          className="focus:outline-none ml-3 bg-gray-100 dark:bg-gray-700 dark:border-gray-700 dark:hover:bg-gray-600 transition duration-150 text-gray-600 dark:text-gray-400 ease-in-out hover:border-gray-400 hover:bg-gray-300 border rounded px-8 py-2 text-sm"
+                        >
                           Cancel
                         </button>
                       </div>
@@ -426,7 +422,7 @@ class VoucherSetting extends React.Component {
         >
           <VoucherTableExportModal
             handleToggleExportTable={this.handleToggleExportTable}
-            vouchers={this.props.vouchers}
+            vouchers={filteredData}
           />
         </div>
       </>

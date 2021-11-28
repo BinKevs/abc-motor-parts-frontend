@@ -7,6 +7,8 @@ import {
   getAccount,
   changeAccountStatus,
   createAdminAccount,
+  ChangeAdminAccountPassword,
+  UpdateAdminAccount,
 } from "../../../store/actions/account/auth";
 import {
   regions,
@@ -183,9 +185,7 @@ class AccountsIndex extends React.Component {
   };
   handleChangePassword = (event) => {
     event.preventDefault();
-
     const { old_password, password, password2 } = this.state;
-
     if (password !== password2) {
       swal(
         "Password and confirm password do not match. Please try again.",
@@ -201,7 +201,16 @@ class AccountsIndex extends React.Component {
         const formPassword = new FormData();
         formPassword.append("old_password", old_password);
         formPassword.append("new_password", password2);
-        this.props.ChangePassword(this.props.AuthReducer.user.id, formPassword);
+        this.props.ChangeAdminAccountPassword(
+          this.props.AuthReducer.user.id,
+          formPassword
+        );
+        this.setState({
+          old_password: "",
+          password: "",
+          password2: "",
+        });
+        this.ModalFunction();
       }
     }
   };
@@ -228,22 +237,22 @@ class AccountsIndex extends React.Component {
       formAccountInfoData.append("birthdate", this.convert(BirthInputDate));
     }
     formAccountInfoData.append("account", account_id);
-    if (username === this.props.AuthReducer.user.username) {
-      this.setState({
-        usernameError: false,
-      });
-    } else {
-      if (this.props.accounts.some((acc) => username === acc.user.username)) {
-        this.setState({
-          usernameError: true,
-        });
-      } else {
-        this.setState({
-          usernameError: false,
-        });
-        this.props.getAccountList();
-      }
-    }
+    // if (username === this.props.AuthReducer.user.username) {
+    //   this.setState({
+    //     usernameError: false,
+    //   });
+    // } else {
+    //   if (this.props.accounts.some((acc) => username === acc.user.username)) {
+    //     this.setState({
+    //       usernameError: true,
+    //     });
+    //   } else {
+    //     this.setState({
+    //       usernameError: false,
+    //     });
+    //     this.props.getAccountList();
+    //   }
+    // }
 
     if (EmailValidator.validate(email)) {
       this.setState({
@@ -254,12 +263,10 @@ class AccountsIndex extends React.Component {
         emailError: true,
       });
     }
-
     if (!usernameError && !emailError) {
-      this.props.UpdateAccount(account_user_id, formAccountInfoData);
-      this.setState({
-        edit_account_info: false,
-      });
+      this.props.UpdateAdminAccount(account_user_id, formAccountInfoData);
+      this.ModalFunction();
+      // this.props.getAccountList();
     }
   };
 
@@ -357,29 +364,29 @@ class AccountsIndex extends React.Component {
     }
     this.ModalFunction();
   };
-  onUpdateSubmit = (AccountID) => {
-    return (event) => {
-      event.preventDefault();
-      const { username, email, first_name, last_name, password, password2 } =
-        this.state;
-      if (password !== password2) {
-        console.log("Passwords do not match");
-      } else {
-        const newUser = {
-          username,
-          email,
-          first_name,
-          last_name,
-          password,
-          is_active: true,
-        };
-        this.props.UpdateAccount(AccountID, newUser);
-      }
+  // onUpdateSubmit = (AccountID) => {
+  //   return (event) => {
+  //     event.preventDefault();
+  //     const { username, email, first_name, last_name, password, password2 } =
+  //       this.state;
+  //     if (password !== password2) {
+  //       console.log("Passwords do not match");
+  //     } else {
+  //       const newUser = {
+  //         username,
+  //         email,
+  //         first_name,
+  //         last_name,
+  //         password,
+  //         is_active: true,
+  //       };
+  //       this.props.UpdateAccount(AccountID, newUser);
+  //     }
 
-      this.props.getAccountList();
-      this.ModalFunction();
-    };
-  };
+  //     this.props.getAccountList();
+  //     this.ModalFunction();
+  //   };
+  // };
   // when edit button click this will fetch the supplier that will be edited and change the isEditButtonClicked status to true
   onEditCloseButton = (event) => {
     event.preventDefault();
@@ -404,7 +411,6 @@ class AccountsIndex extends React.Component {
       this.props.getAccount(AccountID);
       this.ModalFunction();
       EditButtonIsClicked = true;
-      console.log(this.props.account);
     };
   }
   // function that called to open or close modal
@@ -551,7 +557,12 @@ class AccountsIndex extends React.Component {
 
     const lowercasedFilter = this.state.search.toLowerCase();
     const filteredData = AccountsItems.filter((item) => {
-      if (item.is_superuser) if (item.status) return item;
+      if (item.is_superuser)
+        if (item.status)
+          return (
+            item.username.toString().toLowerCase().includes(lowercasedFilter) ||
+            item.email.toString().toLowerCase().includes(lowercasedFilter)
+          );
     });
     return (
       <>
@@ -706,7 +717,6 @@ class AccountsIndex extends React.Component {
           EditButtonIsClicked={EditButtonIsClicked}
           onEditCloseButton={this.onEditCloseButton}
           handleAddAccount={this.handleAddAccount}
-          onUpdateSubmit={this.onUpdateSubmit}
           passwordError={passwordError}
           province={this.province}
           region={this.region}
@@ -745,4 +755,6 @@ export default connect(mapStateToProps, {
   UpdateAccount,
   changeAccountStatus,
   createAdminAccount,
+  ChangeAdminAccountPassword,
+  UpdateAdminAccount,
 })(AccountsIndex);

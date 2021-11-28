@@ -107,10 +107,15 @@ class Login extends React.Component {
               </div>
             </form>
 
-            <span class="block p-5 text-center text-xl text-gray-800 text-xs">
+            <span class="block p-2 text-center text-lg text-gray-800 ">
               Don't have an account?{" "}
               <Link className="text-blue-500" to="/register">
                 Create here.
+              </Link>
+            </span>
+            <span class="block text-center text-md text-gray-800 ">
+              <Link className="text-blue-500" to="/forgot-password">
+                Forget account?
               </Link>
             </span>
           </div>

@@ -174,7 +174,6 @@ class SupplierSettingIndex extends React.Component {
     this.setState({ table_export_modal: !this.state.table_export_modal });
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
-    document.getElementById("Body").classList.toggle("overflow-hidden");
   };
 
   // function that called to open or close modal
@@ -182,7 +181,6 @@ class SupplierSettingIndex extends React.Component {
     this.setState({ modal: !this.state.modal });
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
-    document.getElementById("Body").classList.toggle("overflow-hidden");
   }
 
   handleArchiveSupplier(supplierID) {

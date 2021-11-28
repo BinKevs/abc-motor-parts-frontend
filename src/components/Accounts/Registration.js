@@ -12,8 +12,8 @@ import {
   barangays,
 } from "select-philippines-address";
 import swal from "sweetalert";
-import { phone } from "phone";
 import * as EmailValidator from "email-validator";
+import { phone } from "phone";
 var passwordValidator = require("password-validator");
 var schema = new passwordValidator();
 schema

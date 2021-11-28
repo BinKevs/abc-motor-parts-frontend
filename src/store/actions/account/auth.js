@@ -20,9 +20,43 @@ import {
   CHANGE_PASSWORD,
   CREATE_ADMIN_ACCOUNT,
   CHECK_PASSWORD,
+  UPDATE_ADMIN_ACCOUNT,
 } from "./types";
 import swal from "sweetalert";
 import { HandleSuccessMessages } from "../../../Helpers/functions";
+export const forgot_password = (data) => (dispatch, getState) => {
+  axios
+    .post(URL_IMPORT + "/api/password_reset/", data, tokenConfig(getState))
+    .then((res) => {
+      swal({
+        icon: "success",
+        title: "Reset password",
+        text: "A verification email has been sent to your email. \nPlease verify it",
+        // icon: "https://www.kindpng.com/picc/m/285-2852276_email-id-verification-reminder-plugin-verify-email-illustration.png",
+        // icon: "https://cdn.iconscout.com/icon/free/png-256/email-mail-envelope-right-true-verify-verified-2-18068.png",
+      });
+    })
+    .catch((err) => console.log(err));
+};
+export const reset_password = (data) => (dispatch, getState) => {
+  axios
+    .post(
+      URL_IMPORT + "/api/password_reset/confirm/",
+      data,
+      tokenConfig(getState)
+    )
+    .then((res) => {
+      swal({
+        icon: "success",
+        title: "Password Reset Successfully",
+        text: "You will be redirected to Login Page",
+        timer: 3000,
+      }).then(function () {
+        window.location.href = URL_FOR_LOGIN;
+      });
+    })
+    .catch((err) => console.log(err));
+};
 export const ChangePassword = (UserID, data) => (dispatch, getState) => {
   axios
     .put(
@@ -47,7 +81,25 @@ export const ChangePassword = (UserID, data) => (dispatch, getState) => {
       swal("Incorect current password.\n Please try again.", "", "error")
     );
 };
-
+export const ChangeAdminAccountPassword =
+  (UserID, data) => (dispatch, getState) => {
+    axios
+      .put(
+        URL_IMPORT + "/api/auth/ChangePassword/" + UserID + "/",
+        data,
+        tokenConfig(getState)
+      )
+      .then((res) => {
+        // dispatch({
+        //   type: CHANGE_ADMIN_ACCOUNT_PASSWORD,
+        //   payload: res.data,
+        // });
+        swal("Account Password successfully updated.", "", "success");
+      })
+      .catch((err) =>
+        swal("Incorect current password.\n Please try again.", "", "error")
+      );
+  };
 export const CheckAdminPassword = (UserID, data) => (dispatch, getState) => {
   axios
     .put(
@@ -106,7 +158,18 @@ export const UpdateAccount = (AccountID, data) => (dispatch, getState) => {
     })
     .catch((err) => console.log(err));
 };
-
+export const UpdateAdminAccount = (AccountID, data) => (dispatch, getState) => {
+  axios
+    .put(URL_IMPORT + "/api/auth/" + AccountID, data, tokenConfig(getState))
+    .then((res) => {
+      HandleSuccessMessages("Account Updated", "success");
+      dispatch({
+        type: UPDATE_ADMIN_ACCOUNT,
+        payload: res.data,
+      });
+    })
+    .catch((err) => console.log(err));
+};
 export const changeAccountStatus =
   (AccountID, data) => (dispatch, getState) => {
     axios

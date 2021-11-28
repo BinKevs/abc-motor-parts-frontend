@@ -7,6 +7,9 @@ import MainBaseRouter from "./Routers/MainRoutes";
 
 import store from "./store/store";
 import Login from "./components/Accounts/Login";
+import ResetPassword from "./components/Accounts/ResetPassword";
+import ForgotPassword from "./components/Accounts/ForgotPassword";
+
 import Registration from "./components/Accounts/Registration";
 
 import { useEffect } from "react";
@@ -25,6 +28,12 @@ function App() {
           <Switch>
             {/* <Route exact path="/" component={Login} /> */}
             <Route exact path="/login" component={Login} />
+            <Route
+              exact
+              path="/reset/password/:token"
+              component={ResetPassword}
+            />
+            <Route exact path="/forgot-password" component={ForgotPassword} />
 
             <Route exact path="/register" component={Registration} />
 

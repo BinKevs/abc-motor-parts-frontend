@@ -55,10 +55,24 @@ class InventorySettingIndex extends React.Component {
     this.props.getSupplierList();
     this.props.getProductList();
     this.props.getCategoryList();
-    // this.props.getInventory(1);
   }
   onChange = (e) => {
+    if (e.target.name === "product") {
+      let cost_price = this.props.products
+        .filter((productItem) => productItem.id === parseInt(e.target.value))
+        .map((a) => a.cost_price)[0];
+      let price = this.props.products
+        .filter((productItem) => productItem.id === parseInt(e.target.value))
+        .map((a) => a.price)[0];
+      this.setState({
+        cost_price: cost_price,
+        price: price,
+      });
+    }
     this.setState({ [e.target.name]: e.target.value });
+    // else{
+    //   this.setState({ [e.target.name]: e.target.value });
+    // }
   };
   // this will be passed to the form add component
   // when this function called it will get the state values and pass it
@@ -66,7 +80,14 @@ class InventorySettingIndex extends React.Component {
   // and clear the state for adding a new inventory
   handleSubmitAddInventory = (event) => {
     event.preventDefault();
-    const { new_stock, product, supplier, productVariation } = this.state;
+    const {
+      new_stock,
+      product,
+      supplier,
+      productVariation,
+      cost_price,
+      price,
+    } = this.state;
     const action_done = "Inventory Added";
     const inventory = {
       new_stock,
@@ -74,6 +95,8 @@ class InventorySettingIndex extends React.Component {
       supplier,
       action_done,
       productVariation,
+      cost_price,
+      price,
     };
     this.props.addInventory(inventory);
     this.setState({
@@ -141,6 +164,7 @@ class InventorySettingIndex extends React.Component {
     return (event) => {
       event.preventDefault();
       this.props.getInventory(InventoryID);
+
       this.ModalFunction();
       EditButtonIsClicked = true;
     };
@@ -150,7 +174,6 @@ class InventorySettingIndex extends React.Component {
     this.setState({ modal: !this.state.modal });
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
-    document.getElementById("Body").classList.toggle("overflow-hidden");
   }
 
   OnToggleExportTable = (event) => {
@@ -158,7 +181,6 @@ class InventorySettingIndex extends React.Component {
     this.setState({ table_export_modal: !this.state.table_export_modal });
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
-    document.getElementById("Body").classList.toggle("overflow-hidden");
   };
   handleArchiveInventory(inventoryID) {
     return (event) => {
@@ -218,7 +240,6 @@ class InventorySettingIndex extends React.Component {
     };
   }
   render() {
-    console.log(this.props.inventories);
     const { InputDate, search, productForDropDownSelect } = this.state;
     // destructure the inventories that came from the reducer so it will be easier to filter and show
     inventories = [];

@@ -20,6 +20,7 @@ import {
   barangays,
 } from "select-philippines-address";
 import swal from "sweetalert";
+import { phone } from "phone";
 let shippingFee = 0;
 let TotalAmountToPay = 0;
 let totalProfit = 0;
@@ -70,8 +71,31 @@ class Checkout extends React.Component {
     phone_number_gcash: "",
     ref_number_paymaya: "",
     phone_number_paymaya: "",
+    contactNumberErrorGcash: false,
+    contactNumberErrorPaymaya: false,
   };
   onChange = (e) => {
+    if (e.target.name === "phone_number_gcash") {
+      if (phone(e.target.value, { country: "PH" }).isValid) {
+        this.setState({
+          contactNumberErrorGcash: false,
+        });
+      } else {
+        this.setState({
+          contactNumberErrorGcash: true,
+        });
+      }
+    } else if (e.target.name === "phone_number_paymaya") {
+      if (phone(e.target.value, { country: "PH" }).isValid) {
+        this.setState({
+          contactNumberErrorPaymaya: false,
+        });
+      } else {
+        this.setState({
+          contactNumberErrorPaymaya: true,
+        });
+      }
+    }
     this.setState({
       [e.target.name]: e.target.value,
     });
@@ -179,15 +203,12 @@ class Checkout extends React.Component {
     const contact_number = this.props.AuthReducer.contact_number;
     const action_done = "Transaction Added";
     const order_status = "Pending (Checking Payment)";
-
     const items = this.props.cartItems;
     const {
-      payment_method,
-      amount_tendered,
-      change,
       ref_number_gcash,
       phone_number_gcash,
       voucher_id,
+      contactNumberErrorGcash,
     } = this.state;
     const payment_method_gcash =
       "Ref No. : " + ref_number_gcash + " Phone No. : " + phone_number_gcash;
@@ -212,9 +233,20 @@ class Checkout extends React.Component {
       address,
       contact_number,
     };
-    this.props.addTransaction(data);
-    this.props.clearCart();
-    this.props.history.push("/Home");
+    if (phone(phone_number_gcash, { country: "PH" }).isValid) {
+      this.setState({
+        contactNumberErrorGcash: false,
+      });
+    } else {
+      this.setState({
+        contactNumberErrorGcash: true,
+      });
+    }
+    if (!contactNumberErrorGcash) {
+      this.props.addTransaction(data);
+      this.props.clearCart();
+      this.props.history.push("/Home");
+    }
   };
   handleSubmitPayMaya = (event) => {
     event.preventDefault();
@@ -235,7 +267,12 @@ class Checkout extends React.Component {
     const order_status = "Pending (Checking Payment)";
 
     const items = this.props.cartItems;
-    const { ref_number_paymaya, phone_number_paymaya, voucher_id } = this.state;
+    const {
+      ref_number_paymaya,
+      phone_number_paymaya,
+      voucher_id,
+      contactNumberErrorPaymaya,
+    } = this.state;
     const payment_method_gcash =
       "Ref No. : " +
       ref_number_paymaya +
@@ -262,9 +299,20 @@ class Checkout extends React.Component {
       address,
       contact_number,
     };
-    this.props.addTransaction(data);
-    this.props.clearCart();
-    this.props.history.push("/Home");
+    if (phone(phone_number_paymaya, { country: "PH" }).isValid) {
+      this.setState({
+        contactNumberErrorPaymaya: false,
+      });
+    } else {
+      this.setState({
+        contactNumberErrorPaymaya: true,
+      });
+    }
+    if (!contactNumberErrorPaymaya) {
+      this.props.addTransaction(data);
+      this.props.clearCart();
+      this.props.history.push("/Home");
+    }
   };
 
   handleUpdateContact = (event) => {
@@ -340,7 +388,8 @@ class Checkout extends React.Component {
       this.props.AuthReducer.addresses.province +
       " " +
       this.props.AuthReducer.addresses.region;
-    const contact_number = this.props.AuthReducer.contact_numbers;
+
+    const contact_number = this.props.AuthReducer.contact_number;
     const action_done = "Transaction Added";
     const order_status = "Pending";
 
@@ -366,7 +415,7 @@ class Checkout extends React.Component {
     this.props.addTransaction(data);
     this.props.getTransactionList();
     this.props.clearCart();
-    this.props.history.push("/home");
+    // this.props.history.push("/home");
   }
   handleModalEWallet = (e) => {
     e.preventDefault();
@@ -393,20 +442,38 @@ class Checkout extends React.Component {
   handleVoucherApply = (e) => {
     e.preventDefault();
 
-    this.props.vouchers.map((voucher) =>
-      this.state.voucher_code === voucher.code &&
-      voucher.voucher_status_details === "Not yet redeemed"
-        ? (this.setState({
-            voucher_id: voucher.id,
-            voucher_value: voucher.value,
-            showModalVoucher: !this.state.showModalVoucher,
-          }),
-          swal("Successfully applied voucher!", "", "success"))
-        : (this.setState({
-            showModalVoucher: !this.state.showModalVoucher,
-          }),
-          swal("Voucher do not exist!", "", "info"))
+    let exist = this.props.vouchers.some(
+      (voucher) =>
+        this.state.voucher_code === voucher.code &&
+        voucher.voucher_status_details === "Not yet redeemed"
     );
+    if (exist) {
+      let voucher_id = this.props.vouchers
+        .filter(
+          (voucher) =>
+            this.state.voucher_code === voucher.code &&
+            voucher.voucher_status_details === "Not yet redeemed"
+        )
+        .map((vouch) => vouch.id);
+      let voucher_value = this.props.vouchers
+        .filter(
+          (voucher) =>
+            this.state.voucher_code === voucher.code &&
+            voucher.voucher_status_details === "Not yet redeemed"
+        )
+        .map((vouch) => vouch.value);
+      this.setState({
+        voucher_id: voucher_id,
+        voucher_value: voucher_value,
+        showModalVoucher: !this.state.showModalVoucher,
+      });
+      swal("Successfully applied voucher!", "", "success");
+    } else {
+      this.setState({
+        showModalVoucher: !this.state.showModalVoucher,
+      });
+      swal("Voucher do not exist!", "", "info");
+    }
     window.scrollTo({ top: this.state.currentScrollState, behavior: "smooth" });
   };
 
@@ -922,7 +989,7 @@ class Checkout extends React.Component {
                         </h1>
                       </div>
                       <div className="flex flex-col md:flex-row justify-center items-center px-auto">
-                        <div className="flex flex-col items-center justify-center space-y-2 bg-white shadow-lg z-10 rounded-xl p-4 m-3 w-full md:w-2/5">
+                        <form className="flex flex-col items-center justify-center space-y-2 bg-white shadow-lg z-10 rounded-xl p-4 m-3 w-full md:w-2/5">
                           {/* <h1 class="text-blue-500 text-xl font-bold">Gcash</h1> */}
                           <img
                             src="https://orangemagazine.ph/wp-content/uploads/2020/05/GCash_Horizontal-Full-Blue-BG-3-1.png"
@@ -940,6 +1007,7 @@ class Checkout extends React.Component {
                             type="text"
                             onChange={this.onChange}
                             name="ref_number_gcash"
+                            required
                             value={this.state.ref_number_gcash}
                             placeholder="Reference Number"
                           />
@@ -948,16 +1016,28 @@ class Checkout extends React.Component {
                             type="text"
                             onChange={this.onChange}
                             name="phone_number_gcash"
+                            required
                             value={this.state.phone_number_gcash}
                             placeholder="Your Phone Number"
                           />
-                          <button
+                          <span class="text-sm text-red-600" id="error">
+                            {this.state.contactNumberErrorGcash
+                              ? "Not a valid PH number"
+                              : this.state.phone_number_gcash > 10
+                              ? phone(this.state.phone_number_gcash, {
+                                  country: "PH",
+                                }).isValid
+                                ? ""
+                                : "Not a valid PH number"
+                              : ""}
+                          </span>
+                          <input
+                            type="submit"
                             onClick={this.handleSubmitGCash}
+                            value="Submit"
                             className="focus:outline-none transition duration-150 ease-in-out hover:bg-cyan-700 bg-cyan-700 rounded text-white px-8 py-2 text-sm"
-                          >
-                            Submit
-                          </button>
-                        </div>
+                          />
+                        </form>
                         <div className="flex flex-col space-y-4 items-center justify-center bg-white shadow-lg z-10 rounded-xl p-4 m-3 w-full md:w-2/5">
                           {/* <h1 class="text-blue-500 text-xl font-bold">
                             <span className="text-blue-800"> Pay</span>Pal
@@ -990,10 +1070,10 @@ class Checkout extends React.Component {
                                 .capture()
                                 .then(function (details) {
                                   // Show a success message to your buyer
-                                  alert(
-                                    "Transaction completed by " +
-                                      details.payer.name.given_name
-                                  );
+                                  // alert(
+                                  //   "Transaction completed by " +
+                                  //     details.payer.name.given_name
+                                  // );
 
                                   // OPTIONAL: Call your server to save the transaction
                                   return fetch("/paypal-transaction-complete", {
@@ -1001,12 +1081,15 @@ class Checkout extends React.Component {
                                     body: JSON.stringify({
                                       orderID: data.orderID,
                                     }),
+                                  }).then(function () {
+                                    window.location.href =
+                                      "http://localhost:3000/home";
                                   });
                                 });
                             }}
                           />
                         </div>
-                        <div className="flex flex-col items-center justify-center space-y-2 bg-white shadow-lg z-10 rounded-xl p-4 m-3 w-full md:w-2/5">
+                        <form className="flex flex-col items-center justify-center space-y-2 bg-white shadow-lg z-10 rounded-xl p-4 m-3 w-full md:w-2/5">
                           {/* <h1 class="text-white text-xl font-bold">PayMaya</h1> */}
                           <img
                             src="https://1.bp.blogspot.com/-NWeX5tZvNh8/XbgOjEzDHHI/AAAAAAAABDY/i3mUsvPs_voc3AedE1QarN1tiQ-1z_95gCEwYBhgL/s1600/images.png"
@@ -1023,6 +1106,7 @@ class Checkout extends React.Component {
                             type="text"
                             onChange={this.onChange}
                             name="ref_number_paymaya"
+                            required
                             value={this.state.ref_number_paymaya}
                             placeholder="Reference Number"
                           />
@@ -1031,17 +1115,28 @@ class Checkout extends React.Component {
                             type="text"
                             onChange={this.onChange}
                             name="phone_number_paymaya"
+                            required
                             value={this.state.phone_number_paymaya}
                             placeholder="Your Phone Number"
                           />
-                          <button
-                            onClick={this.handleSubmitPayMaya}
+                          <span class="text-sm text-red-600" id="error">
+                            {this.state.contactNumberErrorPaymaya
+                              ? "Not a valid PH number"
+                              : this.state.phone_number_paymaya > 10
+                              ? phone(this.state.phone_number_paymaya, {
+                                  country: "PH",
+                                }).isValid
+                                ? ""
+                                : "Not a valid PH number"
+                              : ""}
+                          </span>
+                          <input
                             type="submit"
+                            onClick={this.handleSubmitPayMaya}
+                            value="Submit"
                             className="focus:outline-none transition duration-150 ease-in-out hover:bg-cyan-700 bg-cyan-700 rounded text-white px-8 py-2 text-sm"
-                          >
-                            Submit
-                          </button>
-                        </div>
+                          />
+                        </form>
                       </div>
                       <div
                         onClick={this.handleModalEWallet}

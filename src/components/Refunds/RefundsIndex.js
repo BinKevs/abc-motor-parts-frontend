@@ -37,7 +37,7 @@ class RefundsIndex extends React.Component {
       });
     };
   };
-  handleRefundUpdate = (action, productvariation, quantity, refundID) => {
+  handleRefundUpdateAccept = (action, productvariation, quantity, refundID) => {
     return (event) => {
       event.preventDefault();
 
@@ -60,7 +60,6 @@ class RefundsIndex extends React.Component {
           },
           cancel: {
             text: "Cancel",
-            value: false,
             value: "cancel",
             visible: true,
             className: "",
@@ -89,7 +88,6 @@ class RefundsIndex extends React.Component {
               },
               cancel: {
                 text: "Cancel",
-                value: false,
                 value: "cancel",
                 visible: true,
                 className: "",
@@ -97,19 +95,66 @@ class RefundsIndex extends React.Component {
               },
             },
           }).then((value) => {
-            const formData = new FormData();
-            formData.append("response", this.state.response);
-            formData.append("status", action + " & " + status);
-            formData.append("inventoryAction", value);
-            formData.append("productVariationID", productvariation);
-            formData.append("quantity", quantity);
-            this.props.updateRefund(refundID, formData);
-            status = "";
-            this.setState({
-              refundInfo: "",
-              response: "",
-              showViewMoreModal: !this.state.showViewMoreModal,
-            });
+            if (value !== "cancel") {
+              const formData = new FormData();
+              formData.append("response", this.state.response);
+              formData.append("status", action + " & " + status);
+              formData.append("inventoryAction", value);
+              formData.append("productVariationID", productvariation);
+              formData.append("quantity", quantity);
+              this.props.updateRefund(refundID, formData);
+              status = "";
+              this.setState({
+                refundInfo: "",
+                response: "",
+                showViewMoreModal: !this.state.showViewMoreModal,
+              });
+            }
+          });
+        }
+        if (value === "Refund") {
+          status = "Item will be refunded";
+          swal("Inventory changes?", {
+            icon: "info",
+            buttons: {
+              Deduct: {
+                text: "Deduct quantity",
+                value: "Deduct",
+                visible: true,
+                className: "",
+                closeModal: true,
+              },
+              Remain: {
+                text: "Remain the same",
+                value: "Remain",
+                visible: true,
+                className: "",
+                closeModal: true,
+              },
+              cancel: {
+                text: "Cancel",
+                value: "cancel",
+                visible: true,
+                className: "",
+                closeModal: true,
+              },
+            },
+          }).then((value) => {
+            if (value !== "cancel") {
+              const formData = new FormData();
+              formData.append("response", this.state.response);
+              formData.append("status", action + " & " + status);
+              formData.append("inventoryAction", value);
+              formData.append("productVariationID", productvariation);
+              formData.append("quantity", quantity);
+              this.props.updateRefund(refundID, formData);
+              status = "";
+              this.setState({
+                refundInfo: "",
+                response: "",
+                showViewMoreModal: !this.state.showViewMoreModal,
+              });
+            }
           });
         }
       });
@@ -127,7 +172,21 @@ class RefundsIndex extends React.Component {
       // });
     };
   };
-
+  handleRefundUpdateDenied = (action, refundID) => {
+    return (event) => {
+      event.preventDefault();
+      const formData = new FormData();
+      formData.append("response", this.state.response);
+      formData.append("status", action);
+      this.props.updateRefund(refundID, formData);
+      status = "";
+      this.setState({
+        refundInfo: "",
+        response: "",
+        showViewMoreModal: !this.state.showViewMoreModal,
+      });
+    };
+  };
   handleCloseViewMoreModal = (event) => {
     event.preventDefault();
     this.setState({
@@ -141,7 +200,7 @@ class RefundsIndex extends React.Component {
   };
   render() {
     const { refundInfo } = this.state;
-
+    console.log(filteredData, refundInfo);
     let InputDateDateSeparated = this.state.InputDate.toString().split(" ");
     filteredData = [];
 
@@ -407,15 +466,31 @@ class RefundsIndex extends React.Component {
                           <textarea
                             class="rounded border border-gray-400 leading-normal resize-none w-full h-20 py-2 px-3 placeholder-gray-700 focus:outline-none"
                             name="response"
+                            disabled={
+                              refundInfo
+                                ? refundInfo.status === "Pending"
+                                  ? false
+                                  : true
+                                : ""
+                            }
                             onChange={this.onChange}
+                            value={refundInfo ? refundInfo.response : ""}
                             placeholder="Write Your Response Here"
                             required
                           ></textarea>
                         </div>
                       </div>
-                      <div className="w-full flex flex-col md:flex-row md:space-x-4 space-x-0 md:space-y-0 space-y-4  justify-center mb-5">
+                      <div
+                        className={`w-full flex flex-col md:flex-row md:space-x-4 space-x-0 md:space-y-0 space-y-4  justify-center mb-5 ${
+                          refundInfo
+                            ? refundInfo.status === "Pending"
+                              ? ""
+                              : "hidden"
+                            : ""
+                        }`}
+                      >
                         <div
-                          onClick={this.handleRefundUpdate(
+                          onClick={this.handleRefundUpdateAccept(
                             "Accepted",
                             refundInfo
                               ? refundInfo.transaction_item
@@ -424,7 +499,6 @@ class RefundsIndex extends React.Component {
                             refundInfo
                               ? refundInfo.transaction_item.quantity
                               : "",
-
                             refundInfo.id
                           )}
                           className={
@@ -434,7 +508,10 @@ class RefundsIndex extends React.Component {
                           <div>Accept Refund/Return</div>
                         </div>
                         <div
-                          onClick={this.handleRefundUpdate("Denied")}
+                          onClick={this.handleRefundUpdateDenied(
+                            "Denied",
+                            refundInfo.id
+                          )}
                           className={
                             "flex bg-teal_custom hover:bg-gray-400 text-white cursor-pointer rounded items-center justify-center px-3 h-12"
                           }
@@ -444,7 +521,7 @@ class RefundsIndex extends React.Component {
                       </div>
                       {/* <div className="flex items-center justify-center w-full">
                         <button
-                          onClick={this.handleRefundUpdate}
+                          onClick={this.handleRefundUpdateAccept}
                           className="focus:outline-none transition duration-150 ease-in-out hover:bg-cyan-700 bg-cyan-700 rounded text-white px-8 py-2 text-sm"
                         >
                           Submit

@@ -13,7 +13,20 @@ import ReactPlayer from "react-player";
 import noImageAvailable from "../../../no-image-available.png";
 import ReviewsModal from "./ReviewsModal";
 import RefundsModal from "./RefundsModal";
+import Cancel_Order from "./Cancel_Order";
 import swal from "sweetalert";
+import { Link } from "react-router-dom";
+let DateNow = Date().toLocaleString().split(" ");
+let date_now =
+  DateNow[0] +
+  " " +
+  DateNow[1] +
+  " " +
+  DateNow[2] +
+  " " +
+  DateNow[3] +
+  " " +
+  DateNow[4];
 let NavButton = document.getElementsByClassName("NavButton");
 let NavButtonActive = document.getElementsByClassName("NavButtonActive");
 let filteredTransactionData = [];
@@ -37,7 +50,6 @@ class PurchasesIndex extends React.Component {
   };
   state = {
     showModal: false,
-
     showModalRefund: false,
     showRefundInfo: false,
     comment: "",
@@ -51,6 +63,8 @@ class PurchasesIndex extends React.Component {
     RefundDescription: "",
     VideoFileURL: "",
     refund_item: "",
+    showModalCancel: false,
+    cancel_item: "",
   };
 
   handleOrderReceivedSubmit = (transactionId) => {
@@ -72,12 +86,12 @@ class PurchasesIndex extends React.Component {
         switch (value) {
           case "Confirm":
             const formData = new FormData();
-            formData.append("order_status", "Complete");
+            formData.append("order_status", "Complete(Customer) " + date_now);
             this.props.updateTransactionStatus(transactionId, formData);
-            this.setState({
-              transactionId: 0,
-              // filter_nav: "Complete",
-            });
+            // this.setState({
+            //   transactionId: 0,
+            //   filter_nav: "Complete",
+            // });
             break;
           default:
             break;
@@ -150,7 +164,28 @@ class PurchasesIndex extends React.Component {
     });
     this.props.history.push("/Home");
   };
-
+  handleSubmitCancel = (transactionId) => {
+    return (e) => {
+      e.preventDefault();
+      let date_now =
+        DateNow[0] +
+        " " +
+        DateNow[1] +
+        " " +
+        DateNow[2] +
+        " " +
+        DateNow[3] +
+        " " +
+        DateNow[4];
+      const formData = new FormData();
+      formData.append(
+        "order_status",
+        "Canceled(Customer) (" + date_now + " ) " + this.state.CancelDescription
+      );
+      this.props.updateTransactionStatus(transactionId, formData);
+      this.props.history.push("/Home");
+    };
+  };
   handleToggleModalRefund = (refund_item) => {
     return (event) => {
       event.preventDefault();
@@ -161,10 +196,27 @@ class PurchasesIndex extends React.Component {
       });
     };
   };
+  handleToggleModalCancel = (cancel_transaction) => {
+    return (event) => {
+      event.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      this.setState({
+        showModalCancel: !this.state.showModalCancel,
+        cancel_transaction,
+      });
+    };
+  };
+
   handleToggleModalRefundClose = (event) => {
     event.preventDefault();
     this.setState({
       showModalRefund: !this.state.showModalRefund,
+    });
+  };
+  handleToggleModalCancelClose = (event) => {
+    event.preventDefault();
+    this.setState({
+      showModalCancel: !this.state.showModalCancel,
     });
   };
   handleRefundNavigation = (event) => {
@@ -194,6 +246,7 @@ class PurchasesIndex extends React.Component {
   };
 
   render() {
+    console.log(this.props.transactions);
     filteredTransactionData = [];
     filteredTransactionData = this.props.transactions.filter((item) => {
       return this.props.AuthReducer.user.id === item.user
@@ -405,7 +458,12 @@ class PurchasesIndex extends React.Component {
                           <div class="text-gray-600 text-xl font-medium pb-4">
                             Status :{" "}
                             <span className="text-gray-900 tracking-widest">
-                              {transaction.order_status}
+                              {transaction.order_status.includes(
+                                "Canceled(Customer)"
+                              )
+                                ? transaction.order_status.split(",")[0] +
+                                  transaction.order_status.split(",")[1]
+                                : transaction.order_status}
                             </span>
                           </div>
                           <div class="text-gray-600 text-xl font-medium pb-4">
@@ -444,22 +502,36 @@ class PurchasesIndex extends React.Component {
                                   </div>
                                 </div>
                                 <div className="flex justify-start pt-5 space-x-4">
-                                  {transaction.order_status !== "Complete" ? (
-                                    <button
-                                      onClick={this.handleToggleModalRefund(
-                                        item
-                                      )}
-                                      class={
-                                        "bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-md"
-                                      }
-                                    >
-                                      <span>Refund</span>
-                                    </button>
+                                  {!transaction.order_status.includes(
+                                    "Complete"
+                                  ) ? (
+                                    item.refund_info.status !== null ? (
+                                      <div className="text-xl text-gray-500">
+                                        {" "}
+                                        Refund / Exchange Status :{" "}
+                                        <span className="text-gray-800 font-bold">
+                                          {item.refund_info.status}{" "}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <button
+                                        onClick={this.handleToggleModalRefund(
+                                          item
+                                        )}
+                                        class={
+                                          "bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-md"
+                                        }
+                                      >
+                                        <span>Refund</span>
+                                      </button>
+                                    )
                                   ) : (
                                     ""
                                   )}
 
-                                  {transaction.order_status === "Complete" ? (
+                                  {transaction.order_status.includes(
+                                    "Complete"
+                                  ) ? (
                                     <>
                                       {/* {this.props.reviews.map((review) =>
                                     review.product !== item.product.id ? (
@@ -489,9 +561,14 @@ class PurchasesIndex extends React.Component {
                                           </button>
                                         </>
                                       )}
-                                      <button class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-md">
+                                      <Link
+                                        to={"/product/".concat(
+                                          item.product.id + "/"
+                                        )}
+                                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-md cursor-pointer"
+                                      >
                                         <span>Buy Again</span>
-                                      </button>{" "}
+                                      </Link>{" "}
                                     </>
                                   ) : (
                                     ""
@@ -531,7 +608,7 @@ class PurchasesIndex extends React.Component {
                           </div>
                         </div>
 
-                        {transaction.order_status !== "Complete" ? (
+                        {!transaction.order_status.includes("Complete") ? (
                           <div className="flex justify-end my-5 ">
                             <button
                               onClick={this.handleOrderReceivedSubmit(
@@ -540,6 +617,23 @@ class PurchasesIndex extends React.Component {
                               class="bg-teal_custom hover:bg-gray-700 text-white font-bold py-2 px-4 rounded text-md"
                             >
                               <span>Order Received</span>
+                            </button>
+                          </div>
+                        ) : (
+                          ""
+                        )}
+                        {transaction.order_status.includes("Pending") ? (
+                          <div className="flex justify-end my-5 ">
+                            <button
+                              // onClick={this.handleOrderReceivedSubmit(
+                              //   transaction.id
+                              // )}
+                              onClick={this.handleToggleModalCancel(
+                                transaction
+                              )}
+                              class="bg-gray-700 hover:bg-teal_custom text-white font-bold py-2 px-4 rounded text-md"
+                            >
+                              <span>Cancel Order</span>
                             </button>
                           </div>
                         ) : (
@@ -579,9 +673,14 @@ class PurchasesIndex extends React.Component {
         <RefundsModal
           state={this.state}
           handleToggleModalRefundClose={this.handleToggleModalRefundClose}
-          filteredTransactionData={filteredTransactionData}
           onChange={this.onChange}
           handleSubmitRefund={this.handleSubmitRefund}
+        />
+        <Cancel_Order
+          state={this.state}
+          handleToggleModalCancelClose={this.handleToggleModalCancelClose}
+          onChange={this.onChange}
+          handleSubmitCancel={this.handleSubmitCancel}
         />
       </>
     );

@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 const TransactionView = (props) => {
   const { handleShowTransactionViewModal } = props;
   const { showTransactionViewModal, TransactionToShow } = props.state;
-
+  console.log(TransactionToShow);
   return (
     <>
       <div class={showTransactionViewModal ? "h-screen " : "h-screen hidden"}>
@@ -77,6 +77,13 @@ const TransactionView = (props) => {
                                 <span className="text-black">
                                   {" "}
                                   {transaction.quantity}
+                                </span>
+                              </div>
+                              <div>
+                                Status Order :{" "}
+                                <span className="text-black">
+                                  {" "}
+                                  {transaction.order_status}
                                 </span>
                               </div>
                               <div>

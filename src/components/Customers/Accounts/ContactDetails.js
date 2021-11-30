@@ -17,6 +17,7 @@ const ContactDetails = (props) => {
     barangayData,
     contact_number,
     contactNumberError,
+    contact_numberExistError,
   } = props.state;
   return (
     <>
@@ -41,12 +42,11 @@ const ContactDetails = (props) => {
                 </div>{" "}
                 <div class="relative z-0 w-full mb-5">
                   <input
-                    type="text"
+                    type="number"
                     name="contact_number"
                     value={contact_number}
                     onChange={onChange}
                     placeholder=" "
-                    required
                     class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
                   />
                   <label
@@ -62,6 +62,9 @@ const ContactDetails = (props) => {
                       ? phone(contact_number, { country: "PH" }).isValid
                         ? ""
                         : "Not a valid PH number"
+                      : ""}
+                    {contact_numberExistError
+                      ? "Contact number not available"
                       : ""}
                   </span>
                 </div>

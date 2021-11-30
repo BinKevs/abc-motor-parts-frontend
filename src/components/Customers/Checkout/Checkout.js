@@ -21,6 +21,7 @@ import {
 } from "select-philippines-address";
 import swal from "sweetalert";
 import { phone } from "phone";
+import { URL_FOR_HOME } from "../../../Helpers/constant";
 let shippingFee = 0;
 let TotalAmountToPay = 0;
 let totalProfit = 0;
@@ -1082,8 +1083,7 @@ class Checkout extends React.Component {
                                       orderID: data.orderID,
                                     }),
                                   }).then(function () {
-                                    window.location.href =
-                                      "http://localhost:3000/home";
+                                    window.location.href = URL_FOR_HOME;
                                   });
                                 });
                             }}

@@ -381,7 +381,12 @@ class TransactionSettingIndex extends React.Component {
                           <div className="mt-2 font-semibold">
                             Order Status :{" "}
                             <span className="font-bold">
-                              {transaction.order_status}
+                              {transaction.order_status.includes(
+                                "Canceled(Customer)"
+                              )
+                                ? transaction.order_status.split(",")[0] +
+                                  transaction.order_status.split(",")[1]
+                                : transaction.order_status}
                             </span>
                           </div>
                         </td>

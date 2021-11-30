@@ -56,6 +56,8 @@ class Registration extends React.Component {
     BirthInputDate: "",
     usernameError: false,
     emailError: false,
+    emailExistError: false,
+    contact_numberExistError: false,
     contactNumberError: false,
     passwordError: "",
     ConfirmPasswordError: "",
@@ -89,6 +91,7 @@ class Registration extends React.Component {
       ConfirmPasswordError,
       passwordError,
       emailError,
+      emailExistError,
       contactNumberError,
     } = this.state;
 
@@ -142,7 +145,15 @@ class Registration extends React.Component {
         emailError: true,
       });
     }
-
+    if (this.props.accounts.some((acc) => acc.user.email === email)) {
+      this.setState({
+        emailExistError: true,
+      });
+    } else {
+      this.setState({
+        emailExistError: false,
+      });
+    }
     if (phone(contact_number, { country: "PH" }).isValid) {
       this.setState({
         contactNumberError: false,
@@ -157,7 +168,8 @@ class Registration extends React.Component {
       !ConfirmPasswordError &&
       !passwordError &&
       !emailError &&
-      !contactNumberError
+      !contactNumberError &&
+      !emailExistError
     ) {
       this.props.register(newUser);
     }
@@ -198,6 +210,17 @@ class Registration extends React.Component {
         [e.target.name]: e.target.value,
       });
     } else if (e.target.name === "email") {
+      if (
+        this.props.accounts.some((acc) => acc.user.email === e.target.value)
+      ) {
+        this.setState({
+          emailExistError: true,
+        });
+      } else {
+        this.setState({
+          emailExistError: false,
+        });
+      }
       if (EmailValidator.validate(e.target.value)) {
         this.setState({
           emailError: false,
@@ -211,6 +234,17 @@ class Registration extends React.Component {
         [e.target.name]: e.target.value,
       });
     } else if (e.target.name === "contact_number") {
+      if (
+        this.props.accounts.some((acc) => acc.contact_number === e.target.value)
+      ) {
+        this.setState({
+          contact_numberExistError: true,
+        });
+      } else {
+        this.setState({
+          contact_numberExistError: false,
+        });
+      }
       if (phone(e.target.value, { country: "PH" }).isValid) {
         this.setState({
           contactNumberError: false,
@@ -380,6 +414,7 @@ class Registration extends React.Component {
                     </label>
                     <span class="text-sm text-red-600" id="error">
                       {this.state.emailError ? "Not a valid email" : ""}
+                      {this.state.emailExistError ? "Email not available" : ""}
                     </span>
                   </div>
                   <div class="relative z-0 w-full mb-5">
@@ -453,7 +488,7 @@ class Registration extends React.Component {
                 <div>
                   <div class="relative z-0 w-full mb-5">
                     <input
-                      type="text"
+                      type="number"
                       name="contact_number"
                       value={contact_number}
                       onChange={this.onChange}
@@ -474,6 +509,10 @@ class Registration extends React.Component {
                         ? phone(contact_number, { country: "PH" }).isValid
                           ? ""
                           : "Not a valid PH number"
+                        : ""}
+
+                      {this.state.contact_numberExistError
+                        ? "Contact number not available"
                         : ""}
                     </span>
                   </div>

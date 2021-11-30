@@ -80,6 +80,8 @@ class AccountSetting extends React.Component {
     usernameError: false,
     emailError: false,
     contactNumberError: false,
+    emailExistError: false,
+    contact_numberExistError: false,
     passwordError: "",
     ConfirmPasswordError: "",
   };
@@ -136,27 +138,43 @@ class AccountSetting extends React.Component {
             usernameError: false,
           });
         }
-      }
 
+        this.setState({
+          [e.target.name]: e.target.value,
+        });
+      }
+    } else if (e.target.name === "password2") {
+      if (this.state.password !== e.target.value) {
+        this.setState({
+          ConfirmPasswordError: true,
+        });
+      } else {
+        this.setState({
+          ConfirmPasswordError: false,
+        });
+      }
       this.setState({
         [e.target.name]: e.target.value,
       });
-    }
-    //  else if (e.target.name === "password2") {
-    //   if (this.state.password !== e.target.value) {
-    //     this.setState({
-    //       ConfirmPasswordError: true,
-    //     });
-    //   } else {
-    //     this.setState({
-    //       ConfirmPasswordError: false,
-    //     });
-    //   }
-    //   this.setState({
-    //     [e.target.name]: e.target.value,
-    //   });
-    // }
-    else if (e.target.name === "email") {
+    } else if (e.target.name === "email") {
+      if (e.target.value === this.props.AuthReducer.user.email) {
+        this.setState({
+          emailExistError: false,
+        });
+      } else {
+        if (
+          this.props.accounts.some((acc) => acc.user.email === e.target.value)
+        ) {
+          this.setState({
+            emailExistError: true,
+          });
+        } else {
+          this.setState({
+            emailExistError: false,
+          });
+        }
+      }
+
       if (EmailValidator.validate(e.target.value)) {
         this.setState({
           emailError: false,
@@ -170,6 +188,25 @@ class AccountSetting extends React.Component {
         [e.target.name]: e.target.value,
       });
     } else if (e.target.name === "contact_number") {
+      if (e.target.value === this.props.AuthReducer.contact_number) {
+        this.setState({
+          contact_numberExistError: false,
+        });
+      } else {
+        if (
+          this.props.accounts.some(
+            (acc) => e.target.value === acc.contact_number
+          )
+        ) {
+          this.setState({
+            contact_numberExistError: true,
+          });
+        } else {
+          this.setState({
+            contact_numberExistError: false,
+          });
+        }
+      }
       if (phone(e.target.value, { country: "PH" }).isValid) {
         this.setState({
           contactNumberError: false,
@@ -252,8 +289,7 @@ class AccountSetting extends React.Component {
       profile_image_file,
       usernameError,
       emailError,
-      contactNumberError,
-      contact_number,
+      emailExistError,
     } = this.state;
     const formAccountInfoData = new FormData();
     formAccountInfoData.append("first_name", first_name);
@@ -268,11 +304,7 @@ class AccountSetting extends React.Component {
       formAccountInfoData.append("profile_image", profile_image_file[0]);
     }
     formAccountInfoData.append("account", this.props.AuthReducer.account.id);
-    if (username === this.props.AuthReducer.user.username) {
-      this.setState({
-        usernameError: false,
-      });
-    } else {
+    if (!username === this.props.AuthReducer.user.username) {
       if (this.props.accounts.some((acc) => username === acc.user.username)) {
         this.setState({
           usernameError: true,
@@ -281,7 +313,7 @@ class AccountSetting extends React.Component {
         this.setState({
           usernameError: false,
         });
-        this.props.getAccountList();
+        // this.props.getAccountList();
       }
     }
 
@@ -294,8 +326,23 @@ class AccountSetting extends React.Component {
         emailError: true,
       });
     }
+    if (this.props.AuthReducer.user.email === email) {
+      this.setState({
+        emailExistError: false,
+      });
+    } else {
+      if (this.props.accounts.some((acc) => acc.user.email === email)) {
+        this.setState({
+          emailExistError: true,
+        });
+      } else {
+        this.setState({
+          emailExistError: false,
+        });
+      }
+    }
 
-    if (!usernameError && !emailError) {
+    if (!usernameError && !emailError && !emailExistError) {
       this.props.UpdateAccount(
         this.props.AuthReducer.user.id,
         formAccountInfoData
@@ -357,16 +404,20 @@ class AccountSetting extends React.Component {
       barangayValue,
       street,
       contact_number,
+      contact_numberExistError,
     } = this.state;
     const formContactNumber = new FormData();
-    formContactNumber.append("region", regionValue);
-    formContactNumber.append("province", provinceValue);
-    formContactNumber.append("city", cityValue);
-    formContactNumber.append("barangay", barangayValue);
-    formContactNumber.append("street", street);
-    formContactNumber.append("address_id", this.props.AuthReducer.addresses.id);
-    formContactNumber.append("contact_number", contact_number);
-    if (phone(contact_number, { country: "PH" }).isValid) {
+    if (regionValue !== "") {
+      formContactNumber.append("region", regionValue);
+      formContactNumber.append("province", provinceValue);
+      formContactNumber.append("city", cityValue);
+      formContactNumber.append("barangay", barangayValue);
+      formContactNumber.append("street", street);
+      formContactNumber.append(
+        "address_id",
+        this.props.AuthReducer.addresses.id
+      );
+
       this.props.UpdateAddress(
         this.props.AuthReducer.account.id,
         formContactNumber
@@ -383,22 +434,57 @@ class AccountSetting extends React.Component {
         street: "",
         contact_number: "",
         contactNumberError: false,
-      });
-    } else {
-      this.setState({
-        contactNumberError: true,
+        contact_numberExistError: false,
       });
     }
+    if (contact_number !== "") {
+      formContactNumber.append("contact_number", contact_number);
+      if (
+        phone(contact_number, { country: "PH" }).isValid &&
+        !contact_numberExistError
+      ) {
+        this.props.UpdateAddress(
+          this.props.AuthReducer.account.id,
+          formContactNumber
+        );
+        this.setState({
+          regionValue: "",
+          provinceValue: "",
+          cityValue: "",
+          barangayValue: "",
+          regionCode: "",
+          provinceCode: "",
+          cityCode: "",
+          barangayCode: "",
+          street: "",
+          contact_number: "",
+          contactNumberError: false,
+          contact_numberExistError: false,
+        });
+      } else {
+        this.setState({
+          contactNumberError: true,
+        });
+      }
+    }
 
-    // const data = {
-    //   region: regionValue,
-    //   province: provinceValue,
-    //   city: cityValue,
-    //   barangay: barangayValue,
-    //   street,
-    //   contact_number,
-    //   address_id: this.props.AuthReducer.addresses.id,
-    // };
+    if (contact_number === this.props.AuthReducer.contact_number) {
+      this.setState({
+        contact_numberExistError: false,
+      });
+    } else {
+      if (
+        this.props.accounts.some((acc) => contact_number === acc.contact_number)
+      ) {
+        this.setState({
+          contact_numberExistError: true,
+        });
+      } else {
+        this.setState({
+          contact_numberExistError: false,
+        });
+      }
+    }
   };
   region = () => {
     regions().then((response) => {
@@ -453,6 +539,7 @@ class AccountSetting extends React.Component {
     });
   };
   render() {
+    console.log(this.props.AuthReducer);
     return (
       <>
         {" "}
@@ -579,6 +666,11 @@ class AccountSetting extends React.Component {
 
                             <span class="text-sm text-red-600" id="error">
                               {this.state.emailError ? "Not a valid email" : ""}
+                              <div>
+                                {this.state.emailExistError
+                                  ? "Email not available"
+                                  : ""}
+                              </div>
                             </span>
                           </div>
                           <div class="relative z-0 w-full mb-5">
@@ -600,11 +692,10 @@ class AccountSetting extends React.Component {
                             >
                               Username
                             </label>
-                            <span
-                              class="text-sm text-red-600 hidden"
-                              id="error"
-                            >
-                              Username is required
+                            <span class="text-sm text-red-600" id="error">
+                              {this.state.usernameError
+                                ? "Username not available"
+                                : ""}
                             </span>
                           </div>
                           <div class="flex flex-col w-full mb-5">

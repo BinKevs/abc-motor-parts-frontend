@@ -8,6 +8,17 @@ import DatePicker from "react-datepicker";
 
 import { TransactionsOrdersTableExportModal } from "./Print/TransactionsOrdersTableExportModal";
 let filteredData = [];
+let DateNow = Date().toLocaleString().split(" ");
+let date_now =
+  DateNow[0] +
+  " " +
+  DateNow[1] +
+  " " +
+  DateNow[2] +
+  " " +
+  DateNow[3] +
+  " " +
+  DateNow[4];
 class TransactionOrders extends React.Component {
   state = {
     showActionButtonModal: false,
@@ -32,6 +43,15 @@ class TransactionOrders extends React.Component {
       this.setState({
         showToReceiveModal: !this.state.showToReceiveModal,
         showActionButtonModal: !this.state.showActionButtonModal,
+      });
+    } else if (event.target.value === "Complete") {
+      const formData = new FormData();
+
+      formData.append("order_status", "Complete(Admin) " + date_now);
+      this.props.updateTransactionStatus(this.state.transactionId, formData);
+      this.setState({
+        showActionButtonModal: !this.state.showActionButtonModal,
+        transactionId: 0,
       });
     } else {
       const formData = new FormData();
@@ -87,7 +107,11 @@ class TransactionOrders extends React.Component {
     filteredData = [];
 
     filteredData = this.props.transactions
-      .filter((item) => item.order_status !== "Complete")
+      .filter(
+        (item) =>
+          !item.order_status.includes("Complete") &&
+          !item.order_status.includes("Canceled")
+      )
       .filter((item) =>
         item.order_status.toString().includes(this.state.FilterStatus)
       );
@@ -181,7 +205,6 @@ class TransactionOrders extends React.Component {
                           <option value="">Filter Status</option>
                           {/* {this.props.categories.map((category) => ( */}
                           {/* value={category.name} */}
-                          <option value="Cancel Order">Cancel Order</option>
                           <option value="Pending">Pending</option>
                           <option value="Preferring">Preferring</option>
                           <option value="To Ship">To Ship</option>
@@ -331,6 +354,13 @@ class TransactionOrders extends React.Component {
                           className="focus:outline-none transition duration-150 ease-in-out hover:bg-cyan-700 bg-cyan-700 rounded text-white px-8 py-4 text-md"
                         >
                           To Receive
+                        </button>
+                        <button
+                          onClick={this.handleUpdateSubmitOrderStatus}
+                          value="Complete"
+                          className="focus:outline-none transition duration-150 ease-in-out hover:bg-cyan-700 bg-cyan-700 rounded text-white px-8 py-4 text-md"
+                        >
+                          Complete
                         </button>
                       </div>
 

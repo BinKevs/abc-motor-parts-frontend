@@ -54,7 +54,7 @@ class CustomerAccountSetting extends React.Component {
 
   render() {
     //destructuring the dictionary for searching/ fetching purposes
-    AccountsItems = [this.props.accounts];
+    AccountsItems = [];
     this.props.accounts.map((account) =>
       AccountsItems.push({
         id: account.user.id,
@@ -63,6 +63,13 @@ class CustomerAccountSetting extends React.Component {
         status: account.user.is_active,
         is_superuser: account.user.is_superuser,
         name: account.user.last_name + " " + account.user.first_name,
+        address:
+          account.address.street +
+          account.address.barangay +
+          account.address.city +
+          account.address.province +
+          account.address.region,
+        contact_number: account.contact_number,
       })
     );
     //returning the filtered data from search
@@ -71,7 +78,14 @@ class CustomerAccountSetting extends React.Component {
       // return Object.keys(item).some((key) =>
       // 	item[key].toString().toLowerCase().includes(lowercasedFilter)
       // );
-      if (account.status && !account.is_superuser) return account;
+      if (account.status && !account.is_superuser)
+        return (
+          account.username
+            .toString()
+            .toLowerCase()
+            .includes(lowercasedFilter) ||
+          account.name.toString().toLowerCase().includes(lowercasedFilter)
+        );
     });
     return (
       <>
@@ -135,10 +149,10 @@ class CustomerAccountSetting extends React.Component {
                       <th className="text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4">
                         Name
                       </th>
-                      <th className="text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4">
-                        Email
-                      </th>
 
+                      <th className="text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4">
+                        Contact Details
+                      </th>
                       <th className="text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4">
                         More
                       </th>
@@ -159,10 +173,11 @@ class CustomerAccountSetting extends React.Component {
                         <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
                           {account.name}
                         </td>
-                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                          {account.email}
+                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4 space-y-2">
+                          <div>{account.email}</div>
+                          <div>{account.address}</div>
+                          <div>{account.contact_number}</div>
                         </td>
-
                         <td className="pr-8 relative">
                           <button className="button-see-more text-gray-500 rounded cursor-pointer border border-transparent focus:outline-none">
                             <div className="seeMore absolute left-0 top-0 mt-2 -ml-20 shadow-md z-10 w-32">

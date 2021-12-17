@@ -9,6 +9,7 @@ import {
   createAdminAccount,
   ChangeAdminAccountPassword,
   UpdateAdminAccount,
+  UpdateAddress,
 } from "../../../store/actions/account/auth";
 import {
   regions,
@@ -49,6 +50,7 @@ class AccountsIndex extends React.Component {
     search: "",
     username: "",
     email: "",
+    editing_email: "",
     first_name: "",
     last_name: "",
     password: "",
@@ -72,9 +74,13 @@ class AccountsIndex extends React.Component {
     BirthInputDate: "",
     birthdate: "",
     emailError: false,
+    emailExistError: false,
     usernameError: false,
     ConfirmPasswordError: false,
     contactNumberError: false,
+    contact_numberExistError: false,
+    editing_contact_number: "",
+    current_address: "",
   };
   convert(str) {
     if (str === "") {
@@ -112,6 +118,11 @@ class AccountsIndex extends React.Component {
         username: this.props.account ? this.props.account.user.username : "",
         email: this.props.account ? this.props.account.user.email : "",
         birthdate: this.props.account ? this.props.account.birthdate : "",
+        editing_email: this.props.account ? this.props.account.user.email : "",
+        editing_contact_number: this.props.account
+          ? this.props.account.contact_number
+          : "",
+        current_address: this.props.account ? this.props.account.address : "",
       });
       // this.props.getAccountList();
     }
@@ -152,6 +163,24 @@ class AccountsIndex extends React.Component {
         [e.target.name]: e.target.value,
       });
     } else if (e.target.name === "email") {
+      if (e.target.value === this.state.editing_email) {
+        this.setState({
+          emailExistError: false,
+        });
+      } else {
+        if (
+          this.props.accounts.some((acc) => acc.user.email === e.target.value)
+        ) {
+          this.setState({
+            emailExistError: true,
+          });
+        } else {
+          this.setState({
+            emailExistError: false,
+          });
+        }
+      }
+
       if (EmailValidator.validate(e.target.value)) {
         this.setState({
           emailError: false,
@@ -165,6 +194,25 @@ class AccountsIndex extends React.Component {
         [e.target.name]: e.target.value,
       });
     } else if (e.target.name === "contact_number") {
+      if (e.target.value === this.state.editing_contact_number) {
+        this.setState({
+          contact_numberExistError: false,
+        });
+      } else {
+        if (
+          this.props.accounts.some(
+            (acc) => e.target.value === acc.contact_number
+          )
+        ) {
+          this.setState({
+            contact_numberExistError: true,
+          });
+        } else {
+          this.setState({
+            contact_numberExistError: false,
+          });
+        }
+      }
       if (phone(e.target.value, { country: "PH" }).isValid) {
         this.setState({
           contactNumberError: false,
@@ -181,6 +229,96 @@ class AccountsIndex extends React.Component {
       this.setState({
         [e.target.name]: e.target.value,
       });
+    }
+  };
+  handleUpdateContact = (event) => {
+    event.preventDefault();
+    const {
+      regionValue,
+      provinceValue,
+      cityValue,
+      barangayValue,
+      street,
+      contact_number,
+      contact_numberExistError,
+    } = this.state;
+    const formContactNumber = new FormData();
+    if (regionValue !== "") {
+      formContactNumber.append("region", regionValue);
+      formContactNumber.append("province", provinceValue);
+      formContactNumber.append("city", cityValue);
+      formContactNumber.append("barangay", barangayValue);
+      formContactNumber.append("street", street);
+      formContactNumber.append(
+        "address_id",
+        this.props.AuthReducer.addresses.id
+      );
+
+      this.props.UpdateAddress(
+        this.props.AuthReducer.account.id,
+        formContactNumber
+      );
+      this.setState({
+        regionValue: "",
+        provinceValue: "",
+        cityValue: "",
+        barangayValue: "",
+        regionCode: "",
+        provinceCode: "",
+        cityCode: "",
+        barangayCode: "",
+        street: "",
+        contact_number: "",
+        contactNumberError: false,
+        contact_numberExistError: false,
+        modal: false,
+      });
+    }
+    if (contact_number !== "") {
+      formContactNumber.append("contact_number", contact_number);
+      if (
+        phone(contact_number, { country: "PH" }).isValid &&
+        !contact_numberExistError
+      ) {
+        this.props.UpdateAddress(this.state.account_id, formContactNumber);
+        this.setState({
+          regionValue: "",
+          provinceValue: "",
+          cityValue: "",
+          barangayValue: "",
+          regionCode: "",
+          provinceCode: "",
+          cityCode: "",
+          barangayCode: "",
+          street: "",
+          contact_number: "",
+          contactNumberError: false,
+          contact_numberExistError: false,
+          modal: false,
+        });
+      } else {
+        this.setState({
+          contactNumberError: true,
+        });
+      }
+    }
+
+    if (contact_number === this.state.editing_contact_number) {
+      this.setState({
+        contact_numberExistError: false,
+      });
+    } else {
+      if (
+        this.props.accounts.some((acc) => contact_number === acc.contact_number)
+      ) {
+        this.setState({
+          contact_numberExistError: true,
+        });
+      } else {
+        this.setState({
+          contact_numberExistError: false,
+        });
+      }
     }
   };
   handleChangePassword = (event) => {
@@ -226,6 +364,8 @@ class AccountsIndex extends React.Component {
       emailError,
       account_user_id,
       account_id,
+      emailExistError,
+      editing_email,
     } = this.state;
     const formAccountInfoData = new FormData();
     formAccountInfoData.append("first_name", first_name);
@@ -263,7 +403,22 @@ class AccountsIndex extends React.Component {
         emailError: true,
       });
     }
-    if (!usernameError && !emailError) {
+    if (editing_email === email) {
+      this.setState({
+        emailExistError: false,
+      });
+    } else {
+      if (this.props.accounts.some((acc) => acc.user.email === email)) {
+        this.setState({
+          emailExistError: true,
+        });
+      } else {
+        this.setState({
+          emailExistError: false,
+        });
+      }
+    }
+    if (!usernameError && !emailError && !emailExistError) {
       this.props.UpdateAdminAccount(account_user_id, formAccountInfoData);
       this.ModalFunction();
       // this.props.getAccountList();
@@ -542,6 +697,7 @@ class AccountsIndex extends React.Component {
   };
   render() {
     //destructuring the dictionary for searching/ fetching purposes
+    console.log(this.props.account);
     AccountsItems = [];
     this.props.accounts.map((account) =>
       AccountsItems.push({
@@ -726,6 +882,7 @@ class AccountsIndex extends React.Component {
           onChangeDate={this.onChangeDate}
           handleEditAccountInfoSubmit={this.handleEditAccountInfoSubmit}
           handleChangePassword={this.handleChangePassword}
+          handleUpdateContact={this.handleUpdateContact}
         />
         <div
           class={
@@ -757,4 +914,5 @@ export default connect(mapStateToProps, {
   createAdminAccount,
   ChangeAdminAccountPassword,
   UpdateAdminAccount,
+  UpdateAddress,
 })(AccountsIndex);

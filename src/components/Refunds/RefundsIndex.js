@@ -37,7 +37,15 @@ class RefundsIndex extends React.Component {
       });
     };
   };
-  handleRefundUpdateAccept = (action, productvariation, quantity, refundID) => {
+  handleRefundUpdateAccept = (
+    action,
+    productvariation,
+    quantity,
+    refundID,
+    transaction,
+    price,
+    profit
+  ) => {
     return (event) => {
       event.preventDefault();
 
@@ -114,47 +122,21 @@ class RefundsIndex extends React.Component {
         }
         if (value === "Refund") {
           status = "Item will be refunded";
-          swal("Inventory changes?", {
-            icon: "info",
-            buttons: {
-              Deduct: {
-                text: "Deduct quantity",
-                value: "Deduct",
-                visible: true,
-                className: "",
-                closeModal: true,
-              },
-              Remain: {
-                text: "Remain the same",
-                value: "Remain",
-                visible: true,
-                className: "",
-                closeModal: true,
-              },
-              cancel: {
-                text: "Cancel",
-                value: "cancel",
-                visible: true,
-                className: "",
-                closeModal: true,
-              },
-            },
-          }).then((value) => {
-            if (value !== "cancel") {
-              const formData = new FormData();
-              formData.append("response", this.state.response);
-              formData.append("status", action + " & " + status);
-              formData.append("inventoryAction", value);
-              formData.append("productVariationID", productvariation);
-              formData.append("quantity", quantity);
-              this.props.updateRefund(refundID, formData);
-              status = "";
-              this.setState({
-                refundInfo: "",
-                response: "",
-                showViewMoreModal: !this.state.showViewMoreModal,
-              });
-            }
+          const formData = new FormData();
+          formData.append("response", this.state.response);
+          formData.append("status", action + " & " + status);
+          formData.append("transaction_id", transaction);
+          formData.append("price", price);
+          formData.append("profit", profit);
+          formData.append("inventoryAction", "Remain");
+          formData.append("productVariationID", productvariation);
+          formData.append("quantity", quantity);
+          this.props.updateRefund(refundID, formData);
+          status = "";
+          this.setState({
+            refundInfo: "",
+            response: "",
+            showViewMoreModal: !this.state.showViewMoreModal,
           });
         }
       });
@@ -200,7 +182,7 @@ class RefundsIndex extends React.Component {
   };
   render() {
     const { refundInfo } = this.state;
-    console.log(filteredData, refundInfo);
+
     let InputDateDateSeparated = this.state.InputDate.toString().split(" ");
     filteredData = [];
 
@@ -499,7 +481,10 @@ class RefundsIndex extends React.Component {
                             refundInfo
                               ? refundInfo.transaction_item.quantity
                               : "",
-                            refundInfo.id
+                            refundInfo.id,
+                            refundInfo.transaction,
+                            refundInfo ? refundInfo.transaction_item.price : "",
+                            refundInfo ? refundInfo.transaction_item.profit : ""
                           )}
                           className={
                             "flex bg-teal_custom hover:bg-gray-400 text-white cursor-pointer rounded items-center justify-center px-3 h-12"

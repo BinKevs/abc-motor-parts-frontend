@@ -46,7 +46,6 @@ class TransactionOrders extends React.Component {
       });
     } else if (event.target.value === "Complete") {
       const formData = new FormData();
-
       formData.append("order_status", "Complete(Admin) " + date_now);
       this.props.updateTransactionStatus(this.state.transactionId, formData);
       this.setState({

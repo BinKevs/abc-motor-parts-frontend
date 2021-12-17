@@ -5,7 +5,7 @@ export class AccountsTablePrint extends React.PureComponent {
   render() {
     const { accountsProps } = this.props;
     return (
-      <div className="w-full p-10">
+      <div className="w-full p-10" id="archiveAccountsTable">
         <div class="mb-8 flex justify-between">
           <div>
             <h2 class="text-3xl font-bold mb-6 pb-2 tracking-wider uppercase">

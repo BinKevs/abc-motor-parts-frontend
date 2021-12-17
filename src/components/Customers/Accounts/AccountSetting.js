@@ -143,6 +143,11 @@ class AccountSetting extends React.Component {
           [e.target.name]: e.target.value,
         });
       }
+    } else if (e.target.name === "profile_image_file") {
+      this.setState({
+        profile_image: URL.createObjectURL(e.target.files[0]),
+        [e.target.name]: e.target.files,
+      });
     } else if (e.target.name === "password2") {
       if (this.state.password !== e.target.value) {
         this.setState({

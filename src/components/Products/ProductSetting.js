@@ -167,16 +167,31 @@ class ProductSetting extends React.Component {
             for (let i = 0; i < e.target.files.length; i++) {
               formData.append("file_content", e.target.files[i]);
             }
+
             this.props.AddImageUpdateProduct(this.state.productID, formData);
-            this.setState({
-              file_content: [
-                ...this.state.file_content,
-                {
-                  id: this.state.file_content.at(-1).id + 1,
-                  image: URL.createObjectURL(e.target.files[0]),
-                },
-              ],
-            });
+            if (e.target.files[0].name.includes(".mp4")) {
+              this.setState({
+                file_content: [
+                  ...this.state.file_content,
+                  {
+                    id: this.state.file_content.at(-1).id + 1,
+                    image: URL.createObjectURL(e.target.files[0]),
+                    type: "Video",
+                  },
+                ],
+              });
+            } else {
+              this.setState({
+                file_content: [
+                  ...this.state.file_content,
+                  {
+                    id: this.state.file_content.at(-1).id + 1,
+                    image: URL.createObjectURL(e.target.files[0]),
+                    type: "Image",
+                  },
+                ],
+              });
+            }
 
             swal("Successfully added image!", "", "success");
             break;
@@ -718,6 +733,7 @@ class ProductSetting extends React.Component {
         );
       });
     }
+    console.log(this.state.file_content);
     return (
       <>
         <div class="bg-gray-100 flex-1 mt-20 md:mt-14 pb-24 md:pb-5">

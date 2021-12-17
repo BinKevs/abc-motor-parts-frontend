@@ -133,6 +133,7 @@ class ProductDetails extends React.Component {
     };
   }
   render() {
+    console.log(this.props.reviews);
     variation = [{ variation: "Open this to select variation" }];
     TempStock = 0;
     variantStock = 0;
@@ -447,7 +448,7 @@ class ProductDetails extends React.Component {
                   </div> */}
                   <img
                     class="h-16 w-16 rounded-full mx-4"
-                    src="https://images.unsplash.com/photo-1478098711619-5ab0b478d6e6?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=448&q=80"
+                    src={rev.account ? rev.account.profile_image : ""}
                     alt="A cat"
                   />
                   <div class="m-4 w-full">

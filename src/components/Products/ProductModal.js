@@ -37,6 +37,7 @@ const ProductModal = (props) => {
 
     product_name_attribute,
     variant_attribute,
+    videoAddedInTheProduct,
   } = props.state;
   return (
     <>
@@ -228,7 +229,7 @@ const ProductModal = (props) => {
                         </div>
                       </div>
                       <div class="relative z-0 mb-5 space-y-4 rounded-2xl p-2">
-                        <label class="block text-2xl">Image/s</label>
+                        <label class="block text-2xl">Image/s / Video/s</label>
                         {!EditButtonProductIsClicked ? (
                           <>
                             {/* <input
@@ -328,6 +329,20 @@ const ProductModal = (props) => {
                           </>
                         ) : (
                           <>
+                            <label class=" w-64 mx-auto py-10 bg-white flex flex-col items-center  rounded-3xl  shadow-md tracking-wide uppercase border-4 border-blue cursor-pointer hover:bg-gray-800 hover:text-white text-gray-800 ease-linear transition-all duration-150">
+                              <div className="flex flex-col  items-center my-auto">
+                                <i class="fas fa-cloud-upload-alt fa-3x"></i>
+                                <span class="mt-2 text-base leading-normal">
+                                  Select a file
+                                </span>
+                              </div>
+                              <input
+                                name="add_file_content"
+                                type="file"
+                                class="hidden"
+                                onChange={onChange}
+                              />
+                            </label>
                             <div className="relative flex items-center">
                               <span
                                 onClick={handleLeftScroll}
@@ -339,23 +354,10 @@ const ProductModal = (props) => {
                                 id="slider"
                                 className="overflow-x-hidden flex space-x-4"
                               >
-                                <label class=" w-64 bg-white flex flex-col items-center  rounded-3xl  shadow-md tracking-wide uppercase border-4 border-blue cursor-pointer hover:bg-gray-800 hover:text-white text-gray-800 ease-linear transition-all duration-150">
-                                  <div className="flex flex-col  items-center my-auto">
-                                    <i class="fas fa-cloud-upload-alt fa-3x"></i>
-                                    <span class="mt-2 text-base leading-normal">
-                                      Select a file
-                                    </span>
-                                  </div>
-                                  <input
-                                    name="add_file_content"
-                                    type="file"
-                                    class="hidden"
-                                    onChange={onChange}
-                                  />
-                                </label>
                                 {file_content
                                   ? file_content.map((url, index) =>
-                                      url.image.includes(".mp4") ? (
+                                      url.image.includes(".mp4") ||
+                                      url.type === "Video" ? (
                                         <>
                                           <div className="img-hover relative">
                                             <div className="w-64">

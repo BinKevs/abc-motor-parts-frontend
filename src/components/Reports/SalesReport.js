@@ -24,7 +24,14 @@ let DatesBetweenInput = [];
 let TransactionsBetweenDatesInput = [];
 let TransactionsBetweenDatesInputCombinedSameDate = [];
 
+var firstDayOfCurrentWeek;
+var lastDayOfCurrentWeek;
 let DateNow = Date().toLocaleString().split(" ");
+Date.prototype.addDays = function (days) {
+  var date = new Date(this.valueOf());
+  date.setDate(date.getDate() + days);
+  return date;
+};
 class SalesReport extends React.Component {
   state = {
     StartingDate: "",
@@ -65,24 +72,33 @@ class SalesReport extends React.Component {
 
     return [start, end];
   }
-  getDates(startDate, endDate) {
-    const dates = [];
-    let currentDate = startDate;
-    const addDays = function (days) {
-      const date = new Date(this.valueOf());
-      date.setDate(date.getDate() + days);
-      return date;
-    };
-    while (currentDate < endDate) {
-      currentDate = addDays.call(currentDate, 1);
-      dates.push(currentDate);
+  // getDates(startDate, endDate) {
+  //   const dates = [];
+  //   let currentDate = startDate;
+  //   const addDays = function (days) {
+  //     const date = new Date(this.valueOf());
+  //     date.setDate(date.getDate() + days);
+  //     return date;
+  //   };
+  //   while (currentDate < endDate) {
+  //     currentDate = addDays.call(currentDate, 1);
+  //     dates.push(currentDate);
+  //   }
+  //   return dates;
+  // }
+  getDates(startDate, stopDate) {
+    var dateArray = new Array();
+    var currentDate = startDate;
+    while (currentDate <= stopDate) {
+      dateArray.push(currentDate);
+      currentDate = currentDate.addDays(1);
     }
-    return dates;
+    return dateArray;
   }
   render() {
-    let [start, end] = this.GetWeekDates();
-    var StartDayOfTheWeek = new Date(start.toLocaleString());
-    var EndDayOfTheWeek = new Date(end.toLocaleString());
+    // let [start, end] = this.GetWeekDates();
+    // var StartDayOfTheWeek = new Date(start.toLocaleString());
+    // var EndDayOfTheWeek = new Date(end.toLocaleString());
 
     transactionsDateSeparated = [];
     transactionPerItems = [];
@@ -98,22 +114,27 @@ class SalesReport extends React.Component {
     ThisWeekTransactionsCombinedSameDate = [];
 
     DatesThisWeek = [];
-    // var StartDayOfTheWeek = new Date(start.toLocaleString().split(',')[0])
-    // 	.toString()
-    // 	.split(' ');
-    // var EndDayOfTheWeek = new Date(end.toLocaleString().split(',')[0])
-    // 	.toString()
-    // 	.split(' ');
-    this.props.transactions.map((filteredTransactionObject) =>
-      transactionsDateSeparated.push({
-        id: filteredTransactionObject.id,
-        totalAmount: filteredTransactionObject.totalAmount,
-        month: filteredTransactionObject.created_at.split(" ")[0],
-        day: filteredTransactionObject.created_at.split(" ")[1],
-        year: filteredTransactionObject.created_at.split(" ")[2],
-        time: filteredTransactionObject.created_at.split(" ")[3],
-      })
-    );
+
+    this.props.transactions
+      .filter(
+        (transac) => transac.order_status.includes("Complete") && transac.status
+      )
+      .map((filteredTransactionObject) =>
+        transactionsDateSeparated.push({
+          id: filteredTransactionObject.id,
+          totalAmount: filteredTransactionObject.totalAmount,
+          month: filteredTransactionObject.created_at.split(" ")[0],
+          day: filteredTransactionObject.created_at.split(" ")[1],
+          year: filteredTransactionObject.created_at.split(" ")[2],
+          time: filteredTransactionObject.created_at.split(" ")[3],
+          date:
+            filteredTransactionObject.created_at.split(" ")[0] +
+            " " +
+            filteredTransactionObject.created_at.split(" ")[1] +
+            " " +
+            filteredTransactionObject.created_at.split(" ")[2],
+        })
+      );
     // Fetch staring and ending date
     var StartDay = new Date(this.state.StartingDate);
     var EndDay = new Date(this.state.EndingDate);
@@ -128,6 +149,7 @@ class SalesReport extends React.Component {
         year: filterDate.toString().split(" ")[3],
       })
     );
+
     for (var i = 0; i < transactionsDateSeparated.length; i++) {
       var month = transactionsDateSeparated[i].month;
       var day = transactionsDateSeparated[i].day;
@@ -154,7 +176,17 @@ class SalesReport extends React.Component {
       }
     }
     //Fetch weekly sales
-    const WeeklyDates = this.getDates(StartDayOfTheWeek, EndDayOfTheWeek);
+
+    var curr = new Date();
+    var first = curr.getDate() - curr.getDay() + 1;
+    firstDayOfCurrentWeek = new Date(curr.setDate(first));
+    lastDayOfCurrentWeek = new Date(curr.setDate(curr.getDate() + 6));
+
+    var WeeklyDates = this.getDates(
+      firstDayOfCurrentWeek,
+      lastDayOfCurrentWeek
+    );
+
     WeeklyDates.map((filterDate) =>
       DatesThisWeek.push({
         month: filterDate.toString().split(" ")[1],
@@ -163,17 +195,17 @@ class SalesReport extends React.Component {
       })
     );
     for (var i = 0; i < transactionsDateSeparated.length; i++) {
-      var month = transactionsDateSeparated[i].month;
-      var day = transactionsDateSeparated[i].day;
-      var year = transactionsDateSeparated[i].year;
-      for (var y = 0; y < DatesThisWeek.length; y++) {
-        var monthSearching = DatesThisWeek[y].month;
-        var daySearching = DatesThisWeek[y].day;
-        var yearSearching = DatesThisWeek[y].year;
+      var date = transactionsDateSeparated[i].date;
+      for (let x = 0; x < WeeklyDates.length; x++) {
         if (
-          monthSearching === month &&
-          daySearching === day &&
-          yearSearching === year
+          date.includes(
+            WeeklyDates[x].toString().split(" ")[1] +
+              " " +
+              WeeklyDates[x].toString().split(" ")[2] +
+              " " +
+              WeeklyDates[x].toString().split(" ")[3]
+          )
+          // dateForCurrentWeekArray[x].toLocaleString().includes(date)
         ) {
           ThisWeekTransactions.push({
             totalAmount: transactionsDateSeparated[i].totalAmount,
@@ -188,6 +220,32 @@ class SalesReport extends React.Component {
         }
       }
     }
+    // for (var i = 0; i < transactionsDateSeparated.length; i++) {
+    //   var month = transactionsDateSeparated[i].month;
+    //   var day = transactionsDateSeparated[i].day;
+    //   var year = transactionsDateSeparated[i].year;
+    //   for (var y = 0; y < DatesThisWeek.length; y++) {
+    //     var monthSearching = DatesThisWeek[y].month;
+    //     var daySearching = DatesThisWeek[y].day;
+    //     var yearSearching = DatesThisWeek[y].year;
+    //     if (
+    //       monthSearching === month &&
+    //       daySearching === day &&
+    //       yearSearching === year
+    //     ) {
+    //       ThisWeekTransactions.push({
+    //         totalAmount: transactionsDateSeparated[i].totalAmount,
+    //         date: new Date(
+    //           transactionsDateSeparated[i].day +
+    //             " " +
+    //             transactionsDateSeparated[i].month +
+    //             " " +
+    //             transactionsDateSeparated[i].year
+    //         ),
+    //       });
+    //     }
+    //   }
+    // }
     for (var i = 0; i < transactionsDateSeparated.length; i++) {
       var month = transactionsDateSeparated[i].month;
       var day = transactionsDateSeparated[i].day;
@@ -681,11 +739,11 @@ class SalesReport extends React.Component {
                 <h6 className="uppercase text-gray-600 mb-1 text-sm font-semibold">
                   Sales
                 </h6>
-                <div className="mx-auto w-11/12 mt-6 flex justify-start space-x-3">
+                <div className="mx-auto w-11/12 mt-6 flex flex-col md:flex-row justify-start space-x-3">
+                  <h2 className="text-gray-800 mb-2 text-2xl font-semibold mr-5">
+                    Between
+                  </h2>
                   <div class="flex">
-                    <h2 className="text-gray-800 mb-2 text-2xl font-semibold mr-5">
-                      Between
-                    </h2>
                     <span class="text-sm  border-2 rounded-l px-4 py-2 bg-gray-300 whitespace-no-wrap">
                       Start:
                     </span>

@@ -36,20 +36,25 @@ export default function (state = initialState, action) {
         inventories: [action.payload, ...state.inventories],
       };
     case CHANGE_INVENTORY_STATUS:
+   const index_status = state.inventories.findIndex(
+      (inv) => inv.id === action.payload.id
+      );
+      const newArray_status = [...state.inventories];
+      newArray_status[index_status] = action.payload;
       return {
         ...state,
-        inventories: [
-          action.payload,
-          ...state.inventories.filter((inv) => inv.id !== action.payload.id),
-        ],
+        inventories: newArray_status,
       };
     case UPDATE_INVENTORY:
+  
+      const index = state.inventories.findIndex(
+      (inv) => inv.id === action.payload.id
+      );
+      const newArray = [...state.inventories];
+      newArray[index] = action.payload;
       return {
         ...state,
-        inventories: [
-          action.payload,
-          ...state.inventories.filter((inv) => inv.id !== action.payload.id),
-        ],
+        inventories: newArray,
       };
     default:
       return state;

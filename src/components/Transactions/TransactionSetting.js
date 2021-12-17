@@ -54,8 +54,7 @@ class TransactionSettingIndex extends React.Component {
       });
     };
   };
-  onChange = (e) =>
-    this.setState({ [e.target.name]: e.target.value, InputDate: "" });
+  onChange = (e) => this.setState({ [e.target.name]: e.target.value });
   componentDidMount() {
     this.props.getTransactionList();
   }
@@ -350,10 +349,10 @@ class TransactionSettingIndex extends React.Component {
                                 </div>
                               </td>
                               <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
-                                ₱{transac.product.cost_price}
+                                ₱{transac.product.price}
                               </td>
                               <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
-                                ₱{transac.product.price}
+                                ₱{transac.product.cost_price}
                               </td>
 
                               {/* <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">

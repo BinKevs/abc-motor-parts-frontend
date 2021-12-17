@@ -14,7 +14,8 @@ class Home extends React.Component {
     this.props.getCategoryList();
     this.props.getTransactionItemList();
     document.getElementById("slider-2").style.display = "none";
-    document.getElementById("sButton2").classList.add("bg-gray-800");
+    document.getElementById("slider-3").style.display = "none";
+    document.getElementById("slider-4").style.display = "none";
   }
   numberWithCommas(x) {
     return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
@@ -29,17 +30,45 @@ class Home extends React.Component {
   }
 
   sliderButton1() {
-    document.getElementById("slider-1").style.display = "none";
-    document.getElementById("slider-2").style.display = "block";
-    document.getElementById("sButton2").classList.remove("bg-gray-800");
+    document.getElementById("slider-1").style.display = "block";
+    document.getElementById("slider-2").style.display = "none";
+    document.getElementById("slider-3").style.display = "none";
+    document.getElementById("slider-4").style.display = "none";
     document.getElementById("sButton1").classList.add("bg-gray-800");
+    document.getElementById("sButton2").classList.remove("bg-gray-800");
+    document.getElementById("sButton3").classList.remove("bg-gray-800");
+    document.getElementById("sButton4").classList.remove("bg-gray-800");
   }
 
   sliderButton2() {
-    document.getElementById("slider-1").style.display = "block";
-    document.getElementById("slider-2").style.display = "none";
+    document.getElementById("slider-1").style.display = "none";
+    document.getElementById("slider-2").style.display = "block";
+    document.getElementById("slider-3").style.display = "none";
+    document.getElementById("slider-4").style.display = "none";
     document.getElementById("sButton1").classList.remove("bg-gray-800");
     document.getElementById("sButton2").classList.add("bg-gray-800");
+    document.getElementById("sButton3").classList.remove("bg-gray-800");
+    document.getElementById("sButton4").classList.remove("bg-gray-800");
+  }
+  sliderButton3() {
+    document.getElementById("slider-1").style.display = "none";
+    document.getElementById("slider-2").style.display = "none";
+    document.getElementById("slider-3").style.display = "block";
+    document.getElementById("slider-4").style.display = "none";
+    document.getElementById("sButton1").classList.remove("bg-gray-800");
+    document.getElementById("sButton2").classList.remove("bg-gray-800");
+    document.getElementById("sButton3").classList.add("bg-gray-800");
+    document.getElementById("sButton4").classList.remove("bg-gray-800");
+  }
+  sliderButton4() {
+    document.getElementById("slider-1").style.display = "none";
+    document.getElementById("slider-2").style.display = "none";
+    document.getElementById("slider-3").style.display = "none";
+    document.getElementById("slider-4").style.display = "block";
+    document.getElementById("sButton1").classList.remove("bg-gray-800");
+    document.getElementById("sButton2").classList.remove("bg-gray-800");
+    document.getElementById("sButton3").classList.remove("bg-gray-800");
+    document.getElementById("sButton4").classList.add("bg-gray-800");
   }
 
   render() {
@@ -147,16 +176,87 @@ class Home extends React.Component {
                   </div>
                   <br />
                 </div>
+                <div id="slider-3" class="container mx-auto">
+                  <div
+                    class="bg-cover bg-top  h-auto text-white py-24 px-10 object-fill "
+                    style={{
+                      backgroundImage:
+                        "url('https://f-static.motosport.com/motographics/images/home/all_storefront/2021/210701_JulyUpdates/2022Oneal1_desktop.jpg')",
+                    }}
+                  >
+                    <div class="w-full text-center p-10">
+                      <div className="bg-gray-100 w-full">
+                        <p class="font-bold text-md uppercase text-red-700 leading-8 ">
+                          New to riding?
+                        </p>
+                        <p class="text-2xl uppercase text-black font-bold">
+                          Check out these must have items to keep you safe
+                          before you hop on your shiny bikes
+                        </p>
+                        <p class="text-lg text-gray-500 font-semibold mb-5 leading-none">
+                          Purchase yours now
+                        </p>
+                        <Link
+                          to="/products/Crash Protection"
+                          class="bg-gray-900 py-4 px-8 text-white font-bold uppercase text-xs rounded hover:bg-teal_custom "
+                        >
+                          Shop now
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                  <br />
+                </div>
+                <div id="slider-4" class="container mx-auto">
+                  <div
+                    class="bg-cover bg-top  h-auto text-white py-24 px-10 object-fill "
+                    style={{
+                      backgroundImage:
+                        "url('https://pbs.twimg.com/media/ELtHrSDXsAEQaBG.jpg')",
+                    }}
+                  >
+                    <div class="w-full text-center ">
+                      <div className="bg-gray-100 w-full md:w-1/2 ">
+                        <p class="font-bold text-md uppercase text-red-700 leading-8 ">
+                          New items are here!
+                        </p>
+                        <p class="text-3xl uppercase text-black font-bold">
+                          2022 Products are here!
+                        </p>
+                        <p class="text-lg text-gray-500 font-semibold mb-5 leading-none">
+                          Purchase yours now
+                        </p>
+                        <Link
+                          to="/products/All"
+                          class="bg-gray-900 py-4 px-8 text-white font-bold uppercase text-xs rounded hover:bg-teal_custom "
+                        >
+                          Shop now
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                  <br />
+                </div>
               </div>
-              <div class="flex justify-between w-12 mx-auto pb-2">
+              <div class="flex justify-center mx-auto pb-2 space-x-4">
                 <button
                   id="sButton1"
                   onClick={this.sliderButton1}
-                  class="bg-gray-400 rounded-full w-4 pb-2 "
+                  class="bg-gray-400 rounded-full w-4 p-2"
                 ></button>
                 <button
                   id="sButton2"
                   onClick={this.sliderButton2}
+                  class="bg-gray-400 rounded-full w-4 p-2"
+                ></button>
+                <button
+                  id="sButton3"
+                  onClick={this.sliderButton3}
+                  class="bg-gray-400 rounded-full w-4 p-2"
+                ></button>
+                <button
+                  id="sButton4"
+                  onClick={this.sliderButton4}
                   class="bg-gray-400 rounded-full w-4 p-2"
                 ></button>
               </div>

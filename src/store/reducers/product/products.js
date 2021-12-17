@@ -70,10 +70,6 @@ export default function (state = initialState, action) {
       newArray[index] = action.payload;
       return {
         ...state,
-        // products: [
-        //   action.payload,
-        //   ...state.products.filter((prod) => prod.id !== action.payload.id),
-        // ],
         products: newArray,
       };
     case CHANGE_PRODUCT_STATUS:
@@ -134,13 +130,22 @@ export default function (state = initialState, action) {
         vouchers: [action.payload, ...state.vouchers],
       };
     case UPDATE_VOUCHER:
+
+
+
+      const indexVoucher = state.vouchers.findIndex(
+        (vouch) => vouch.id === action.payload.id
+      );
+      const newArrayVoucher = [...state.vouchers];
+      newArrayVoucher[indexVoucher] = action.payload;
       return {
         ...state,
-        vouchers: [
-          action.payload,
-          ...state.vouchers.filter((vou) => vou.id !== action.payload.id),
-        ],
+        vouchers: newArrayVoucher,
       };
+
+
+
+  
 
     case GET_VOUCHER_LIST:
       return {

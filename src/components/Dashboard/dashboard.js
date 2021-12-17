@@ -19,10 +19,30 @@ let dailyProfitTransaction = 0;
 let weeklyProfitTransaction = 0;
 let totalProfitTransaction = 0;
 
+let monthlySalesTransactionYesterday = 0;
+let dailySalesTransactionYesterday = 0;
+let weeklySalesTransactionYesterday = 0;
+
+let monthlyProfitTransactionYesterday = 0;
+let dailyProfitTransactionYesterday = 0;
+let weeklyProfitTransactionYesterday = 0;
+
 let ReorderProduct = 0;
 let ZeroProduct = 0;
 let ProductCount = 0;
 let DateNow = Date().toLocaleString().split(" ");
+
+var firstDayOfCurrentWeek;
+var lastDayOfCurrentWeek;
+var firstDayOfLastWeek;
+var lastDayOfLastWeek;
+var yesterday;
+var lastMonth;
+Date.prototype.addDays = function (days) {
+  var date = new Date(this.valueOf());
+  date.setDate(date.getDate() + days);
+  return date;
+};
 class DashboardIndex extends React.Component {
   static propTypes = {
     products: PropTypes.array.isRequired,
@@ -57,8 +77,63 @@ class DashboardIndex extends React.Component {
     this.props.getTransactionList();
     this.props.getTransactionItemList();
   }
+  // addDays = function (days) {
+  //   var dat = new Date(this.valueOf());
+  //   dat.setDate(dat.getDate() + days);
+  //   return dat;
+  // };
+
+  getDates(startDate, stopDate) {
+    var dateArray = new Array();
+    var currentDate = startDate;
+    while (currentDate <= stopDate) {
+      dateArray.push(currentDate);
+      currentDate = currentDate.addDays(1);
+    }
+    return dateArray;
+  }
 
   render() {
+    const currentMonth = new Date();
+    currentMonth.setMonth(currentMonth.getMonth() - 1);
+    lastMonth = currentMonth.toLocaleString("default", {
+      month: "short",
+    });
+    const today = new Date();
+    const yesterdayDate = new Date(today);
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    yesterday = yesterdayDate.toDateString();
+
+    //last week start and last dates
+
+    var d = new Date();
+    var to = d.setTime(
+      d.getTime() - (d.getDay() ? d.getDay() : 7) * 24 * 60 * 60 * 1000
+    );
+    var from = d.setTime(d.getTime() - 6 * 24 * 60 * 60 * 1000);
+    lastDayOfLastWeek = new Date(to);
+    firstDayOfLastWeek = new Date(from);
+
+    //current start day and last day of this week.
+    var curr = new Date();
+    var first = curr.getDate() - curr.getDay() + 1;
+    firstDayOfCurrentWeek = new Date(curr.setDate(first));
+    lastDayOfCurrentWeek = new Date(curr.setDate(curr.getDate() + 6));
+    // console.log(firstDayOfCurrentWeek, lastDayOfCurrentWeek);
+
+    // console.log(firstDayOfCurrentWeek, lastDayOfCurrentWeek);
+    // console.log(firstDayOfLastWeek, lastDayOfLastWeek);
+
+    var dateForCurrentWeekArray = this.getDates(
+      firstDayOfCurrentWeek,
+      lastDayOfCurrentWeek
+    );
+    var dateForLastWeekArray = this.getDates(
+      firstDayOfLastWeek,
+      lastDayOfLastWeek
+    );
+
+    // console.log(dateForCurrentWeekArray);
     let transactionItems = [];
 
     if (this.props.AuthReducer.user)
@@ -80,9 +155,15 @@ class DashboardIndex extends React.Component {
     ProductCount = 0;
     transactionsFilteredDateSeparated = [];
     transactionsDailyFiltered = [];
+    monthlySalesTransactionYesterday = 0;
+    dailySalesTransactionYesterday = 0;
+    weeklySalesTransactionYesterday = 0;
+    monthlyProfitTransactionYesterday = 0;
+    dailyProfitTransactionYesterday = 0;
+    weeklyProfitTransactionYesterday = 0;
     transactions
       .filter(
-        (transac) => transac.order_status === "Complete" && transac.status
+        (transac) => transac.order_status.includes("Complete") && transac.status
       )
       .map((filteredTransactionObject) =>
         transactionsFilteredDateSeparated.push({
@@ -93,23 +174,33 @@ class DashboardIndex extends React.Component {
           day: filteredTransactionObject.created_at.split(" ")[1],
           year: filteredTransactionObject.created_at.split(" ")[2],
           time: filteredTransactionObject.created_at.split(" ")[3],
+          date:
+            filteredTransactionObject.created_at.split(" ")[0] +
+            " " +
+            filteredTransactionObject.created_at.split(" ")[1] +
+            " " +
+            filteredTransactionObject.created_at.split(" ")[2],
         })
       );
     transactions
       .filter(
-        (transac) => transac.order_status === "Complete" && transac.status
+        (transac) => transac.order_status.includes("Complete") && transac.status
       )
       .map((filteredTransactionObject) =>
         filteredTransactionObject.items.map((filteredTransactionItemsObject) =>
           transactionItems.push(filteredTransactionItemsObject.product.id)
         )
       );
-    console.log(transactionItems);
-    let [start, end] = this.GetWeekDates();
-    var StartDayOfTheWeek = new Date(start.toLocaleString().split(",")[0])
+    // let [start, end] = this.GetWeekDates();
+
+    var StartDayOfTheLastWeek = new Date(
+      firstDayOfLastWeek.toLocaleString().split(",")[0]
+    )
       .toString()
       .split(" ");
-    var EndDayOfTheWeek = new Date(end.toLocaleString().split(",")[0])
+    var EndDayOfTheLastWeek = new Date(
+      lastDayOfLastWeek.toLocaleString().split(",")[0]
+    )
       .toString()
       .split(" ");
 
@@ -117,6 +208,7 @@ class DashboardIndex extends React.Component {
       var month = transactionsFilteredDateSeparated[i].month;
       var day = transactionsFilteredDateSeparated[i].day;
       var year = transactionsFilteredDateSeparated[i].year;
+      var date = transactionsFilteredDateSeparated[i].date;
       //Fetch total sales
 
       totalSalesTransaction += parseInt(
@@ -142,59 +234,75 @@ class DashboardIndex extends React.Component {
             dailyProfitTransaction += parseInt(
               transactionsFilteredDateSeparated[i].totalProfit
             );
-            // transactionsDailyFiltered.push({
-            //   totalAmount: transactionsFilteredDateSeparated[i].totalAmount,
-            //   date: transactionsFilteredDateSeparated[i].time,
-            // });
+          }
+        }
+        if (month === lastMonth) {
+          monthlySalesTransactionYesterday += parseInt(
+            transactionsFilteredDateSeparated[i].totalAmount
+          );
+          monthlyProfitTransactionYesterday += parseInt(
+            transactionsFilteredDateSeparated[i].totalProfit
+          );
+        }
+
+        if (month === yesterday.split(" ")[1]) {
+          if (day === yesterday.split(" ")[2]) {
+            dailySalesTransactionYesterday += parseInt(
+              transactionsFilteredDateSeparated[i].totalAmount
+            );
+            dailyProfitTransactionYesterday += parseInt(
+              transactionsFilteredDateSeparated[i].totalProfit
+            );
           }
         }
       }
       //Fetch Weekly
-      if (
-        year.includes(StartDayOfTheWeek[3]) &&
-        year.includes(EndDayOfTheWeek[3])
-      ) {
+      for (let x = 0; x < dateForCurrentWeekArray.length; x++) {
         if (
-          month.includes(StartDayOfTheWeek[1]) &&
-          month.includes(EndDayOfTheWeek[1])
+          date.includes(
+            dateForCurrentWeekArray[x].toString().split(" ")[1] +
+              " " +
+              dateForCurrentWeekArray[x].toString().split(" ")[2] +
+              " " +
+              dateForCurrentWeekArray[x].toString().split(" ")[3]
+          )
+          // dateForCurrentWeekArray[x].toLocaleString().includes(date)
         ) {
-          if (StartDayOfTheWeek[1] !== EndDayOfTheWeek[1]) {
-            if (
-              (month === StartDayOfTheWeek[1] && day >= StartDayOfTheWeek[2]) ||
-              (month === EndDayOfTheWeek[1] && day <= EndDayOfTheWeek[2])
-            ) {
-              weeklySalesTransaction += parseInt(
-                transactionsFilteredDateSeparated[i].totalAmount
-              );
-              weeklyProfitTransaction += parseInt(
-                transactionsFilteredDateSeparated[i].totalAmount
-              );
-            }
-          } else {
-            if (day >= StartDayOfTheWeek[2] && day <= EndDayOfTheWeek[2]) {
-              weeklySalesTransaction += parseInt(
-                transactionsFilteredDateSeparated[i].totalAmount
-              );
-              weeklyProfitTransaction += parseInt(
-                transactionsFilteredDateSeparated[i].totalAmount
-              );
-            }
-          }
+          weeklySalesTransaction += parseInt(
+            transactionsFilteredDateSeparated[i].totalAmount
+          );
+          weeklyProfitTransaction += parseInt(
+            transactionsFilteredDateSeparated[i].totalProfit
+          );
+        }
+      }
+
+      //Fetch Last Week
+      for (let y = 0; y < dateForLastWeekArray.length; y++) {
+        if (
+          date.includes(
+            dateForLastWeekArray[y].toString().split(" ")[1] +
+              " " +
+              dateForLastWeekArray[y].toString().split(" ")[2] +
+              " " +
+              dateForLastWeekArray[y].toString().split(" ")[3]
+          )
+          // dateForCurrentWeekArray[x].toLocaleString().includes(date)
+        ) {
+          weeklySalesTransactionYesterday += parseInt(
+            transactionsFilteredDateSeparated[i].totalAmount
+          );
+          weeklyProfitTransactionYesterday += parseInt(
+            transactionsFilteredDateSeparated[i].totalProfit
+          );
         }
       }
     }
-
     //Fetch reorder product
     products
       .filter((prod) => parseInt(prod.stock) < 10)
       .map((product) => (ReorderProduct += 1));
-    //Fetch zero product
-    // products
-    //   .filter((prod) => parseInt(prod.stock) < 1)
-    //   .map((product) => (ZeroProduct += 1));
-    // //Fetch all product
-    // products.map((product) => (ProductCount += 1));
-    // //Fetch Combine product quantity sales
+
     transactionItemsFiltered = [];
     transaction_items
       .filter((items) => transactionItems.includes(items.product.id))
@@ -215,10 +323,10 @@ class DashboardIndex extends React.Component {
 
     return (
       <>
-        <div class="flex-1 bg-gray-100 mt-28 md:mt-16 pb-24 md:pb-5">
-          <div class="bg-gray-800 pt-3">
+        <div className="flex-1 bg-gray-100 mt-28 md:mt-16 pb-24 md:pb-5">
+          <div className="bg-gray-800 pt-3">
             <div
-              class="
+              className="
 							rounded-tl-3xl
 							bg-gradient-to-r
 							from-teal_custom
@@ -228,13 +336,13 @@ class DashboardIndex extends React.Component {
 							text-2xl text-white
 						"
             >
-              <h3 class="font-bold pl-2">Dashboard</h3>
+              <h3 className="font-bold pl-2">Dashboard</h3>
             </div>
           </div>
-          <div class="flex flex-wrap">
-            <div class="w-full md:w-1/2 xl:w-1/3 p-6">
+          <div className="flex flex-wrap">
+            <div className="w-full md:w-1/2 xl:w-1/3 p-6">
               <div
-                class="
+                className="
 								bg-white
 								border-b-4 border-teal_custom
 								rounded-lg
@@ -242,29 +350,29 @@ class DashboardIndex extends React.Component {
 								p-5
 							"
               >
-                <div class="flex flex-row items-center">
-                  <div class="flex-shrink pr-4">
-                    <div class="rounded-full p-5 bg-green-600">
-                      <i class="fa fa-wallet fa-2x fa-inverse"></i>
+                <div className="flex flex-row items-center">
+                  <div className="flex-shrink pr-4">
+                    <div className="rounded-full p-5 bg-green-600">
+                      <i className="fa fa-wallet fa-2x fa-inverse"></i>
                     </div>
                   </div>
-                  <div class="flex-1 text-right md:text-center">
-                    <h5 class="font-bold uppercase text-gray-600">
+                  <div className="flex-1 text-right md:text-center">
+                    <h5 className="font-bold uppercase text-gray-600">
                       Total Sales
                     </h5>
-                    <h3 class="font-bold text-3xl">
+                    <h3 className="font-bold text-3xl">
                       ₱{this.numberWithCommas(totalSalesTransaction)}
-                      <span class="text-green-500">
-                        <i class="fas fa-caret-up"></i>
-                      </span>
+                      {/* <span className="text-green-500">
+                        <i className="fas fa-caret-up"></i>
+                      </span> */}
                     </h3>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="w-full md:w-1/2 xl:w-1/3 p-6">
+            <div className="w-full md:w-1/2 xl:w-1/3 p-6">
               <div
-                class="
+                className="
 								bg-white
 								border-b-4 border-teal_custom
 								rounded-lg
@@ -272,29 +380,29 @@ class DashboardIndex extends React.Component {
 								p-5
 							"
               >
-                <div class="flex flex-row items-center">
-                  <div class="flex-shrink pr-4">
-                    <div class="rounded-full p-5 bg-green-600">
-                      <i class="far fa-analytics fa-2x fa-inverse"></i>
+                <div className="flex flex-row items-center">
+                  <div className="flex-shrink pr-4">
+                    <div className="rounded-full p-5 bg-green-600">
+                      <i className="far fa-analytics fa-2x fa-inverse"></i>
                     </div>
                   </div>
-                  <div class="flex-1 text-right md:text-center">
-                    <h5 class="font-bold uppercase text-gray-600">
+                  <div className="flex-1 text-right md:text-center">
+                    <h5 className="font-bold uppercase text-gray-600">
                       Total Profit
                     </h5>
-                    <h3 class="font-bold text-3xl">
+                    <h3 className="font-bold text-3xl">
                       ₱{this.numberWithCommas(totalProfitTransaction)}
-                      <span class="text-green-500">
-                        <i class="fas fa-caret-up"></i>
-                      </span>
+                      {/* <span className="text-green-500">
+                        <i className="fas fa-caret-up"></i>
+                      </span> */}
                     </h3>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="w-full md:w-1/2 xl:w-1/3 p-6">
+            <div className="w-full md:w-1/2 xl:w-1/3 p-6">
               <div
-                class="
+                className="
 								bg-white
 								border-b-4 border-teal_custom
 								rounded-lg
@@ -302,29 +410,56 @@ class DashboardIndex extends React.Component {
 								p-5
 							"
               >
-                <div class="flex flex-row items-center">
-                  <div class="flex-shrink pr-4">
-                    <div class="rounded-full p-5 bg-green-600">
-                      <i class="fad fa-calendar-alt fa-2x fa-inverse"></i>
+                <div className="flex flex-row items-center">
+                  <div className="flex-shrink pr-4">
+                    <div
+                      className={`rounded-full p-5 ${
+                        monthlySalesTransaction >
+                        monthlySalesTransactionYesterday
+                          ? "bg-green-600"
+                          : "bg-red-600"
+                      } `}
+                    >
+                      <i className="fad fa-calendar-alt fa-2x fa-inverse"></i>
                     </div>
                   </div>
-                  <div class="flex-1 text-right md:text-center">
-                    <h5 class="font-bold uppercase text-gray-600">
-                      Monthly Sales (June)
+                  <div className="flex-1 text-right md:text-center">
+                    <h5 className="font-bold uppercase text-gray-600">
+                      Monthly Sales ({DateNow[1]})
                     </h5>
-                    <h3 class="font-bold text-3xl">
+                    <h3 className="font-bold text-3xl">
                       ₱{this.numberWithCommas(monthlySalesTransaction)}
-                      <span class="text-green-500">
-                        <i class="fas fa-caret-up"></i>
+                      <span
+                        className={`${
+                          monthlySalesTransaction >
+                          monthlySalesTransactionYesterday
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }`}
+                      >
+                        <i
+                          className={`fas  ${
+                            monthlySalesTransaction >
+                            monthlySalesTransactionYesterday
+                              ? "fa-caret-up"
+                              : "fa-caret-down"
+                          }`}
+                        ></i>
                       </span>
+                      <div className="text-sm text-gray-400">
+                        Last {lastMonth} : ₱
+                        {this.numberWithCommas(
+                          monthlySalesTransactionYesterday
+                        )}
+                      </div>
                     </h3>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="w-full md:w-1/2 xl:w-1/3 p-6">
+            <div className="w-full md:w-1/2 xl:w-1/3 p-6">
               <div
-                class="
+                className="
 								bg-white
 								border-b-4 border-teal_custom
 								rounded-lg
@@ -332,29 +467,57 @@ class DashboardIndex extends React.Component {
 								p-5
 							"
               >
-                <div class="flex flex-row items-center">
-                  <div class="flex-shrink pr-4">
-                    <div class="rounded-full p-5 bg-green-600">
-                      <i class="fad fa-calendar-alt fa-2x fa-inverse"></i>
+                <div className="flex flex-row items-center">
+                  <div className="flex-shrink pr-4">
+                    <div
+                      className={`rounded-full p-5 ${
+                        monthlyProfitTransaction >
+                        monthlyProfitTransactionYesterday
+                          ? "bg-green-600"
+                          : "bg-red-600"
+                      } `}
+                    >
+                      <i className="fad fa-calendar-alt fa-2x fa-inverse"></i>
                     </div>
                   </div>
-                  <div class="flex-1 text-right md:text-center">
-                    <h5 class="font-bold uppercase text-gray-600">
-                      Monthly Profit (June)
+                  <div className="flex-1 text-right md:text-center">
+                    <h5 className="font-bold uppercase text-gray-600">
+                      Monthly Profit ({DateNow[1]})
                     </h5>
-                    <h3 class="font-bold text-3xl">
+
+                    <h3 className="font-bold text-3xl">
                       ₱{this.numberWithCommas(monthlyProfitTransaction)}
-                      <span class="text-green-500">
-                        <i class="fas fa-caret-up"></i>
+                      <span
+                        className={`${
+                          monthlyProfitTransaction >
+                          monthlyProfitTransactionYesterday
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }`}
+                      >
+                        <i
+                          className={`fas  ${
+                            monthlyProfitTransaction >
+                            monthlyProfitTransactionYesterday
+                              ? "fa-caret-up"
+                              : "fa-caret-down"
+                          }`}
+                        ></i>
                       </span>
+                      <div className="text-sm text-gray-400">
+                        Last {lastMonth} : ₱
+                        {this.numberWithCommas(
+                          monthlyProfitTransactionYesterday
+                        )}
+                      </div>
                     </h3>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="w-full md:w-1/2 xl:w-1/3 p-6">
+            <div className="w-full md:w-1/2 xl:w-1/3 p-6">
               <div
-                class="
+                className="
 								bg-white
 								border-b-4 border-teal_custom
 								rounded-lg
@@ -362,29 +525,61 @@ class DashboardIndex extends React.Component {
 								p-5
 							"
               >
-                <div class="flex flex-row items-center">
-                  <div class="flex-shrink pr-4">
-                    <div class="rounded-full p-5 bg-red-600">
-                      <i class="fad fa-calendar-day fa-2x fa-inverse"></i>
+                <div className="flex flex-row items-center">
+                  <div className="flex-shrink pr-4">
+                    <div
+                      className={`rounded-full p-5 ${
+                        dailySalesTransaction > dailySalesTransactionYesterday
+                          ? "bg-green-600"
+                          : "bg-red-600"
+                      } `}
+                    >
+                      <i className="fad fa-calendar-day fa-2x fa-inverse"></i>
                     </div>
                   </div>
-                  <div class="flex-1 text-right md:text-center">
-                    <h5 class="font-bold uppercase text-gray-600">
+                  <div className="flex-1 text-right md:text-center">
+                    <h5 className="font-bold uppercase text-gray-600">
                       Daily Sales
                     </h5>
-                    <h3 class="font-bold text-3xl">
+
+                    <h3 className="font-bold text-3xl">
                       ₱{this.numberWithCommas(dailySalesTransaction)}
-                      <span class="text-red-500">
-                        <i class="fas fa-caret-down"></i>
+                      <span
+                        className={`${
+                          dailySalesTransaction > dailySalesTransactionYesterday
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }`}
+                      >
+                        <i
+                          className={`fas  ${
+                            dailySalesTransaction >
+                            dailySalesTransactionYesterday
+                              ? "fa-caret-up"
+                              : "fa-caret-down"
+                          }`}
+                        ></i>
                       </span>
+                      <div className="text-sm text-gray-400">
+                        Yesterday{" "}
+                        {yesterday.split(" ")[0] +
+                          " " +
+                          yesterday.split(" ")[1] +
+                          " " +
+                          yesterday.split(" ")[2] +
+                          " " +
+                          yesterday.split(" ")[3]}{" "}
+                        : ₱
+                        {this.numberWithCommas(dailySalesTransactionYesterday)}
+                      </div>
                     </h3>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="w-full md:w-1/2 xl:w-1/3 p-6">
+            <div className="w-full md:w-1/2 xl:w-1/3 p-6">
               <div
-                class="
+                className="
 								bg-white
 								border-b-4 border-teal_custom
 								rounded-lg
@@ -392,29 +587,63 @@ class DashboardIndex extends React.Component {
 								p-5
 							"
               >
-                <div class="flex flex-row items-center">
-                  <div class="flex-shrink pr-4">
-                    <div class="rounded-full p-5 bg-red-600">
-                      <i class="fad fa-calendar-day fa-2x fa-inverse"></i>
+                <div className="flex flex-row items-center">
+                  <div className="flex-shrink pr-4">
+                    <div
+                      className={`rounded-full p-5 ${
+                        dailyProfitTransaction > dailyProfitTransactionYesterday
+                          ? "bg-green-600"
+                          : "bg-red-600"
+                      } `}
+                    >
+                      {" "}
+                      <i className="fad fa-calendar-day fa-2x fa-inverse"></i>
                     </div>
                   </div>
-                  <div class="flex-1 text-right md:text-center">
-                    <h5 class="font-bold uppercase text-gray-600">
+                  <div className="flex-1 text-right md:text-center">
+                    <h5 className="font-bold uppercase text-gray-600">
                       Daily Profit
                     </h5>
-                    <h3 class="font-bold text-3xl">
+
+                    <h3 className="font-bold text-3xl">
                       ₱{this.numberWithCommas(dailyProfitTransaction)}
-                      <span class="text-red-500">
-                        <i class="fas fa-caret-down"></i>
+                      <span
+                        className={`${
+                          dailyProfitTransaction >
+                          dailyProfitTransactionYesterday
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }`}
+                      >
+                        <i
+                          className={`fas  ${
+                            dailyProfitTransaction >
+                            dailyProfitTransactionYesterday
+                              ? "fa-caret-up"
+                              : "fa-caret-down"
+                          }`}
+                        ></i>
                       </span>
+                      <div className="text-sm text-gray-400">
+                        Yesterday{" "}
+                        {yesterday.split(" ")[0] +
+                          " " +
+                          yesterday.split(" ")[1] +
+                          " " +
+                          yesterday.split(" ")[2] +
+                          " " +
+                          yesterday.split(" ")[3]}{" "}
+                        : ₱
+                        {this.numberWithCommas(dailyProfitTransactionYesterday)}
+                      </div>
                     </h3>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="w-full md:w-1/2 xl:w-1/3 p-6">
+            <div className="w-full md:w-1/2 xl:w-1/3 p-6">
               <div
-                class="
+                className="
 								bg-white
 								border-b-4 border-teal_custom
 								rounded-lg
@@ -422,29 +651,71 @@ class DashboardIndex extends React.Component {
 								p-5
 							"
               >
-                <div class="flex flex-row items-center">
-                  <div class="flex-shrink pr-4">
-                    <div class="rounded-full p-5 bg-red-600">
-                      <i class="fad fa-calendar-week fa-2x fa-inverse"></i>
+                <div className="flex flex-row items-center">
+                  <div className="flex-shrink pr-4">
+                    <div
+                      className={`rounded-full p-5 ${
+                        weeklySalesTransaction > weeklySalesTransactionYesterday
+                          ? "bg-green-600"
+                          : "bg-red-600"
+                      } `}
+                    >
+                      {" "}
+                      <i className="fad fa-calendar-week fa-2x fa-inverse"></i>
                     </div>
                   </div>
-                  <div class="flex-1 text-right md:text-center">
-                    <h5 class="font-bold uppercase text-gray-600">
+                  <div className="flex-1 text-right md:text-center">
+                    <h5 className="font-bold uppercase text-gray-600">
                       Weekly Sales
                     </h5>
-                    <h3 class="font-bold text-3xl">
+
+                    <h3 className="font-bold text-3xl">
                       ₱{this.numberWithCommas(weeklySalesTransaction)}
-                      <span class="text-red-500">
-                        <i class="fas fa-caret-down"></i>
+                      <span
+                        className={`${
+                          weeklySalesTransaction >
+                          weeklySalesTransactionYesterday
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }`}
+                      >
+                        <i
+                          className={`fas  ${
+                            weeklySalesTransaction >
+                            weeklySalesTransactionYesterday
+                              ? "fa-caret-up"
+                              : "fa-caret-down"
+                          }`}
+                        ></i>
                       </span>
+                      <div className="text-xs text-gray-400">
+                        Last{" "}
+                        {StartDayOfTheLastWeek[0] +
+                          " " +
+                          StartDayOfTheLastWeek[1] +
+                          " " +
+                          StartDayOfTheLastWeek[2] +
+                          " " +
+                          StartDayOfTheLastWeek[3]}{" "}
+                        To{" "}
+                        {EndDayOfTheLastWeek[0] +
+                          " " +
+                          EndDayOfTheLastWeek[1] +
+                          " " +
+                          EndDayOfTheLastWeek[2] +
+                          " " +
+                          EndDayOfTheLastWeek[3]}
+                        : ₱
+                        {this.numberWithCommas(weeklySalesTransactionYesterday)}
+                      </div>
                     </h3>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="w-full md:w-1/2 xl:w-1/3 p-6">
+            <div className="w-full md:w-1/2 xl:w-1/3 p-6">
               <div
-                class="
+                className="
 								bg-white
 								border-b-4 border-teal_custom
 								rounded-lg
@@ -452,29 +723,74 @@ class DashboardIndex extends React.Component {
 								p-5
 							"
               >
-                <div class="flex flex-row items-center">
-                  <div class="flex-shrink pr-4">
-                    <div class="rounded-full p-5 bg-red-600">
-                      <i class="fad fa-calendar-week fa-2x fa-inverse"></i>
+                <div className="flex flex-row items-center">
+                  <div className="flex-shrink pr-4">
+                    <div
+                      className={`rounded-full p-5 ${
+                        weeklyProfitTransaction >
+                        weeklyProfitTransactionYesterday
+                          ? "bg-green-600"
+                          : "bg-red-600"
+                      } `}
+                    >
+                      {" "}
+                      <i className="fad fa-calendar-week fa-2x fa-inverse"></i>
                     </div>
                   </div>
-                  <div class="flex-1 text-right md:text-center">
-                    <h5 class="font-bold uppercase text-gray-600">
+                  <div className="flex-1 text-right md:text-center">
+                    <h5 className="font-bold uppercase text-gray-600">
                       Weekly Profit
                     </h5>
-                    <h3 class="font-bold text-3xl">
+
+                    <h3 className="font-bold text-3xl">
                       ₱{this.numberWithCommas(weeklyProfitTransaction)}
-                      <span class="text-red-500">
-                        <i class="fas fa-caret-down"></i>
+                      <span
+                        className={`${
+                          weeklyProfitTransaction >
+                          weeklyProfitTransactionYesterday
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }`}
+                      >
+                        <i
+                          className={`fas  ${
+                            weeklyProfitTransaction >
+                            weeklyProfitTransactionYesterday
+                              ? "fa-caret-up"
+                              : "fa-caret-down"
+                          }`}
+                        ></i>
                       </span>
+                      <div className="text-xs text-gray-400">
+                        Last{" "}
+                        {StartDayOfTheLastWeek[0] +
+                          " " +
+                          StartDayOfTheLastWeek[1] +
+                          " " +
+                          StartDayOfTheLastWeek[2] +
+                          " " +
+                          StartDayOfTheLastWeek[3]}{" "}
+                        To{" "}
+                        {EndDayOfTheLastWeek[0] +
+                          " " +
+                          EndDayOfTheLastWeek[1] +
+                          " " +
+                          EndDayOfTheLastWeek[2] +
+                          " " +
+                          EndDayOfTheLastWeek[3]}{" "}
+                        : ₱
+                        {this.numberWithCommas(
+                          weeklyProfitTransactionYesterday
+                        )}
+                      </div>
                     </h3>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="w-full md:w-1/2 xl:w-1/3 p-6">
+            <div className="w-full md:w-1/2 xl:w-1/3 p-6">
               <div
-                class="
+                className="
 								bg-white
 								border-b-4 border-teal_custom
 								rounded-lg
@@ -482,26 +798,26 @@ class DashboardIndex extends React.Component {
 								p-5
 							"
               >
-                <div class="flex flex-row items-center">
-                  <div class="flex-shrink pr-4">
-                    <div class="rounded-full p-5 bg-red-600">
+                <div className="flex flex-row items-center">
+                  <div className="flex-shrink pr-4">
+                    <div className="rounded-full p-5 bg-red-600">
                       <i className="fad fa-layer-plus fa-2x fa-inverse"></i>
                     </div>
                   </div>
-                  <div class="flex-1 text-right md:text-center">
-                    <h5 class="font-bold uppercase text-gray-600">
+                  <div className="flex-1 text-right md:text-center">
+                    <h5 className="font-bold uppercase text-gray-600">
                       Number of Products to be Reorder
                     </h5>
-                    <h3 class="font-bold text-3xl">
+                    <h3 className="font-bold text-3xl">
                       {this.numberWithCommas(ReorderProduct)}
                     </h3>
                   </div>
                 </div>
               </div>
             </div>
-            {/* <div class="w-full md:w-1/2 xl:w-1/3 p-6">
+            {/* <div className="w-full md:w-1/2 xl:w-1/3 p-6">
               <div
-                class="
+                className="
 								bg-white
 								border-b-4 border-teal_custom
 								rounded-lg
@@ -509,17 +825,17 @@ class DashboardIndex extends React.Component {
 								p-5
 							"
               >
-                <div class="flex flex-row items-center">
-                  <div class="flex-shrink pr-4">
-                    <div class="rounded-full p-5 bg-green-600">
+                <div className="flex flex-row items-center">
+                  <div className="flex-shrink pr-4">
+                    <div className="rounded-full p-5 bg-green-600">
                       <i className="fad fa-dolly-flatbed-empty fa-2x fa-inverse"></i>
                     </div>
                   </div>
-                  <div class="flex-1 text-right md:text-center">
-                    <h5 class="font-bold uppercase text-gray-600">
+                  <div className="flex-1 text-right md:text-center">
+                    <h5 className="font-bold uppercase text-gray-600">
                       Number of Zero Stock Products
                     </h5>
-                    <h3 class="font-bold text-3xl">
+                    <h3 className="font-bold text-3xl">
                       {this.numberWithCommas(ZeroProduct)}
                     </h3>
                   </div>
@@ -601,7 +917,24 @@ class DashboardIndex extends React.Component {
                     </tr>
                   </thead>
                   <tbody>
-                    {products
+                    {products.map((prod) =>
+                      prod.variation
+                        .filter((prodvariation) => prodvariation.stock < 10)
+                        .map((product) => (
+                          <tr
+                            key={prod.id}
+                            className="h-24 border-gray-300 dark:border-gray-200 border-b"
+                          >
+                            <td className="text-sm whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal">
+                              {prod.name}
+                            </td>
+                            <td className="text-sm whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal">
+                              {product.stock}
+                            </td>
+                          </tr>
+                        ))
+                    )}
+                    {/* {products
                       .filter((prod) => prod.stock < 10)
                       .map((product) => (
                         <tr
@@ -615,7 +948,7 @@ class DashboardIndex extends React.Component {
                             {product.stock}
                           </td>
                         </tr>
-                      ))}
+                      ))} */}
                   </tbody>
                 </table>
               </div>

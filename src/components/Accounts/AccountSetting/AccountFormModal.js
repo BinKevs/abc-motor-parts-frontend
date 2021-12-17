@@ -23,6 +23,10 @@ const AccountFormModal = (props) => {
     usernameError,
     ConfirmPasswordError,
     contactNumberError,
+    emailExistError,
+    contact_numberExistError,
+    editing_contact_number,
+    current_address,
   } = props.state;
   const {
     onChange,
@@ -40,6 +44,7 @@ const AccountFormModal = (props) => {
     onChangeDate,
     handleEditAccountInfoSubmit,
     handleChangePassword,
+    handleUpdateContact,
   } = props;
   return (
     <>
@@ -235,6 +240,11 @@ const AccountFormModal = (props) => {
                                 ? ""
                                 : "Not a valid PH number"
                               : ""}
+                            <div>
+                              {contact_numberExistError
+                                ? "Contact number not available"
+                                : ""}{" "}
+                            </div>{" "}
                           </span>
                         </div>
                         <div class="relative z-0 w-full mb-5">
@@ -487,6 +497,9 @@ const AccountFormModal = (props) => {
                           </label>
                           <span class="text-sm text-red-600" id="error">
                             {emailError ? "Not a valid email" : ""}
+                            <div>
+                              {emailExistError ? "Email not available" : ""}
+                            </div>
                           </span>
                         </div>
                         <div class="relative z-0 w-full mb-5">
@@ -565,13 +578,21 @@ const AccountFormModal = (props) => {
                     </div>
                   </form>
                   <form
-                    handleAddAccount={handleAddAccount}
+                    onSubmit={handleUpdateContact}
                     class={`mt-9 ${EditButtonIsClicked ? "" : "hidden"}`}
                   >
                     <div className="mt-9">
                       <h1 class="text-gray-800 text-3xl font-medium my-5">
                         Contact Details
                       </h1>
+                      <div className="my-2">
+                        <div className="text-gray-400 text-xl">
+                          Current phone number
+                        </div>
+                        <label class="my-5">
+                          <span class="ml-2">{editing_contact_number}</span>
+                        </label>
+                      </div>{" "}
                       <div>
                         <div class="relative z-0 w-full mb-5">
                           <input
@@ -580,7 +601,6 @@ const AccountFormModal = (props) => {
                             value={contact_number}
                             onChange={onChange}
                             placeholder=" "
-                            required
                             class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
                           />
                           <label
@@ -597,7 +617,26 @@ const AccountFormModal = (props) => {
                                 ? ""
                                 : "Not a valid PH number"
                               : ""}
+                            <div>
+                              {contact_numberExistError
+                                ? "Contact number not available"
+                                : ""}{" "}
+                            </div>{" "}
                           </span>
+                        </div>
+                        <div className="my-5">
+                          <div className="text-gray-400 text-xl">
+                            Current Address
+                          </div>
+                          <label class="my-5">
+                            <span class="ml-2">
+                              {current_address ? current_address.street : ""}{" "}
+                              {current_address ? current_address.barangay : ""}{" "}
+                              {current_address ? current_address.city : ""}{" "}
+                              {current_address ? current_address.province : ""}{" "}
+                              {current_address ? current_address.region : ""}{" "}
+                            </span>
+                          </label>
                         </div>
                         <div class="relative z-0 w-full mb-5">
                           <label class="block my-2">Select Region</label>
@@ -605,7 +644,6 @@ const AccountFormModal = (props) => {
                             <select
                               onChange={province}
                               onSelect={region}
-                              required
                               name="region"
                               class="w-full h-10 pl-3 pr-6 text-base placeholder-gray-600 border rounded-lg appearance-none focus:border-cyan-700"
                               placeholder="Region"
@@ -624,13 +662,11 @@ const AccountFormModal = (props) => {
                             </select>
                           </div>
                         </div>
-
                         <div class="relative z-0 w-full mb-5">
                           <label class="block my-2">Select Province</label>
                           <div class="relative inline-block w-full text-gray-700">
                             <select
                               onChange={city}
-                              required
                               name="province"
                               class="w-full h-10 pl-3 pr-6 text-base placeholder-gray-600 border rounded-lg appearance-none focus:border-cyan-700"
                               placeholder="Province"
@@ -654,7 +690,6 @@ const AccountFormModal = (props) => {
                           <div class="relative inline-block w-full text-gray-700">
                             <select
                               onChange={barangay}
-                              required
                               name="city"
                               class="w-full h-10 pl-3 pr-6 text-base placeholder-gray-600 border rounded-lg appearance-none focus:border-cyan-700"
                               placeholder="City"
@@ -673,13 +708,11 @@ const AccountFormModal = (props) => {
                             </select>
                           </div>
                         </div>
-
                         <div class="relative z-0 w-full mb-5">
                           <label class="block my-2">Select Brgy</label>
                           <div class="relative inline-block w-full text-gray-700">
                             <select
                               onChange={brgy}
-                              required
                               name="brgy"
                               class="w-full h-10 pl-3 pr-6 text-base placeholder-gray-600 border rounded-lg appearance-none focus:border-cyan-700"
                               placeholder="Brgy"
@@ -704,7 +737,6 @@ const AccountFormModal = (props) => {
                             name="street"
                             onChange={onChange}
                             placeholder=" "
-                            required
                             class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
                           />
                           <label
@@ -735,7 +767,6 @@ const AccountFormModal = (props) => {
                         </div>
                       </span>
                     </div>
-
                     <div className="flex items-center justify-start w-full mt-10">
                       <button
                         type="submit"

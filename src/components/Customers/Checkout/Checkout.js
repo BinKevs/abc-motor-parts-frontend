@@ -143,6 +143,67 @@ class Checkout extends React.Component {
         showModalEWallet: !this.state.showModalEWallet,
       });
     } else {
+      if (this.state.payment_method === "") {
+        swal("Please make sure that you choose a payment method.", "", "info");
+      } else {
+        let quantity = 0;
+        this.props.cartItems.map((item) => (quantity += item.quantity));
+        const address =
+          this.props.AuthReducer.addresses.street +
+          " " +
+          this.props.AuthReducer.addresses.barangay +
+          " " +
+          this.props.AuthReducer.addresses.city +
+          " " +
+          this.props.AuthReducer.addresses.province +
+          " " +
+          this.props.AuthReducer.addresses.region;
+        const contact_number = this.props.AuthReducer.contact_number;
+        const action_done = "Transaction Added";
+        const order_status = "Pending";
+
+        const items = this.props.cartItems;
+        const { payment_method, amount_tendered, change, voucher_id } =
+          this.state;
+        const data = {
+          totalProfit: this.HandleDecimalPlaces(totalProfit),
+          totalAmount: this.HandleDecimalPlaces(
+            TotalAmountToPay - this.state.voucher_value
+          ),
+          shippingCost: this.HandleDecimalPlaces(shippingFee),
+          quantity,
+          items,
+          action_done,
+          payment_method,
+          order_status,
+          address,
+          contact_number,
+          voucher_status_details:
+            "Redeemed by : " +
+            this.props.AuthReducer.user.username +
+            " at " +
+            DateNow,
+          voucher_id: voucher_id,
+        };
+        this.props.addTransaction(data);
+        this.props.clearCart();
+        this.props.history.push("/Home");
+      }
+    }
+  };
+  handleSubmitGCash = (event) => {
+    event.preventDefault();
+
+    if (
+      this.state.phone_number_gcash === "" ||
+      this.state.ref_number_gcash === ""
+    ) {
+      swal(
+        "Please make sure that you fill up all the required fields in using Gcash as payment method.",
+        "",
+        "info"
+      );
+    } else {
       let quantity = 0;
       this.props.cartItems.map((item) => (quantity += item.quantity));
       const address =
@@ -157,11 +218,16 @@ class Checkout extends React.Component {
         this.props.AuthReducer.addresses.region;
       const contact_number = this.props.AuthReducer.contact_number;
       const action_done = "Transaction Added";
-      const order_status = "Pending";
-
+      const order_status = "Pending (Checking Payment)";
       const items = this.props.cartItems;
-      const { payment_method, amount_tendered, change, voucher_id } =
-        this.state;
+      const {
+        ref_number_gcash,
+        phone_number_gcash,
+        voucher_id,
+        contactNumberErrorGcash,
+      } = this.state;
+      const payment_method_gcash =
+        "Ref No. : " + ref_number_gcash + " Phone No. : " + phone_number_gcash;
       const data = {
         totalProfit: this.HandleDecimalPlaces(totalProfit),
         totalAmount: this.HandleDecimalPlaces(
@@ -171,148 +237,109 @@ class Checkout extends React.Component {
         quantity,
         items,
         action_done,
-        payment_method,
-        order_status,
-        address,
-        contact_number,
+        payment_method: "Gcash",
+        payment_details: payment_method_gcash,
         voucher_status_details:
           "Redeemed by : " +
           this.props.AuthReducer.user.username +
           " at " +
           DateNow,
         voucher_id: voucher_id,
+        order_status,
+        address,
+        contact_number,
       };
-      this.props.addTransaction(data);
-      this.props.clearCart();
-      this.props.history.push("/Home");
-    }
-  };
-  handleSubmitGCash = (event) => {
-    event.preventDefault();
-    let quantity = 0;
-    this.props.cartItems.map((item) => (quantity += item.quantity));
-    const address =
-      this.props.AuthReducer.addresses.street +
-      " " +
-      this.props.AuthReducer.addresses.barangay +
-      " " +
-      this.props.AuthReducer.addresses.city +
-      " " +
-      this.props.AuthReducer.addresses.province +
-      " " +
-      this.props.AuthReducer.addresses.region;
-    const contact_number = this.props.AuthReducer.contact_number;
-    const action_done = "Transaction Added";
-    const order_status = "Pending (Checking Payment)";
-    const items = this.props.cartItems;
-    const {
-      ref_number_gcash,
-      phone_number_gcash,
-      voucher_id,
-      contactNumberErrorGcash,
-    } = this.state;
-    const payment_method_gcash =
-      "Ref No. : " + ref_number_gcash + " Phone No. : " + phone_number_gcash;
-    const data = {
-      totalProfit: this.HandleDecimalPlaces(totalProfit),
-      totalAmount: this.HandleDecimalPlaces(
-        TotalAmountToPay - this.state.voucher_value
-      ),
-      shippingCost: this.HandleDecimalPlaces(shippingFee),
-      quantity,
-      items,
-      action_done,
-      payment_method: "Gcash",
-      payment_details: payment_method_gcash,
-      voucher_status_details:
-        "Redeemed by : " +
-        this.props.AuthReducer.user.username +
-        " at " +
-        DateNow,
-      voucher_id: voucher_id,
-      order_status,
-      address,
-      contact_number,
-    };
-    if (phone(phone_number_gcash, { country: "PH" }).isValid) {
-      this.setState({
-        contactNumberErrorGcash: false,
-      });
-    } else {
-      this.setState({
-        contactNumberErrorGcash: true,
-      });
-    }
-    if (!contactNumberErrorGcash) {
-      this.props.addTransaction(data);
-      this.props.clearCart();
-      this.props.history.push("/Home");
+      if (phone(phone_number_gcash, { country: "PH" }).isValid) {
+        this.setState({
+          contactNumberErrorGcash: false,
+        });
+      } else {
+        this.setState({
+          contactNumberErrorGcash: true,
+        });
+      }
+      if (!contactNumberErrorGcash) {
+        this.props.addTransaction(data);
+        this.props.clearCart();
+        this.props.history.push("/Home");
+      }
     }
   };
   handleSubmitPayMaya = (event) => {
     event.preventDefault();
-    let quantity = 0;
-    this.props.cartItems.map((item) => (quantity += item.quantity));
-    const address =
-      this.props.AuthReducer.addresses.street +
-      " " +
-      this.props.AuthReducer.addresses.barangay +
-      " " +
-      this.props.AuthReducer.addresses.city +
-      " " +
-      this.props.AuthReducer.addresses.province +
-      " " +
-      this.props.AuthReducer.addresses.region;
-    const contact_number = this.props.AuthReducer.contact_number;
-    const action_done = "Transaction Added";
-    const order_status = "Pending (Checking Payment)";
-
-    const items = this.props.cartItems;
-    const {
-      ref_number_paymaya,
-      phone_number_paymaya,
-      voucher_id,
-      contactNumberErrorPaymaya,
-    } = this.state;
-    const payment_method_gcash =
-      "Ref No. : " +
-      ref_number_paymaya +
-      " Phone No. : " +
-      phone_number_paymaya;
-    const data = {
-      totalProfit: this.HandleDecimalPlaces(totalProfit),
-      totalAmount: this.HandleDecimalPlaces(
-        TotalAmountToPay - this.state.voucher_value
-      ),
-      shippingCost: this.HandleDecimalPlaces(shippingFee),
-      quantity,
-      items,
-      action_done,
-      payment_method: "Paymaya",
-      payment_details: payment_method_gcash,
-      voucher_status_details:
-        "Redeemed by : " +
-        this.props.AuthReducer.user.username +
-        " at " +
-        DateNow,
-      voucher_id: voucher_id,
-      order_status,
-      address,
-      contact_number,
-    };
-    if (phone(phone_number_paymaya, { country: "PH" }).isValid) {
-      this.setState({
-        contactNumberErrorPaymaya: false,
-      });
+    if (
+      this.state.phone_number_paymaya === "" ||
+      this.state.ref_number_paymaya === ""
+    ) {
+      swal(
+        "Please make sure that you fill up all the required fields in using Paymaya as payment method.",
+        "",
+        "info"
+      );
     } else {
-      this.setState({
-        contactNumberErrorPaymaya: true,
-      });
-    }
-    if (!contactNumberErrorPaymaya) {
-      this.props.addTransaction(data);
-      this.props.clearCart();
-      this.props.history.push("/Home");
+      let quantity = 0;
+      this.props.cartItems.map((item) => (quantity += item.quantity));
+      const address =
+        this.props.AuthReducer.addresses.street +
+        " " +
+        this.props.AuthReducer.addresses.barangay +
+        " " +
+        this.props.AuthReducer.addresses.city +
+        " " +
+        this.props.AuthReducer.addresses.province +
+        " " +
+        this.props.AuthReducer.addresses.region;
+      const contact_number = this.props.AuthReducer.contact_number;
+      const action_done = "Transaction Added";
+      const order_status = "Pending (Checking Payment)";
+
+      const items = this.props.cartItems;
+      const {
+        ref_number_paymaya,
+        phone_number_paymaya,
+        voucher_id,
+        contactNumberErrorPaymaya,
+      } = this.state;
+      const payment_method_gcash =
+        "Ref No. : " +
+        ref_number_paymaya +
+        " Phone No. : " +
+        phone_number_paymaya;
+      const data = {
+        totalProfit: this.HandleDecimalPlaces(totalProfit),
+        totalAmount: this.HandleDecimalPlaces(
+          TotalAmountToPay - this.state.voucher_value
+        ),
+        shippingCost: this.HandleDecimalPlaces(shippingFee),
+        quantity,
+        items,
+        action_done,
+        payment_method: "Paymaya",
+        payment_details: payment_method_gcash,
+        voucher_status_details:
+          "Redeemed by : " +
+          this.props.AuthReducer.user.username +
+          " at " +
+          DateNow,
+        voucher_id: voucher_id,
+        order_status,
+        address,
+        contact_number,
+      };
+      if (phone(phone_number_paymaya, { country: "PH" }).isValid) {
+        this.setState({
+          contactNumberErrorPaymaya: false,
+        });
+      } else {
+        this.setState({
+          contactNumberErrorPaymaya: true,
+        });
+      }
+      if (!contactNumberErrorPaymaya) {
+        this.props.addTransaction(data);
+        this.props.clearCart();
+        this.props.history.push("/Home");
+      }
     }
   };
 
@@ -397,6 +424,7 @@ class Checkout extends React.Component {
     const items = this.props.cartItems;
     const { payment_method, amount_tendered, change, voucher_id } = this.state;
     const data = {
+      totalProfit: this.HandleDecimalPlaces(totalProfit),
       totalAmount: TotalAmountToPay - this.state.voucher_value,
       shippingCost: shippingFee,
       quantity,

@@ -193,16 +193,12 @@ class InventoriesReport extends React.Component {
                 <h6 className="uppercase text-gray-600 mb-1 text-sm font-semibold">
                   Inventories
                 </h6>
-
-                <div className="mx-auto md:w-11/12 w-full mt-6 flex flex-col md:flex-row justify-start md:space-x-3">
-                  <div
-                    class="flex flex-col md:flex-row
-				  "
-                  >
-                    <h2 className="text-gray-800 mb-2 md:text-2xl text-lg font-semibold mr-5">
-                      Overview from
-                    </h2>
-                    <span class="text-sm  border-2 rounded-l px-4 py-2 bg-gray-300 whitespace-no-wrap md:w-full w-1/2">
+                <div className="mx-auto w-11/12 mt-6 flex flex-col md:flex-row justify-start space-x-3">
+                  <h2 className="text-gray-800 mb-2 text-2xl font-semibold mr-5">
+                    Between
+                  </h2>
+                  <div class="flex">
+                    <span class="text-sm  border-2 rounded-l px-4 py-2 bg-gray-300 whitespace-no-wrap">
                       Start:
                     </span>
                     <DatePicker
@@ -214,20 +210,14 @@ class InventoriesReport extends React.Component {
                       className="px-4 py-2 border-2 rounded-r"
                     />
                   </div>
-                  <div
-                    class="flex flex-col md:flex-row
-				  "
-                  >
-                    <span class="text-sm  border-2 rounded-l px-4 py-2 bg-gray-300 whitespace-no-wrap md:w-full w-1/2">
+                  <div class="flex">
+                    <span class="text-sm  border-2 rounded-l px-4 py-2 bg-gray-300 whitespace-no-wrap">
                       End:
                     </span>
                     <DatePicker
                       selected={this.state.EndingDate}
                       onChange={(date) =>
-                        this.setState({
-                          EndingDate: date,
-                          occupied: true,
-                        })
+                        this.setState({ EndingDate: date, occupied: true })
                       }
                       value={this.state.EndingDate}
                       closeOnScroll={true}
@@ -235,13 +225,6 @@ class InventoriesReport extends React.Component {
                       className="px-4 py-2 border-2 rounded-r"
                     />
                   </div>
-
-                  {/* <button
-							type="submit"
-							class="text-white bg-gray-800 px-4 py-2 rounded"
-						>
-							Fetch Inventory
-						</button> */}
                 </div>
               </div>
               <div className="chart">

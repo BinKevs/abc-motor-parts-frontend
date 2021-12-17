@@ -116,7 +116,11 @@ const RefundsModal = (props) => {
                       </div>
                     )}
 
-                    <section class="h-full overflow-auto p-8 w-full px-3 flex flex-col">
+                    <section
+                      className={`h-full overflow-auto p-8 w-full px-3 flex flex-col ${
+                        VideoFileURL !== "" ? "hidden" : ""
+                      }`}
+                    >
                       <header class="border-dashed border-2 border-gray-400 py-6 flex flex-col justify-center items-center">
                         {/* <label class="cursor-pointer mt-2 rounded-sm px-3 py-1 bg-gray-200 hover:bg-gray-300 focus:shadow-outline focus:outline-none">
                           Upload a file

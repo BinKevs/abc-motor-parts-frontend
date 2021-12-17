@@ -2,6 +2,7 @@ import React from "react";
 import ReactHTMLTableToExcel from "react-html-table-to-excel";
 import ReactToPrint from "react-to-print";
 import { ActivityLogTablePrint } from "./ActivityLogTablePrint";
+import { Export2Doc } from "../../../Helpers/functions";
 export class ActivityLogTableExportModal extends React.PureComponent {
   render() {
     const { OnToggleExportTable, ActivityLog } = this.props;
@@ -36,7 +37,13 @@ export class ActivityLogTableExportModal extends React.PureComponent {
                     sheet="ActivityLog-table"
                     buttonText="Excel"
                   />
-                  <button className="bg-blue-500 h-12 rounded text-white w-full my-8">
+                  <button
+                    onClick={Export2Doc(
+                      "activityLogTable",
+                      "Activity-Log-Table"
+                    )}
+                    className="bg-blue-500 h-12 rounded text-white w-full my-8"
+                  >
                     Word
                   </button>
                   <div class="text-left p-0 mb-8">

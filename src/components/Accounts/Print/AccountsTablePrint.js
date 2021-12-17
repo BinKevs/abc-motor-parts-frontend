@@ -5,7 +5,7 @@ export class AccountsTablePrint extends React.PureComponent {
   render() {
     const { accountsProps } = this.props;
     return (
-      <div className="w-full p-10">
+      <div className="w-full p-10" id="customerAccountTable">
         <div class="mb-8 flex justify-between">
           <div>
             <h2 class="text-3xl font-bold mb-6 pb-2 tracking-wider uppercase">
@@ -64,11 +64,11 @@ export class AccountsTablePrint extends React.PureComponent {
                 Name
               </th>
               <th className="text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4">
-                Email
+                Contact Details
               </th>
-              <th className="text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4">
+              {/* <th className="text-gray-600 dark:text-gray-400 font-normal pr-6 text-left text-sm tracking-normal leading-4">
                 Status
-              </th>
+              </th> */}
             </tr>
           </thead>
           <tbody>
@@ -86,13 +86,15 @@ export class AccountsTablePrint extends React.PureComponent {
                 <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
                   {account.name}
                 </td>
-                <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                  {account.email}
+                <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4 space-y-2">
+                  <div>{account.email}</div>
+                  <div>{account.address}</div>
+                  <div>{account.contact_number}</div>
                 </td>
-                <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                  {account.is_active ? "Active" : "Inactive"}{" "}
+                {/* <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                  {account.is_active ? "Inactive" : "Active"}{" "}
                   <strong>{account.is_superuser ? "(Admin)" : ""}</strong>
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>

@@ -6,6 +6,7 @@ import {
   getProductList,
   getCategoryList,
 } from "../../store/actions/product/products";
+import ReactToPrint from "react-to-print";
 let filteredProducts = [];
 let DateNow = Date().toLocaleString().split(" ");
 class ProductReport extends React.Component {
@@ -70,13 +71,27 @@ class ProductReport extends React.Component {
               <h3 class="font-bold pl-2">Reports</h3>
             </div>
           </div>
-
+          <div className="w-11/12 mx-auto">
+            <ReactToPrint
+              trigger={() => {
+                // NOTE: could just as easily return <SomeComponent />. Do NOT pass an `onClick` prop
+                // to the root node of the returned component as it will be overwritten.
+                return (
+                  <div className="text-white cursor-pointer bg-teal_custom hover:bg-gray-600 w-1/4 text-xl rounded ml-2 mt-5 text-center p-2">
+                    Print
+                  </div>
+                );
+              }}
+              content={() => this.Product}
+            />
+          </div>
           <div
             className={
               !this.state.occupied
-                ? "mx-auto w-11/12 mt-6 relative"
-                : "mx-auto w-11/12 mt-6 p-3"
+                ? "mx-auto w-11/12 mt-4 relative"
+                : "mx-auto w-11/12 mt-4 p-3"
             }
+            ref={(el) => (this.Product = el)}
           >
             {!this.state.occupied ? (
               <>
@@ -215,6 +230,58 @@ class ProductReport extends React.Component {
                     },
                   }}
                 />
+
+                <table className="min-w-full bg-white">
+                  <thead>
+                    <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
+                      <th className="pl-10 pr-4 text-md">ID</th>
+
+                      <th className="pr-4 text-md">Product</th>
+                      <th className="pr-4 text-md">(Variation) Stock</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredProducts.map((product) => (
+                      <tr
+                        key={product.id}
+                        className="h-24 border-gray-300 border-b"
+                      >
+                        <td className="pl-12 text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                          {product.id}
+                        </td>
+
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                          {product.name}
+                        </td>
+                        <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 w-3/12">
+                          {product.variation
+                            ? product.variation.map(
+                                (productVariation, index) => (
+                                  <tr
+                                    className={
+                                      product.variation.length === 1
+                                        ? "h-20 border-gray-300"
+                                        : index + 1 === product.variation.length
+                                        ? "h-20 border-gray-300"
+                                        : "h-20 border-gray-300 border-b-2"
+                                    }
+                                  >
+                                    <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                                      <div>({productVariation.variation})</div>
+                                      SKU : {productVariation.SKU}
+                                    </td>
+                                    <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                                      {productVariation.stock}
+                                    </td>
+                                  </tr>
+                                )
+                              )
+                            : ""}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>

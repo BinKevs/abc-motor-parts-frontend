@@ -20,6 +20,7 @@ import {
   UPDATE_PRODUCT_VARIATION,
   ADD_PRODUCT_VARIATION,
   UPDATE_VOUCHER,
+  GET_PRODUCT_VARIATION,
 } from "./actionTypes";
 import swal from "sweetalert";
 import { HandleSuccessMessages } from "../../../Helpers/functions";
@@ -35,13 +36,18 @@ export const getProductList = () => (dispatch, getState) => {
       });
     })
     .catch((err) => console.log(err));
-  // .catch((err) =>
-  //   swal({
-  //     title: "Getting Product List Failed",
-  //     text: "Error : " + err,
-  //     icon: "error",
-  //   })
-  // );
+};
+export const getProductVariation = () => (dispatch, getState) => {
+  dispatch({ type: PRODUCT_LOADING });
+  axios
+    .get(URL_IMPORT + "/api/product_variation/", tokenConfig(getState))
+    .then((res) => {
+      dispatch({
+        type: GET_PRODUCT_VARIATION,
+        payload: res.data,
+      });
+    })
+    .catch((err) => console.log(err));
 };
 export const getProduct = (ProductID) => (dispatch, getState) => {
   axios

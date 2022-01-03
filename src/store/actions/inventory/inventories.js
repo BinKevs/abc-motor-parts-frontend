@@ -70,7 +70,7 @@ export const addInventory = (data) => (dispatch, getState) => {
     .post(url, data, tokenConfig(getState))
     .then((res) => {
       console.log();
-      HandleSuccessMessages("Inventory Added", "success");
+      HandleSuccessMessages("Inventory Request Submitted", "success");
       dispatch({
         type: ADD_INVENTORY,
         payload: res.data,

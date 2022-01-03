@@ -58,19 +58,8 @@ class AccountsIndex extends React.Component {
     modal: false,
     table_export_modal: false,
     contact_number: "",
-    regionData: [],
-    provinceData: [],
-    cityData: [],
-    barangayData: [],
-    regionValue: "",
-    provinceValue: "",
-    cityValue: "",
-    barangayValue: "",
-    regionCode: "",
-    provinceCode: "",
-    cityCode: "",
-    barangayCode: "",
-    street: "",
+
+    address: "",
     BirthInputDate: "",
     birthdate: "",
     emailError: false,
@@ -103,7 +92,6 @@ class AccountsIndex extends React.Component {
     };
   }
   componentDidMount() {
-    this.region();
     this.props.getAccountList();
   }
   componentDidUpdate(prevProps, prevState) {
@@ -233,22 +221,10 @@ class AccountsIndex extends React.Component {
   };
   handleUpdateContact = (event) => {
     event.preventDefault();
-    const {
-      regionValue,
-      provinceValue,
-      cityValue,
-      barangayValue,
-      street,
-      contact_number,
-      contact_numberExistError,
-    } = this.state;
+    const { address, contact_number, contact_numberExistError } = this.state;
     const formContactNumber = new FormData();
-    if (regionValue !== "") {
-      formContactNumber.append("region", regionValue);
-      formContactNumber.append("province", provinceValue);
-      formContactNumber.append("city", cityValue);
-      formContactNumber.append("barangay", barangayValue);
-      formContactNumber.append("street", street);
+    if (address !== "") {
+      formContactNumber.append("address", address);
       formContactNumber.append(
         "address_id",
         this.props.AuthReducer.addresses.id
@@ -259,15 +235,7 @@ class AccountsIndex extends React.Component {
         formContactNumber
       );
       this.setState({
-        regionValue: "",
-        provinceValue: "",
-        cityValue: "",
-        barangayValue: "",
-        regionCode: "",
-        provinceCode: "",
-        cityCode: "",
-        barangayCode: "",
-        street: "",
+        address: "",
         contact_number: "",
         contactNumberError: false,
         contact_numberExistError: false,
@@ -282,15 +250,7 @@ class AccountsIndex extends React.Component {
       ) {
         this.props.UpdateAddress(this.state.account_id, formContactNumber);
         this.setState({
-          regionValue: "",
-          provinceValue: "",
-          cityValue: "",
-          barangayValue: "",
-          regionCode: "",
-          provinceCode: "",
-          cityCode: "",
-          barangayCode: "",
-          street: "",
+          address: "",
           contact_number: "",
           contactNumberError: false,
           contact_numberExistError: false,
@@ -434,11 +394,7 @@ class AccountsIndex extends React.Component {
       last_name,
       password,
       password2,
-      regionValue,
-      provinceValue,
-      cityValue,
-      barangayValue,
-      street,
+      address,
       contact_number,
       BirthInputDate,
       usernameError,
@@ -454,11 +410,7 @@ class AccountsIndex extends React.Component {
       email,
       first_name,
       last_name,
-      region: regionValue,
-      province: provinceValue,
-      city: cityValue,
-      barangay: barangayValue,
-      street,
+      address,
       contact_number,
       birthdate: BirthInputDate,
     };
@@ -583,59 +535,66 @@ class AccountsIndex extends React.Component {
   handleArchiveAccount(accountID) {
     return (event) => {
       event.preventDefault();
-
-      swal(
-        "Are you sure you want to delete this Account?\n If you are sure, type in your password:",
-        {
-          content: {
-            element: "input",
-            attributes: {
-              placeholder: "Type your password",
-              type: "password",
+      if (localStorage.getItem("AdminPasswordVerified") === null) {
+        swal(
+          "Are you sure you want to delete this Account?\n If you are sure, type in your password:",
+          {
+            content: {
+              element: "input",
+              attributes: {
+                placeholder: "Type your password",
+                type: "password",
+              },
             },
-          },
-          icon: "warning",
-          buttons: {
-            confirm: {
-              text: "Confirm",
-              visible: true,
-              className: "",
-              closeModal: true,
+            icon: "warning",
+            buttons: {
+              confirm: {
+                text: "Confirm",
+                visible: true,
+                className: "",
+                closeModal: true,
+              },
+              cancel: {
+                text: "Cancel",
+                value: false,
+                value: "cancel",
+                visible: true,
+                className: "",
+                closeModal: true,
+              },
             },
-            cancel: {
-              text: "Cancel",
-              value: false,
-              value: "cancel",
-              visible: true,
-              className: "",
-              closeModal: true,
-            },
-          },
-          dangerMode: true,
-        }
-      ).then((value) => {
-        const formPassword = new FormData();
-        formPassword.append("password", value);
-        if (value === "cancel") {
-        } else {
-          CheckPassword(
-            this.props.AuthReducer.user.id,
-            formPassword,
-            this.props.AuthReducer.token
-          )
-            .then((data) => {
-              if (data === "Valid") {
-                const formData = new FormData();
-                formData.append("status", false);
-                this.props.changeAccountStatus(accountID, formData);
-                swal("Successfully deleted account!", "", "success");
-              } else {
-                swal("Invalid password!", "", "error");
-              }
-            })
-            .catch((err) => console.log(err));
-        }
-      });
+            dangerMode: true,
+          }
+        ).then((value) => {
+          const formPassword = new FormData();
+          formPassword.append("password", value);
+          if (value === "cancel") {
+          } else {
+            CheckPassword(
+              this.props.AuthReducer.user.id,
+              formPassword,
+              this.props.AuthReducer.token
+            )
+              .then((data) => {
+                if (data === "Valid") {
+                  const formData = new FormData();
+                  formData.append("status", false);
+                  this.props.changeAccountStatus(accountID, formData);
+                  localStorage.setItem("AdminPasswordVerified", "ZXCZXCSAZXC");
+                  swal("Successfully deleted account!", "", "success");
+                } else {
+                  swal("Invalid password!", "", "error");
+                }
+              })
+              .catch((err) => console.log(err));
+          }
+        });
+      } else {
+        const formData = new FormData();
+        formData.append("status", false);
+        this.props.changeAccountStatus(accountID, formData);
+        swal("Successfully deleted account!", "", "success");
+      }
     };
   }
   onChangeDate = (date) => {
@@ -643,58 +602,7 @@ class AccountsIndex extends React.Component {
       BirthInputDate: date,
     });
   };
-  region = () => {
-    regions().then((response) => {
-      this.setState({
-        regionData: response,
-      });
-    });
-  };
 
-  province = (e) => {
-    this.setState({
-      regionValue: e.target.selectedOptions[0].text,
-      regionCode: e.target.value,
-    });
-    provinces(e.target.value).then((response) => {
-      this.setState({
-        provinceData: response,
-        cityData: [],
-        barangayData: [],
-      });
-    });
-  };
-
-  city = (e) => {
-    this.setState({
-      provinceValue: e.target.selectedOptions[0].text,
-      provinceCode: e.target.value,
-    });
-    cities(e.target.value).then((response) => {
-      this.setState({
-        cityData: response,
-      });
-    });
-  };
-
-  barangay = (e) => {
-    this.setState({
-      cityValue: e.target.selectedOptions[0].text,
-      cityCode: e.target.value,
-    });
-    barangays(e.target.value).then((response) => {
-      this.setState({
-        barangayData: response,
-      });
-    });
-  };
-
-  brgy = (e) => {
-    this.setState({
-      barangayValue: e.target.selectedOptions[0].text,
-      barangayCode: e.target.value,
-    });
-  };
   render() {
     //destructuring the dictionary for searching/ fetching purposes
     console.log(this.props.account);

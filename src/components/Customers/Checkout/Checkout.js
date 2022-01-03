@@ -137,57 +137,61 @@ class Checkout extends React.Component {
   }
   handleSubmitCashOnDelivery = (event) => {
     event.preventDefault();
+
     if (this.state.payment_method === "E-Wallet") {
       window.scrollTo({ top: 0, behavior: "smooth" });
       this.setState({
         showModalEWallet: !this.state.showModalEWallet,
       });
     } else {
-      if (this.state.payment_method === "") {
-        swal("Please make sure that you choose a payment method.", "", "info");
-      } else {
-        let quantity = 0;
-        this.props.cartItems.map((item) => (quantity += item.quantity));
-        const address =
-          this.props.AuthReducer.addresses.street +
-          " " +
-          this.props.AuthReducer.addresses.barangay +
-          " " +
-          this.props.AuthReducer.addresses.city +
-          " " +
-          this.props.AuthReducer.addresses.province +
-          " " +
-          this.props.AuthReducer.addresses.region;
-        const contact_number = this.props.AuthReducer.contact_number;
-        const action_done = "Transaction Added";
-        const order_status = "Pending";
+      if (TotalAmountToPay - this.state.voucher_value <= 2999) {
+        if (this.state.payment_method === "") {
+          swal(
+            "Please make sure that you choose a payment method.",
+            "",
+            "info"
+          );
+        } else {
+          let quantity = 0;
+          this.props.cartItems.map((item) => (quantity += item.quantity));
+          const address = this.props.AuthReducer.addresses.address;
+          const contact_number = this.props.AuthReducer.contact_number;
+          const action_done = "Transaction Added";
+          const order_status = "Pending";
 
-        const items = this.props.cartItems;
-        const { payment_method, amount_tendered, change, voucher_id } =
-          this.state;
-        const data = {
-          totalProfit: this.HandleDecimalPlaces(totalProfit),
-          totalAmount: this.HandleDecimalPlaces(
-            TotalAmountToPay - this.state.voucher_value
-          ),
-          shippingCost: this.HandleDecimalPlaces(shippingFee),
-          quantity,
-          items,
-          action_done,
-          payment_method,
-          order_status,
-          address,
-          contact_number,
-          voucher_status_details:
-            "Redeemed by : " +
-            this.props.AuthReducer.user.username +
-            " at " +
-            DateNow,
-          voucher_id: voucher_id,
-        };
-        this.props.addTransaction(data);
-        this.props.clearCart();
-        this.props.history.push("/Home");
+          const items = this.props.cartItems;
+          const { payment_method, amount_tendered, change, voucher_id } =
+            this.state;
+          const data = {
+            totalProfit: this.HandleDecimalPlaces(totalProfit),
+            totalAmount: this.HandleDecimalPlaces(
+              TotalAmountToPay - this.state.voucher_value
+            ),
+            shippingCost: this.HandleDecimalPlaces(shippingFee),
+            quantity,
+            items,
+            action_done,
+            payment_method,
+            order_status,
+            address,
+            contact_number,
+            voucher_status_details:
+              "Redeemed by : " +
+              this.props.AuthReducer.user.username +
+              " at " +
+              DateNow,
+            voucher_id: voucher_id,
+          };
+          this.props.addTransaction(data);
+          this.props.clearCart();
+          this.props.history.push("/Home");
+        }
+      } else {
+        swal(
+          "Unfortunately the total amount that we allowed for the Cash On Delivery is PHP 2999 pesos",
+          "",
+          "info"
+        );
       }
     }
   };
@@ -206,16 +210,7 @@ class Checkout extends React.Component {
     } else {
       let quantity = 0;
       this.props.cartItems.map((item) => (quantity += item.quantity));
-      const address =
-        this.props.AuthReducer.addresses.street +
-        " " +
-        this.props.AuthReducer.addresses.barangay +
-        " " +
-        this.props.AuthReducer.addresses.city +
-        " " +
-        this.props.AuthReducer.addresses.province +
-        " " +
-        this.props.AuthReducer.addresses.region;
+      const address = this.props.AuthReducer.addresses.address;
       const contact_number = this.props.AuthReducer.contact_number;
       const action_done = "Transaction Added";
       const order_status = "Pending (Checking Payment)";
@@ -279,16 +274,7 @@ class Checkout extends React.Component {
     } else {
       let quantity = 0;
       this.props.cartItems.map((item) => (quantity += item.quantity));
-      const address =
-        this.props.AuthReducer.addresses.street +
-        " " +
-        this.props.AuthReducer.addresses.barangay +
-        " " +
-        this.props.AuthReducer.addresses.city +
-        " " +
-        this.props.AuthReducer.addresses.province +
-        " " +
-        this.props.AuthReducer.addresses.region;
+      const address = this.props.AuthReducer.addresses.address;
       const contact_number = this.props.AuthReducer.contact_number;
       const action_done = "Transaction Added";
       const order_status = "Pending (Checking Payment)";
@@ -379,43 +365,17 @@ class Checkout extends React.Component {
   };
   handleModalContact = (e) => {
     e.preventDefault();
-    const {
-      street,
-      barangay,
-      city,
-      province,
-      region,
-      barangay_code,
-      city_code,
-      province_code,
-      region_code,
-    } = this.props.AuthReducer.addresses;
+    const { street, region } = this.props.AuthReducer.addresses;
     this.setState({
       showModalAddress: !this.state.showModalAddress,
       regionValue: region,
-      provinceValue: province,
-      cityValue: city,
-      barangayValue: barangay,
-      regionCode: region_code,
-      provinceCode: province_code,
-      cityCode: city_code,
-      barangayCode: barangay_code,
       street: street,
     });
   };
   handleSubmitPaypal() {
     let quantity = 0;
     this.props.cartItems.map((item) => (quantity += item.quantity));
-    const address =
-      this.props.AuthReducer.addresses.street +
-      " " +
-      this.props.AuthReducer.addresses.barangay +
-      " " +
-      this.props.AuthReducer.addresses.city +
-      " " +
-      this.props.AuthReducer.addresses.province +
-      " " +
-      this.props.AuthReducer.addresses.region;
+    const address = this.props.AuthReducer.addresses.address;
 
     const contact_number = this.props.AuthReducer.contact_number;
     const action_done = "Transaction Added";
@@ -528,36 +488,36 @@ class Checkout extends React.Component {
     });
   };
 
-  city = (e) => {
-    this.setState({
-      provinceValue: e.target.selectedOptions[0].text,
-      provinceCode: e.target.value,
-    });
-    cities(e.target.value).then((response) => {
-      this.setState({
-        cityData: response,
-      });
-    });
-  };
+  // city = (e) => {
+  //   this.setState({
+  //     provinceValue: e.target.selectedOptions[0].text,
+  //     provinceCode: e.target.value,
+  //   });
+  //   cities(e.target.value).then((response) => {
+  //     this.setState({
+  //       cityData: response,
+  //     });
+  //   });
+  // };
 
-  barangay = (e) => {
-    this.setState({
-      cityValue: e.target.selectedOptions[0].text,
-      cityCode: e.target.value,
-    });
-    barangays(e.target.value).then((response) => {
-      this.setState({
-        barangayData: response,
-      });
-    });
-  };
+  // barangay = (e) => {
+  //   this.setState({
+  //     cityValue: e.target.selectedOptions[0].text,
+  //     cityCode: e.target.value,
+  //   });
+  //   barangays(e.target.value).then((response) => {
+  //     this.setState({
+  //       barangayData: response,
+  //     });
+  //   });
+  // };
 
-  brgy = (e) => {
-    this.setState({
-      barangayValue: e.target.selectedOptions[0].text,
-      barangayCode: e.target.value,
-    });
-  };
+  // brgy = (e) => {
+  //   this.setState({
+  //     barangayValue: e.target.selectedOptions[0].text,
+  //     barangayCode: e.target.value,
+  //   });
+  // };
 
   HandleShippingCost() {
     shippingFee = 0;
@@ -679,19 +639,7 @@ class Checkout extends React.Component {
                         <label class="inline-flex items-center mt-3">
                           <span class="ml-2">
                             {this.props.AuthReducer.addresses
-                              ? this.props.AuthReducer.addresses.street
-                              : ""}
-                            {this.props.AuthReducer.addresses
-                              ? this.props.AuthReducer.addresses.barangay
-                              : ""}
-                            {this.props.AuthReducer.addresses
-                              ? this.props.AuthReducer.addresses.city
-                              : ""}
-                            {this.props.AuthReducer.addresses
-                              ? this.props.AuthReducer.addresses.province
-                              : ""}
-                            {this.props.AuthReducer.addresses
-                              ? this.props.AuthReducer.addresses.region
+                              ? this.props.AuthReducer.addresses.address
                               : ""}
                           </span>
                         </label>
@@ -828,7 +776,10 @@ class Checkout extends React.Component {
                     <div class="flex justify-between">
                       <h1 class="font-semibold text-2xl">Order Total: </h1>
                       <h2 class="font-semibold text-2xl">
-                        ₱{this.numberWithCommas(TotalAmountToPay)}
+                        ₱
+                        {this.numberWithCommas(
+                          this.HandleDecimalPlaces(TotalAmountToPay)
+                        )}
                       </h2>
                     </div>
                   </div>
@@ -877,7 +828,10 @@ class Checkout extends React.Component {
                       <div class="flex justify-between">
                         <h1 class="font-semibold text-2xl">Order Total: </h1>
                         <h2 class="font-semibold text-2xl">
-                          ₱{this.numberWithCommas(TotalAmountToPay)}
+                          ₱
+                          {this.numberWithCommas(
+                            this.HandleDecimalPlaces(TotalAmountToPay)
+                          )}
                         </h2>
                       </div>
                       <div class="flex justify-between">

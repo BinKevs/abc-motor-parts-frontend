@@ -4,10 +4,11 @@ import { connect } from "react-redux";
 import { Bar, Line } from "react-chartjs-2";
 import { getInventoryListNotOrderByDate } from "../../store/actions/inventory/inventories.js";
 import DatePicker from "react-datepicker";
+import ReactToPrint from "react-to-print";
 let DateNow = Date().toLocaleString().split(" ");
 let InventoriesDateSeparated = [];
 let InventoriesBewtweenDatesInput = [];
-let DatesBetweenInput = [];
+let InventoriesBewtweenDatesArray = [];
 
 let InventoriesBetweenDatesInputCombinedSameDate = [];
 class InventoriesReport extends React.Component {
@@ -15,6 +16,10 @@ class InventoriesReport extends React.Component {
     inventories: PropTypes.array.isRequired,
     getInventoryList: PropTypes.func.isRequired,
   };
+  constructor(props) {
+    super(props);
+    this.myRef = React.createRef();
+  }
   state = {
     StartingDate: "",
     EndingDate: "",
@@ -23,71 +28,64 @@ class InventoriesReport extends React.Component {
   componentDidMount() {
     this.props.getInventoryListNotOrderByDate();
   }
-  getDates(startDate, endDate) {
-    const dates = [];
-    let currentDate = startDate;
-    const addDays = function (days) {
-      const date = new Date(this.valueOf());
-      date.setDate(date.getDate() + days);
-      return date;
-    };
-    while (currentDate < endDate) {
-      currentDate = addDays.call(currentDate, 1);
-      dates.push(currentDate);
+  getDates(startDate, stopDate) {
+    var dateArray = new Array();
+    var currentDate = startDate;
+    while (currentDate <= stopDate) {
+      dateArray.push(currentDate);
+      currentDate = currentDate.addDays(1);
     }
-    return dates;
+    return dateArray;
   }
 
   render() {
     InventoriesDateSeparated = [];
     InventoriesBewtweenDatesInput = [];
     InventoriesBetweenDatesInputCombinedSameDate = [];
-    DatesBetweenInput = [];
+    InventoriesBewtweenDatesArray = [];
+    console.log(this.props.inventories);
     this.props.inventories.map((filteredInventoryObject) =>
       InventoriesDateSeparated.push({
         id: filteredInventoryObject.id,
         added_stock: filteredInventoryObject.new_stock,
         product: filteredInventoryObject.product_info.name,
+        supplier: filteredInventoryObject.supplier_info.name,
         month: filteredInventoryObject.created_at.split(" ")[0],
         day: filteredInventoryObject.created_at.split(" ")[1],
         year: filteredInventoryObject.created_at.split(" ")[2],
         time: filteredInventoryObject.created_at.split(" ")[3],
+        date:
+          filteredInventoryObject.created_at.split(" ")[0] +
+          " " +
+          filteredInventoryObject.created_at.split(" ")[1] +
+          " " +
+          filteredInventoryObject.created_at.split(" ")[2],
       })
     );
-    // var StartDay = new Date(
-    // 	this.state.StartingDate.toLocaleString().split(',')[0]
-    // )
-    // 	.toString()
-    // 	.split(' ');
-    // var EndDay = new Date(this.state.EndingDate.toLocaleString().split(',')[0])
-    // 	.toString()
-    // 	.split(' ');
 
     var StartDay = new Date(this.state.StartingDate);
     var EndDay = new Date(this.state.EndingDate);
+    var BetweenDates = this.getDates(StartDay, EndDay);
 
-    // Usage
-    const dates = this.getDates(StartDay, EndDay);
-    dates.map((filterDate) =>
-      DatesBetweenInput.push({
-        month: filterDate.toString().split(" ")[1],
-        day: filterDate.toString().split(" ")[2],
-        year: filterDate.toString().split(" ")[3],
-      })
-    );
     for (var i = 0; i < InventoriesDateSeparated.length; i++) {
-      var month = InventoriesDateSeparated[i].month;
-      var day = InventoriesDateSeparated[i].day;
-      var year = InventoriesDateSeparated[i].year;
-      for (var y = 0; y < DatesBetweenInput.length; y++) {
-        var monthSearching = DatesBetweenInput[y].month;
-        var daySearching = DatesBetweenInput[y].day;
-        var yearSearching = DatesBetweenInput[y].year;
+      var date = InventoriesDateSeparated[i].date;
+      for (let x = 0; x < BetweenDates.length; x++) {
         if (
-          monthSearching === month &&
-          daySearching === day &&
-          yearSearching === year
+          date.includes(
+            BetweenDates[x].toString().split(" ")[1] +
+              " " +
+              BetweenDates[x].toString().split(" ")[2] +
+              " " +
+              BetweenDates[x].toString().split(" ")[3]
+          )
         ) {
+          InventoriesBewtweenDatesArray.push({
+            id: InventoriesDateSeparated[i].id,
+            added_stock: InventoriesDateSeparated[i].added_stock,
+            product: InventoriesDateSeparated[i].product,
+            supplier: InventoriesDateSeparated[i].supplier,
+            date: InventoriesDateSeparated[i].date,
+          });
           InventoriesBewtweenDatesInput.push({
             added_stock: InventoriesDateSeparated[i].added_stock,
             date:
@@ -100,6 +98,7 @@ class InventoriesReport extends React.Component {
         }
       }
     }
+
     InventoriesBewtweenDatesInput.forEach(function (obj) {
       var dateX = obj.date;
       if (!this[dateX])
@@ -133,48 +132,27 @@ class InventoriesReport extends React.Component {
               <h3 class="font-bold pl-2">Reports</h3>
             </div>
           </div>
-          {/* <div className="mx-auto w-11/12 mt-6 flex justify-end space-x-3">
-						<div class="flex">
-							<span class="text-sm  border-2 rounded-l px-4 py-2 bg-gray-300 whitespace-no-wrap">
-								Start:
-							</span>
-							<DatePicker
-								selected={this.state.StartingDate}
-								onChange={(date) => this.setState({ StartingDate: date })}
-								value={this.state.StartingDate}
-								closeOnScroll={true}
-								placeholderText="Starting Date"
-								className="px-4 py-2 border-2 rounded-r"
-							/>
-						</div>
-						<div class="flex">
-							<span class="text-sm  border-2 rounded-l px-4 py-2 bg-gray-300 whitespace-no-wrap">
-								End:
-							</span>
-							<DatePicker
-								selected={this.state.EndingDate}
-								onChange={(date) =>
-									this.setState({
-										EndingDate: date,
-										occupied: true,
-									})
-								}
-								value={this.state.EndingDate}
-								closeOnScroll={true}
-								placeholderText="Ending Date"
-								className="px-4 py-2 border-2 rounded-r"
-							/>
-						</div>
-
-					
-					</div> */}
-
+          <div className="w-11/12 mx-auto">
+            <ReactToPrint
+              trigger={() => {
+                // NOTE: could just as easily return <SomeComponent />. Do NOT pass an `onClick` prop
+                // to the root node of the returned component as it will be overwritten.
+                return (
+                  <div className="text-white cursor-pointer bg-teal_custom hover:bg-gray-600 w-1/4 text-xl rounded ml-2 mt-5 text-center p-2">
+                    Print
+                  </div>
+                );
+              }}
+              content={() => this.inventory}
+            />{" "}
+          </div>
           <div
             className={
               !this.state.occupied
                 ? "mx-auto w-11/12 mt-6 relative"
                 : "mx-auto w-11/12 mt-6 p-3"
             }
+            ref={(el) => (this.inventory = el)}
           >
             {!this.state.occupied ? (
               <>
@@ -276,6 +254,42 @@ class InventoriesReport extends React.Component {
                   }}
                 />
               </div>
+
+              <table className="min-w-full bg-white">
+                <thead>
+                  <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
+                    <th className="pl-14 pr-6 text-md">ID</th>
+                    <th className=" pr-6 text-md">Product</th>
+                    <th className="pr-6 text-md">Date</th>
+                    <th className="  pr-6 text-md">Stock Added</th>
+                    <th className="pr-6 text-md">Supplier</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {InventoriesBewtweenDatesArray.map((inventory) => (
+                    <tr
+                      key={inventory.id}
+                      className="h-24 border-gray-300 dark:border-gray-200 border-b"
+                    >
+                      <td className="pl-14 text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                        {inventory.id}
+                      </td>
+                      <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                        {inventory.product}
+                      </td>
+                      <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                        {inventory.date}
+                      </td>
+                      <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                        {inventory.new_stock}
+                      </td>
+                      <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                        {inventory.supplier}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

@@ -8,6 +8,9 @@ import MainBaseRouter from "./Routers/MainRoutes";
 import store from "./store/store";
 import Login from "./components/Accounts/Login";
 import ResetPassword from "./components/Accounts/ResetPassword";
+import SupplierLogin from "./components/Suppliers/SupplierLogin";
+import SupplierInventory from "./components/Suppliers/SupplierInventory";
+
 import ForgotPassword from "./components/Accounts/ForgotPassword";
 
 import Registration from "./components/Accounts/Registration";
@@ -26,7 +29,12 @@ function App() {
       <Provider store={store}>
         <BrowserRouter>
           <Switch>
-            {/* <Route exact path="/" component={Login} /> */}
+            <Route
+              exact
+              path="/supplier/inventory"
+              component={SupplierInventory}
+            />
+            <Route exact path="/supplier/login" component={SupplierLogin} />
             <Route exact path="/login" component={Login} />
             <Route
               exact
@@ -34,15 +42,10 @@ function App() {
               component={ResetPassword}
             />
             <Route exact path="/forgot-password" component={ForgotPassword} />
-
             <Route exact path="/register" component={Registration} />
-
             <MainLayout>
               <MainBaseRouter />
             </MainLayout>
-            {/* <ReviewLayout>
-							<ReviewBaseRouter />
-						</ReviewLayout> */}
           </Switch>
         </BrowserRouter>
       </Provider>

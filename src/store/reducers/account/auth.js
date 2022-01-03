@@ -48,6 +48,7 @@ const AuthReducer = (state = initialState, action) => {
       };
     case LOGIN_SUCCESS:
       localStorage.setItem("token", action.payload.token);
+      localStorage.removeItem("AdminPasswordVerified");
       console.log(action.payload);
       return {
         ...state,
@@ -157,6 +158,7 @@ const AuthReducer = (state = initialState, action) => {
     case AUTH_ERROR:
     case LOGOUT_SUCCESS:
     case REGISTER_FAIL:
+      localStorage.removeItem("AdminPasswordVerified");
       localStorage.removeItem("token");
       return {
         ...state,

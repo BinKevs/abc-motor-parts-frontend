@@ -75,59 +75,66 @@ class VoucherSetting extends React.Component {
   handleArchiveVoucher(voucherID) {
     return (event) => {
       event.preventDefault();
-
-      swal(
-        "Are you sure you want to delete this voucher?\n If you are sure, type in your password:",
-        {
-          content: {
-            element: "input",
-            attributes: {
-              placeholder: "Type your password",
-              type: "password",
+      if (localStorage.getItem("AdminPasswordVerified") === null) {
+        swal(
+          "Are you sure you want to delete this voucher?\n If you are sure, type in your password:",
+          {
+            content: {
+              element: "input",
+              attributes: {
+                placeholder: "Type your password",
+                type: "password",
+              },
             },
-          },
-          icon: "warning",
-          buttons: {
-            confirm: {
-              text: "Confirm",
-              visible: true,
-              className: "",
-              closeModal: true,
+            icon: "warning",
+            buttons: {
+              confirm: {
+                text: "Confirm",
+                visible: true,
+                className: "",
+                closeModal: true,
+              },
+              cancel: {
+                text: "Cancel",
+                value: false,
+                value: "cancel",
+                visible: true,
+                className: "",
+                closeModal: true,
+              },
             },
-            cancel: {
-              text: "Cancel",
-              value: false,
-              value: "cancel",
-              visible: true,
-              className: "",
-              closeModal: true,
-            },
-          },
-          dangerMode: true,
-        }
-      ).then((value) => {
-        const formPassword = new FormData();
-        formPassword.append("password", value);
-        if (value === "cancel") {
-        } else {
-          CheckPassword(
-            this.props.AuthReducer.user.id,
-            formPassword,
-            this.props.AuthReducer.token
-          )
-            .then((data) => {
-              if (data === "Valid") {
-                const formData = new FormData();
-                formData.append("status", false);
-                this.props.changeVoucherStatus(voucherID, formData);
-                swal("Successfully deleted voucher!", "", "success");
-              } else {
-                swal("Invalid password!", "", "error");
-              }
-            })
-            .catch((err) => console.log(err));
-        }
-      });
+            dangerMode: true,
+          }
+        ).then((value) => {
+          const formPassword = new FormData();
+          formPassword.append("password", value);
+          if (value === "cancel") {
+          } else {
+            CheckPassword(
+              this.props.AuthReducer.user.id,
+              formPassword,
+              this.props.AuthReducer.token
+            )
+              .then((data) => {
+                if (data === "Valid") {
+                  const formData = new FormData();
+                  formData.append("status", false);
+                  this.props.changeVoucherStatus(voucherID, formData);
+                  localStorage.setItem("AdminPasswordVerified", "ZXCZXCSAZXC");
+                  swal("Successfully deleted voucher!", "", "success");
+                } else {
+                  swal("Invalid password!", "", "error");
+                }
+              })
+              .catch((err) => console.log(err));
+          }
+        });
+      } else {
+        const formData = new FormData();
+        formData.append("status", false);
+        this.props.changeVoucherStatus(voucherID, formData);
+        swal("Successfully deleted voucher!", "", "success");
+      }
     };
   }
   handleToggleExportTable = (event) => {

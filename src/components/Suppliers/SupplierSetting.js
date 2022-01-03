@@ -186,59 +186,66 @@ class SupplierSettingIndex extends React.Component {
   handleArchiveSupplier(supplierID) {
     return (event) => {
       event.preventDefault();
-
-      swal(
-        "Are you sure you want to delete this supplier?\n If you are sure, type in your password:",
-        {
-          content: {
-            element: "input",
-            attributes: {
-              placeholder: "Type your password",
-              type: "password",
+      if (localStorage.getItem("AdminPasswordVerified") === null) {
+        swal(
+          "Are you sure you want to delete this supplier?\n If you are sure, type in your password:",
+          {
+            content: {
+              element: "input",
+              attributes: {
+                placeholder: "Type your password",
+                type: "password",
+              },
             },
-          },
-          icon: "warning",
-          buttons: {
-            confirm: {
-              text: "Confirm",
-              visible: true,
-              className: "",
-              closeModal: true,
+            icon: "warning",
+            buttons: {
+              confirm: {
+                text: "Confirm",
+                visible: true,
+                className: "",
+                closeModal: true,
+              },
+              cancel: {
+                text: "Cancel",
+                value: false,
+                value: "cancel",
+                visible: true,
+                className: "",
+                closeModal: true,
+              },
             },
-            cancel: {
-              text: "Cancel",
-              value: false,
-              value: "cancel",
-              visible: true,
-              className: "",
-              closeModal: true,
-            },
-          },
-          dangerMode: true,
-        }
-      ).then((value) => {
-        const formPassword = new FormData();
-        formPassword.append("password", value);
-        if (value === "cancel") {
-        } else {
-          CheckPassword(
-            this.props.AuthReducer.user.id,
-            formPassword,
-            this.props.AuthReducer.token
-          )
-            .then((data) => {
-              if (data === "Valid") {
-                const formData = new FormData();
-                formData.append("status", false);
-                this.props.changeSupplierStatus(supplierID, formData);
-                swal("Successfully deleted supplier!", "", "success");
-              } else {
-                swal("Invalid password!", "", "error");
-              }
-            })
-            .catch((err) => console.log(err));
-        }
-      });
+            dangerMode: true,
+          }
+        ).then((value) => {
+          const formPassword = new FormData();
+          formPassword.append("password", value);
+          if (value === "cancel") {
+          } else {
+            CheckPassword(
+              this.props.AuthReducer.user.id,
+              formPassword,
+              this.props.AuthReducer.token
+            )
+              .then((data) => {
+                if (data === "Valid") {
+                  const formData = new FormData();
+                  formData.append("status", false);
+                  this.props.changeSupplierStatus(supplierID, formData);
+                  swal("Successfully deleted supplier!", "", "success");
+                  localStorage.setItem("AdminPasswordVerified", "ZXCZXCSAZXC");
+                } else {
+                  swal("Invalid password!", "", "error");
+                }
+              })
+              .catch((err) => console.log(err));
+          }
+        });
+      } else {
+        const formData = new FormData();
+        formData.append("status", false);
+        this.props.changeSupplierStatus(supplierID, formData);
+        swal("Successfully deleted supplier!", "", "success");
+      }
     };
   }
   render() {
@@ -372,6 +379,7 @@ class SupplierSettingIndex extends React.Component {
                     <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
                       <th className="pl-14 pr-6 text-md">ID</th>
                       <th className=" pr-6 text-md">Supplier</th>
+                      <th className=" pr-6 text-md">Username</th>
                       <th className="  pr-6 text-md">Address</th>
                       <th className="pr-6 text-md">Phone Number</th>
                       <th className="pr-6 text-md">More</th>
@@ -395,6 +403,9 @@ class SupplierSettingIndex extends React.Component {
                         </td>
                         <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
                           {supplier.name}
+                        </td>
+                        <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                          {supplier.username}
                         </td>
                         <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
                           {supplier.address}

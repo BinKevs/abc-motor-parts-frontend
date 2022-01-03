@@ -5,8 +5,20 @@ import {
   updateTransactionStatus,
 } from "../../store/actions/transaction/transactions.js";
 import DatePicker from "react-datepicker";
-
+import { getProductVariation } from "../../store/actions/product/products";
 import { TransactionsOrdersTableExportModal } from "./Print/TransactionsOrdersTableExportModal";
+import swal from "sweetalert";
+import {
+  getInventoryList,
+  getInventory,
+  addInventory,
+} from "../../store/actions/inventory/inventories";
+import { getSupplierList } from "../../store/actions/supplier/suppliers";
+import {
+  getProductList,
+  getCategoryList,
+} from "../../store/actions/product/products";
+import ReplenishmentInventory from "./ReplenishmentInventory";
 let filteredData = [];
 let DateNow = Date().toLocaleString().split(" ");
 let date_now =
@@ -28,9 +40,29 @@ class TransactionOrders extends React.Component {
     table_export_modal: false,
     InputDate: "",
     FilterStatus: "",
+    product_id: "",
+    product_variation_id: "",
+    product_quantity: "",
+    new_stock: 0,
+    product: 0,
+    supplier: 0,
+    productVariation: 0,
+    search: "",
+    inventoryID: 0,
+    modal: false,
+    table_export_modal: false,
+    InputDate: "",
+    productForDropDownSelect: "",
+    cost_price: "",
+    price: "",
   };
   componentDidMount() {
     this.props.getTransactionList();
+    this.props.getProductVariation();
+    this.props.getInventoryList();
+    this.props.getSupplierList();
+    this.props.getProductList();
+    this.props.getCategoryList();
   }
   onChange = (e) => {
     this.setState({
@@ -52,15 +84,42 @@ class TransactionOrders extends React.Component {
         showActionButtonModal: !this.state.showActionButtonModal,
         transactionId: 0,
       });
-    } else {
-      const formData = new FormData();
-      formData.append("order_status", event.target.value);
-      this.props.updateTransactionStatus(this.state.transactionId, formData);
-      this.setState({
-        showActionButtonModal: !this.state.showActionButtonModal,
-        transactionId: 0,
-      });
     }
+  };
+  handleUpdateForOrderReceived = (event) => {
+    event.preventDefault();
+    this.props.product_variations.filter((itemProductVariation) => {
+      if (itemProductVariation.id === this.state.product_variation_id) {
+        if (
+          parseInt(itemProductVariation.stock) -
+            parseInt(this.state.product_quantity) <
+          10
+        ) {
+          const formData = new FormData();
+          formData.append("order_status", event.target.value);
+          this.props.updateTransactionStatus(
+            this.state.transactionId,
+            formData
+          );
+          this.setState({
+            showActionButtonModal: !this.state.showActionButtonModal,
+            transactionId: 0,
+            modal: !this.state.modal,
+          });
+        } else {
+          const formData = new FormData();
+          formData.append("order_status", event.target.value);
+          this.props.updateTransactionStatus(
+            this.state.transactionId,
+            formData
+          );
+          this.setState({
+            showActionButtonModal: !this.state.showActionButtonModal,
+            transactionId: 0,
+          });
+        }
+      }
+    });
   };
   handleUpdateSubmitOrderStatusWithTrackingNumber = (e) => {
     e.preventDefault();
@@ -76,13 +135,21 @@ class TransactionOrders extends React.Component {
     });
   };
 
-  handleToggleActionModal(transactionId) {
+  handleToggleActionModal(
+    transactionId,
+    product_id,
+    product_variation_id,
+    product_quantity
+  ) {
     return (event) => {
       event.preventDefault();
       window.scrollTo({ top: 0, behavior: "smooth" });
       this.setState({
         showActionButtonModal: !this.state.showActionButtonModal,
         transactionId: transactionId,
+        product_id,
+        product_variation_id,
+        product_quantity,
       });
     };
   }
@@ -94,14 +161,57 @@ class TransactionOrders extends React.Component {
       showToReceiveModal: !this.state.showToReceiveModal,
     });
   };
+
+  handleSubmitAddInventory = (event) => {
+    event.preventDefault();
+    const {
+      new_stock,
+      product_id,
+      supplier,
+      product_variation_id,
+      cost_price,
+      price,
+    } = this.state;
+    const action_done = "Inventory Added";
+    const inventory = {
+      new_stock,
+      product: product_id,
+      supplier,
+      action_done,
+      productVariation: product_variation_id,
+      cost_price,
+      price,
+      order_status: "Pending",
+    };
+    this.props.addInventory(inventory);
+    this.setState({
+      new_stock: 0,
+      product: 0,
+      supplier: 0,
+      inventoryID: 0,
+      productVariation: 0,
+    });
+    this.ModalFunction();
+  };
+  onModalToggleAdd = (e) => {
+    e.preventDefault();
+    this.ModalFunction();
+  };
+  ModalFunction() {
+    this.setState({ modal: !this.state.modal });
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  }
+
   handleToggleExportTable = (event) => {
     event.preventDefault();
     this.setState({ table_export_modal: !this.state.table_export_modal });
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
   };
+
   render() {
-    console.log(this.state);
+    console.log(this.props.transactions);
     let InputDateDateSeparated = this.state.InputDate.toString().split(" ");
     filteredData = [];
 
@@ -229,45 +339,53 @@ class TransactionOrders extends React.Component {
                           <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
                             {trans.created_at}
                           </td>
-                          <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                            {trans.items.map((item, index) => (
-                              <tr
-                                key={item.id}
-                                class={
-                                  trans.items.length === 1
-                                    ? "h-20 border-gray-300"
-                                    : index + 1 === trans.items.length
-                                    ? "h-20 border-gray-300"
-                                    : "h-20 border-gray-300 border-b-2"
-                                }
-                              >
-                                <td class="px-4 py-3 text-sm font-semibold">
-                                  <div>{item.product.name}</div>
-                                  <div>
-                                    <p>
-                                      Variant :{" "}
-                                      {item.product_variation_info.variation}
-                                    </p>
-                                  </div>
-                                </td>
-                                <td class="px-4 py-3 text-sm font-semibold">
-                                  <div>{item.quantity} qty</div>
-                                </td>
-                              </tr>
-                            ))}
-                          </td>
+                          {trans.items.map((item, index) => (
+                            <>
+                              <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                                <tr
+                                  key={item.id}
+                                  class={
+                                    trans.items.length === 1
+                                      ? "h-20 border-gray-300"
+                                      : index + 1 === trans.items.length
+                                      ? "h-20 border-gray-300"
+                                      : "h-20 border-gray-300 border-b-2"
+                                  }
+                                >
+                                  <td class="px-4 py-3 text-sm font-semibold">
+                                    <div>{item.product.name}</div>
+                                    <div>
+                                      <p>
+                                        Variant :{" "}
+                                        {item.product_variation_info.variation}
+                                      </p>
+                                    </div>
+                                  </td>
+                                  <td class="px-4 py-3 text-sm font-semibold">
+                                    <div>{item.quantity} qty</div>
+                                  </td>
+                                </tr>
+                              </td>
 
-                          <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
-                            <div className="space-y-5">
-                              <p>{trans.order_status}</p>
-                              <button
-                                onClick={this.handleToggleActionModal(trans.id)}
-                                className="focus:outline-none transition duration-150 ease-in-out hover:bg-cyan-700 bg-cyan-700 rounded text-white px-8 py-2 text-sm"
-                              >
-                                Change
-                              </button>
-                            </div>
-                          </td>
+                              <td className="text-sm pr-6 whitespace-no-wrap text-gray-800 dark:text-gray-100 tracking-normal leading-4">
+                                <div className="space-y-5">
+                                  <p>{trans.order_status}</p>
+                                  <button
+                                    onClick={this.handleToggleActionModal(
+                                      trans.id,
+                                      item.product.id,
+                                      item.product_variation_info
+                                        .product_variation_id,
+                                      item.quantity
+                                    )}
+                                    className="focus:outline-none transition duration-150 ease-in-out hover:bg-cyan-700 bg-cyan-700 rounded text-white px-8 py-2 text-sm"
+                                  >
+                                    Change
+                                  </button>
+                                </div>
+                              </td>
+                            </>
+                          ))}
                         </tr>
                       ))}
                     </tbody>
@@ -341,7 +459,7 @@ class TransactionOrders extends React.Component {
                           Preferring
                         </button>
                         <button
-                          onClick={this.handleUpdateSubmitOrderStatus}
+                          onClick={this.handleUpdateForOrderReceived}
                           value="To Ship"
                           className="focus:outline-none transition duration-150 ease-in-out hover:bg-cyan-700 bg-cyan-700 rounded text-white px-8 py-4 text-md"
                         >
@@ -364,7 +482,7 @@ class TransactionOrders extends React.Component {
                       </div>
 
                       <div
-                        onClick={this.handleToggleActionModal(0)}
+                        onClick={this.handleToggleActionModal(0, 0, 0)}
                         className="cursor-pointer absolute top-0 right-0 mt-4 mr-5 text-gray-400 hover:text-gray-600 dark:text-gray-400 transition duration-150 ease-in-out"
                       >
                         <svg
@@ -473,6 +591,16 @@ class TransactionOrders extends React.Component {
             </div>
           </div>
         </div>
+        <ReplenishmentInventory
+          modal={this.state.modal}
+          onModalToggleAdd={this.onModalToggleAdd}
+          state={this.state}
+          onChange={this.onChange}
+          suppliers={this.props.suppliers}
+          products={this.props.products}
+          handleSubmitAddInventory={this.handleSubmitAddInventory}
+          handleSubmitUpdateInventory={this.handleSubmitUpdateInventory}
+        />
         <div
           class={
             this.state.table_export_modal ? "h-screen " : "h-screen hidden"
@@ -490,9 +618,24 @@ class TransactionOrders extends React.Component {
 
 const mapStateToProps = (state) => ({
   transactions: state.transactions.transactions,
+  product_variations: state.products.product_variations,
+  inventories: state.inventories.inventories,
+  inventory: state.inventories.inventory,
+  suppliers: state.suppliers.suppliers,
+  products: state.products.products,
+  categories: state.products.categories,
 });
 
 export default connect(mapStateToProps, {
   getTransactionList,
   updateTransactionStatus,
+  getProductVariation,
+
+  addInventory,
+  getSupplierList,
+  getProductList,
+  getInventoryList,
+  getInventory,
+
+  getCategoryList,
 })(TransactionOrders);

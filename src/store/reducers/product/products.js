@@ -17,6 +17,7 @@ import {
   CHANGE_VOUCHER_STATUS,
   ADD_VOUCHER,
   UPDATE_VOUCHER,
+  GET_PRODUCT_VARIATION,
 } from "../../actions/product/actionTypes";
 
 const initialState = {
@@ -27,6 +28,7 @@ const initialState = {
   categories: [],
   vouchers: [],
   reviews: [],
+  product_variations: [],
   isLoading: false,
 };
 
@@ -41,6 +43,12 @@ export default function (state = initialState, action) {
       return {
         ...state,
         products: action.payload,
+        isLoading: false,
+      };
+    case GET_PRODUCT_VARIATION:
+      return {
+        ...state,
+        product_variations: action.payload,
         isLoading: false,
       };
     case GET_PRODUCT:
@@ -130,9 +138,6 @@ export default function (state = initialState, action) {
         vouchers: [action.payload, ...state.vouchers],
       };
     case UPDATE_VOUCHER:
-
-
-
       const indexVoucher = state.vouchers.findIndex(
         (vouch) => vouch.id === action.payload.id
       );
@@ -142,10 +147,6 @@ export default function (state = initialState, action) {
         ...state,
         vouchers: newArrayVoucher,
       };
-
-
-
-  
 
     case GET_VOUCHER_LIST:
       return {

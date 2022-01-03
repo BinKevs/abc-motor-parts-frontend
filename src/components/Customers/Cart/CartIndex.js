@@ -2,12 +2,13 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
-
+import { getProductVariation } from "../../../store/actions/product/products";
 import PropTypes from "prop-types";
 import {
   removeFromCart,
   changeCartValue,
 } from "../../../store/actions/cart/cartActions";
+import swal from "sweetalert";
 class CartIndex extends React.Component {
   static propTypes = {
     removeFromCart: PropTypes.func.isRequired,
@@ -47,14 +48,36 @@ class CartIndex extends React.Component {
 
   handleRedirect = (e) => {
     e.preventDefault();
-    this.props.handleCartShow();
-    this.props.history.push("/checkout");
+
+    // this.props.cartItems.map(())
+    // this.props.products.some((item) => val.name === item.name);
+
+    this.props.cartItems.map((itemFromCart) =>
+      this.props.product_variations.filter((itemProductVariation) => {
+        if (itemProductVariation.id === itemFromCart.product_with_variation) {
+          if (itemFromCart.quantity > itemProductVariation.stock) {
+            swal(
+              "Unfortunately " +
+                itemFromCart.product_name +
+                " is out of stock and it automatically be removed in your cart.",
+              "",
+              "info"
+            );
+            this.props.removeFromCart(itemFromCart);
+          } else {
+            this.props.handleCartShow();
+            this.props.history.push("/checkout");
+          }
+        }
+      })
+    );
   };
   // On component load or the app load it will look for the cartItems values from cartReducer *The cartReducer is always check if there are any values from local storage and store it to state*
   // and this CDM get the props pass by cartReducer to render it and compute for totalAmount, sub amount and tax.
   componentDidMount() {
     let VariableTotalAmount = 0;
     let Variablequantity = 0;
+    this.props.getProductVariation();
     this.props.cartItems.map(
       (item) => (
         (VariableTotalAmount += item.price * item.quantity),
@@ -93,8 +116,9 @@ class CartIndex extends React.Component {
     }
   }
   render() {
-    const { cartItems, changeCartValue, removeFromCart } = this.props;
+    const { cartItems, changeCartValue, removeFromCart, products } = this.props;
     const { Subtotal, tax, totalAmount, quantity } = this.state;
+    // console.log(products, cartItems);
     return (
       <>
         <div class="fixed top-12 lg:right-3 lg:mx-4 -mt-4 w-full lg:w-2/5">
@@ -247,11 +271,13 @@ class CartIndex extends React.Component {
 
 // get cartItems from cartReducer
 const mapToStateToProps = (state) => ({
+  product_variations: state.products.product_variations,
   cartItems: state.cartReducer.cartItems,
 });
 export default withRouter(
   connect(mapToStateToProps, {
     removeFromCart,
     changeCartValue,
+    getProductVariation,
   })(CartIndex)
 );

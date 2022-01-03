@@ -13,10 +13,7 @@ const AccountFormModal = (props) => {
     password,
     password2,
     contact_number,
-    regionData,
-    provinceData,
-    cityData,
-    barangayData,
+
     BirthInputDate,
     birthdate,
     emailError,
@@ -27,6 +24,7 @@ const AccountFormModal = (props) => {
     contact_numberExistError,
     editing_contact_number,
     current_address,
+    address,
   } = props.state;
   const {
     onChange,
@@ -36,11 +34,6 @@ const AccountFormModal = (props) => {
     onModalToggleAdd,
     modal,
     passwordError,
-    province,
-    region,
-    city,
-    barangay,
-    brgy,
     onChangeDate,
     handleEditAccountInfoSubmit,
     handleChangePassword,
@@ -247,7 +240,7 @@ const AccountFormModal = (props) => {
                             </div>{" "}
                           </span>
                         </div>
-                        <div class="relative z-0 w-full mb-5">
+                        {/* <div class="relative z-0 w-full mb-5">
                           <label class="block my-2">Select Region</label>
                           <div class="relative inline-block w-full text-gray-700">
                             <select
@@ -345,11 +338,11 @@ const AccountFormModal = (props) => {
                                 ))}
                             </select>
                           </div>
-                        </div>
+                        </div> */}
                         <div class="relative z-0 w-full mb-5">
                           <input
                             type="text"
-                            name="street"
+                            name="address"
                             onChange={onChange}
                             placeholder=" "
                             required
@@ -359,7 +352,8 @@ const AccountFormModal = (props) => {
                             for="name"
                             class="absolute duration-300 top-3 -z-1 origin-0 text-gray-500"
                           >
-                            House No., Street name, Building. Subd
+                            House No., Street name, Building. Subd, Brgy, City,
+                            Province, Region
                           </label>
                         </div>
                         <div class="flex flex-col w-full mb-5">
@@ -630,7 +624,7 @@ const AccountFormModal = (props) => {
                           </div>
                           <label class="my-5">
                             <span class="ml-2">
-                              {current_address ? current_address.street : ""}{" "}
+                              {current_address ? current_address.address : ""}{" "}
                               {current_address ? current_address.barangay : ""}{" "}
                               {current_address ? current_address.city : ""}{" "}
                               {current_address ? current_address.province : ""}{" "}
@@ -638,7 +632,7 @@ const AccountFormModal = (props) => {
                             </span>
                           </label>
                         </div>
-                        <div class="relative z-0 w-full mb-5">
+                        {/* <div class="relative z-0 w-full mb-5">
                           <label class="block my-2">Select Region</label>
                           <div class="relative inline-block w-full text-gray-700">
                             <select
@@ -730,11 +724,12 @@ const AccountFormModal = (props) => {
                                 ))}
                             </select>
                           </div>
-                        </div>
+                        </div> */}
                         <div class="relative z-0 w-full mb-5">
                           <input
                             type="text"
-                            name="street"
+                            name="address"
+                            value={address}
                             onChange={onChange}
                             placeholder=" "
                             class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
@@ -743,7 +738,8 @@ const AccountFormModal = (props) => {
                             for="name"
                             class="absolute duration-300 top-3 -z-1 origin-0 text-gray-500"
                           >
-                            House No., Street name, Building. Subd
+                            House No., Street name, Building. Subd, Brgy, City,
+                            Province, Region
                           </label>
                         </div>
                       </div>

@@ -41,18 +41,18 @@ class Registration extends React.Component {
     password: "",
     password2: "",
     regionData: [],
-    provinceData: [],
-    cityData: [],
-    barangayData: [],
+    // provinceData: [],
+    // cityData: [],
+    // barangayData: [],
     regionValue: "",
-    provinceValue: "",
-    cityValue: "",
-    barangayValue: "",
-    regionCode: "",
-    provinceCode: "",
-    cityCode: "",
-    barangayCode: "",
-    street: "",
+    // provinceValue: "",
+    // cityValue: "",
+    // barangayValue: "",
+    // regionCode: "",
+    // provinceCode: "",
+    // cityCode: "",
+    // barangayCode: "",
+    address: "",
     BirthInputDate: "",
     usernameError: false,
     emailError: false,
@@ -81,10 +81,10 @@ class Registration extends React.Component {
       password,
       password2,
       regionValue,
-      provinceValue,
-      cityValue,
-      barangayValue,
-      street,
+      // provinceValue,
+      // cityValue,
+      // barangayValue,
+      address,
       contact_number,
       BirthInputDate,
       usernameError,
@@ -102,10 +102,10 @@ class Registration extends React.Component {
       first_name,
       last_name,
       region: regionValue,
-      province: provinceValue,
-      city: cityValue,
-      barangay: barangayValue,
-      street,
+      // province: provinceValue,
+      // city: cityValue,
+      // barangay: barangayValue,
+      address,
       contact_number,
       birthdate: BirthInputDate,
     };
@@ -285,46 +285,52 @@ class Registration extends React.Component {
     });
   };
 
-  city = (e) => {
-    this.setState({
-      provinceValue: e.target.selectedOptions[0].text,
-      provinceCode: e.target.value,
-    });
-    cities(e.target.value).then((response) => {
-      this.setState({
-        cityData: response,
-      });
-    });
-  };
+  // city = (e) => {
+  //   this.setState({
+  //     provinceValue: e.target.selectedOptions[0].text,
+  //     provinceCode: e.target.value,
+  //   });
+  //   cities(e.target.value).then((response) => {
+  //     this.setState({
+  //       cityData: response,
+  //     });
+  //   });
+  // };
 
-  barangay = (e) => {
-    this.setState({
-      cityValue: e.target.selectedOptions[0].text,
-      cityCode: e.target.value,
-    });
-    barangays(e.target.value).then((response) => {
-      this.setState({
-        barangayData: response,
-      });
-    });
-  };
+  // barangay = (e) => {
+  //   this.setState({
+  //     cityValue: e.target.selectedOptions[0].text,
+  //     cityCode: e.target.value,
+  //   });
+  //   barangays(e.target.value).then((response) => {
+  //     this.setState({
+  //       barangayData: response,
+  //     });
+  //   });
+  // };
 
-  brgy = (e) => {
-    this.setState({
-      barangayValue: e.target.selectedOptions[0].text,
-      barangayCode: e.target.value,
-    });
-  };
+  // brgy = (e) => {
+  //   this.setState({
+  //     barangayValue: e.target.selectedOptions[0].text,
+  //     barangayCode: e.target.value,
+  //   });
+  // };
 
   render() {
     if (this.props.isAuthenticated) {
       return <Redirect to="/Home" />;
     }
-    const { username, email, first_name, last_name, password, password2 } =
-      this.state;
+    const {
+      username,
+      email,
+      first_name,
+      last_name,
+      password,
+      password2,
+      regionData,
+    } = this.state;
 
-    const { regionData, provinceData, cityData, barangayData, contact_number } =
-      this.state;
+    const { contact_number, address } = this.state;
 
     return (
       <>
@@ -541,7 +547,7 @@ class Registration extends React.Component {
                       </select>
                     </div>
                   </div>
-
+                  {/*
                   <div class="relative z-0 w-full mb-5">
                     <label class="block my-2">Select Province</label>
                     <div class="relative inline-block w-full text-gray-700">
@@ -608,11 +614,12 @@ class Registration extends React.Component {
                           ))}
                       </select>
                     </div>
-                  </div>
+                  </div> */}
                   <div class="relative z-0 w-full mb-5">
                     <input
                       type="text"
-                      name="street"
+                      name="address"
+                      value={address}
                       onChange={this.onChange}
                       placeholder=" "
                       required
@@ -622,7 +629,8 @@ class Registration extends React.Component {
                       for="name"
                       class="absolute duration-300 top-3 -z-1 origin-0 text-gray-500"
                     >
-                      House No., Street name, Building. Subd
+                      House No., Street name, Building. Subd, Brgy, City,
+                      Province, Region
                     </label>
                   </div>
                   <div class="flex flex-col w-full mb-5">

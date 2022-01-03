@@ -108,7 +108,6 @@ class Home extends React.Component {
         return item;
     });
 
-    console.log(filteredDataProduct);
     return (
       <>
         <div className="flex-1 w-full  lg:w-2/3 bg-gray-100 mt-20 md:mt-14 pb-24 md:pb-5">

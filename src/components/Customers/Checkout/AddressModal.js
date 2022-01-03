@@ -88,7 +88,7 @@ const AddressModal = (props) => {
                       </div>
                     </div>
 
-                    <div class="relative z-0 w-full mb-5">
+                    {/* <div class="relative z-0 w-full mb-5">
                       <label class="block my-2">Select Province</label>
                       <div class="relative inline-block w-full text-gray-700">
                         <select
@@ -160,7 +160,7 @@ const AddressModal = (props) => {
                             ))}
                         </select>
                       </div>
-                    </div>
+                    </div> */}
                     <div class="relative z-0 w-full mb-5">
                       <input
                         type="text"
@@ -174,7 +174,8 @@ const AddressModal = (props) => {
                         for="name"
                         class="absolute duration-300 top-3 -z-1 origin-0 text-gray-500"
                       >
-                        House No., Street name, Building. Subd
+                        House No., Street name, Building. Subd, Brgy, City,
+                        Province, Region
                       </label>
                     </div>
 

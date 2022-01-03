@@ -63,12 +63,13 @@ export const changeCartValue =
 export const removeFromCart = (product) => (dispatch, getState) => {
   const cartItems = getState()
     .cartReducer.cartItems.slice()
-    .filter((x) => x.product_id !== product.product_id);
+    .filter((x) => x.product_with_variation !== product.product_with_variation);
   dispatch({ type: REMOVE_FROM_CART, payload: { cartItems } });
   localStorage.setItem("cartItem", JSON.stringify(cartItems));
 };
 // When a checkout and payment successfully done local storage will be clear automatically with this.
 export const clearCart = () => (dispatch) => {
   localStorage.removeItem("cartItem");
+
   dispatch({ type: CLEAR_CART });
 };

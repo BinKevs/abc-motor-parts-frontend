@@ -76,6 +76,54 @@ const SupplierModal = (props) => {
                         </span>
                       </div>
                       <div class="relative z-0 w-full mb-5">
+                        <input
+                          type="text"
+                          name="username"
+                          onChange={onChange}
+                          // value={name}
+                          placeholder=" "
+                          required
+                          class={
+                            SupplierNameError !== ""
+                              ? "pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-red-600 text-red-600"
+                              : "pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
+                          }
+                        />
+                        <label
+                          for="name"
+                          class="absolute duration-300 top-3 -z-1 origin-0 text-gray-500"
+                        >
+                          Username
+                        </label>
+                        <span class="text-sm text-red-600" id="error">
+                          {SupplierNameError}
+                        </span>
+                      </div>
+                      <div class="relative z-0 w-full mb-5">
+                        <input
+                          type="password"
+                          name="password"
+                          onChange={onChange}
+                          // value={name}
+                          placeholder=" "
+                          required
+                          class={
+                            SupplierNameError !== ""
+                              ? "pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-red-600 text-red-600"
+                              : "pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
+                          }
+                        />
+                        <label
+                          for="name"
+                          class="absolute duration-300 top-3 -z-1 origin-0 text-gray-500"
+                        >
+                          Password
+                        </label>
+                        <span class="text-sm text-red-600" id="error">
+                          {SupplierNameError}
+                        </span>
+                      </div>
+                      <div class="relative z-0 w-full mb-5">
                         <textarea
                           name="address"
                           onChange={onChange}

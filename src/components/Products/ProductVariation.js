@@ -250,9 +250,7 @@ const ProductVariation = (props) => {
                         type="number"
                         name="stockProductVariation"
                         required
-                        value={
-                          stockProductVariation > 0 ? stockProductVariation : ""
-                        }
+                        value={stockProductVariation}
                         onChange={onChange}
                         placeholder=" "
                         class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"

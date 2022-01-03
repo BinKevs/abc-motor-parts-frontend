@@ -8,6 +8,7 @@ import {
 } from "../../store/actions/transaction/transactions.js";
 import { getCategoryList } from "../../store/actions/product/products";
 import DatePicker from "react-datepicker";
+import ReactToPrint from "react-to-print";
 let transactionsDateSeparated = [];
 let transactionPerItems = [];
 let ThisDayTransactions = [];
@@ -20,10 +21,13 @@ let LastMonthTransactionsCombinedSameDate = [];
 let ThisDayTransactionsCombinedSameDate = [];
 let ThisWeekTransactionsCombinedSameDate = [];
 let DatesThisWeek = [];
-let DatesBetweenInput = [];
 let TransactionsBetweenDatesInput = [];
-let TransactionsBetweenDatesInputCombinedSameDate = [];
+let TransactionsBetweenDatesInputArray = [];
 
+let TransactionsBetweenDatesInputCombinedSameDate = [];
+let ThisDayArrayTransactions = [];
+let ThisWeekArrayTransactions = [];
+let ThisMonthArrayTransactions = [];
 var firstDayOfCurrentWeek;
 var lastDayOfCurrentWeek;
 let DateNow = Date().toLocaleString().split(" ");
@@ -33,6 +37,10 @@ Date.prototype.addDays = function (days) {
   return date;
 };
 class SalesReport extends React.Component {
+  constructor(props) {
+    super(props);
+    this.myRef = React.createRef();
+  }
   state = {
     StartingDate: "",
     EndingDate: "",
@@ -72,20 +80,7 @@ class SalesReport extends React.Component {
 
     return [start, end];
   }
-  // getDates(startDate, endDate) {
-  //   const dates = [];
-  //   let currentDate = startDate;
-  //   const addDays = function (days) {
-  //     const date = new Date(this.valueOf());
-  //     date.setDate(date.getDate() + days);
-  //     return date;
-  //   };
-  //   while (currentDate < endDate) {
-  //     currentDate = addDays.call(currentDate, 1);
-  //     dates.push(currentDate);
-  //   }
-  //   return dates;
-  // }
+
   getDates(startDate, stopDate) {
     var dateArray = new Array();
     var currentDate = startDate;
@@ -96,9 +91,9 @@ class SalesReport extends React.Component {
     return dateArray;
   }
   render() {
-    // let [start, end] = this.GetWeekDates();
-    // var StartDayOfTheWeek = new Date(start.toLocaleString());
-    // var EndDayOfTheWeek = new Date(end.toLocaleString());
+    ThisDayArrayTransactions = [];
+    ThisMonthArrayTransactions = [];
+    ThisWeekArrayTransactions = [];
 
     transactionsDateSeparated = [];
     transactionPerItems = [];
@@ -113,8 +108,8 @@ class SalesReport extends React.Component {
     ThisDayTransactionsCombinedSameDate = [];
     ThisWeekTransactionsCombinedSameDate = [];
 
+    TransactionsBetweenDatesInputArray = [];
     DatesThisWeek = [];
-
     this.props.transactions
       .filter(
         (transac) => transac.order_status.includes("Complete") && transac.status
@@ -123,6 +118,8 @@ class SalesReport extends React.Component {
         transactionsDateSeparated.push({
           id: filteredTransactionObject.id,
           totalAmount: filteredTransactionObject.totalAmount,
+          items: filteredTransactionObject.items,
+          user: filteredTransactionObject.user_info.name,
           month: filteredTransactionObject.created_at.split(" ")[0],
           day: filteredTransactionObject.created_at.split(" ")[1],
           year: filteredTransactionObject.created_at.split(" ")[2],
@@ -138,31 +135,28 @@ class SalesReport extends React.Component {
     // Fetch staring and ending date
     var StartDay = new Date(this.state.StartingDate);
     var EndDay = new Date(this.state.EndingDate);
-    DatesBetweenInput = [];
-    TransactionsBetweenDatesInput = [];
-    TransactionsBetweenDatesInputCombinedSameDate = [];
-    const BetweenInputedDates = this.getDates(StartDay, EndDay);
-    BetweenInputedDates.map((filterDate) =>
-      DatesBetweenInput.push({
-        month: filterDate.toString().split(" ")[1],
-        day: filterDate.toString().split(" ")[2],
-        year: filterDate.toString().split(" ")[3],
-      })
-    );
+
+    var BetweenDates = this.getDates(StartDay, EndDay);
 
     for (var i = 0; i < transactionsDateSeparated.length; i++) {
-      var month = transactionsDateSeparated[i].month;
-      var day = transactionsDateSeparated[i].day;
-      var year = transactionsDateSeparated[i].year;
-      for (var y = 0; y < DatesBetweenInput.length; y++) {
-        var monthSearching = DatesBetweenInput[y].month;
-        var daySearching = DatesBetweenInput[y].day;
-        var yearSearching = DatesBetweenInput[y].year;
+      var date = transactionsDateSeparated[i].date;
+      for (let x = 0; x < BetweenDates.length; x++) {
         if (
-          monthSearching === month &&
-          daySearching === day &&
-          yearSearching === year
+          date.includes(
+            BetweenDates[x].toString().split(" ")[1] +
+              " " +
+              BetweenDates[x].toString().split(" ")[2] +
+              " " +
+              BetweenDates[x].toString().split(" ")[3]
+          )
         ) {
+          TransactionsBetweenDatesInputArray.push({
+            id: transactionsDateSeparated[i].id,
+            user: transactionsDateSeparated[i].user,
+            items: transactionsDateSeparated[i].items,
+            totalAmount: transactionsDateSeparated[i].totalAmount,
+            date: transactionsDateSeparated[i].date,
+          });
           TransactionsBetweenDatesInput.push({
             totalAmount: transactionsDateSeparated[i].totalAmount,
             date:
@@ -175,6 +169,7 @@ class SalesReport extends React.Component {
         }
       }
     }
+
     //Fetch weekly sales
 
     var curr = new Date();
@@ -207,6 +202,13 @@ class SalesReport extends React.Component {
           )
           // dateForCurrentWeekArray[x].toLocaleString().includes(date)
         ) {
+          ThisWeekArrayTransactions.push({
+            id: transactionsDateSeparated[i].id,
+            user: transactionsDateSeparated[i].user,
+            items: transactionsDateSeparated[i].items,
+            totalAmount: transactionsDateSeparated[i].totalAmount,
+            date: transactionsDateSeparated[i].date,
+          });
           ThisWeekTransactions.push({
             totalAmount: transactionsDateSeparated[i].totalAmount,
             date: new Date(
@@ -220,32 +222,7 @@ class SalesReport extends React.Component {
         }
       }
     }
-    // for (var i = 0; i < transactionsDateSeparated.length; i++) {
-    //   var month = transactionsDateSeparated[i].month;
-    //   var day = transactionsDateSeparated[i].day;
-    //   var year = transactionsDateSeparated[i].year;
-    //   for (var y = 0; y < DatesThisWeek.length; y++) {
-    //     var monthSearching = DatesThisWeek[y].month;
-    //     var daySearching = DatesThisWeek[y].day;
-    //     var yearSearching = DatesThisWeek[y].year;
-    //     if (
-    //       monthSearching === month &&
-    //       daySearching === day &&
-    //       yearSearching === year
-    //     ) {
-    //       ThisWeekTransactions.push({
-    //         totalAmount: transactionsDateSeparated[i].totalAmount,
-    //         date: new Date(
-    //           transactionsDateSeparated[i].day +
-    //             " " +
-    //             transactionsDateSeparated[i].month +
-    //             " " +
-    //             transactionsDateSeparated[i].year
-    //         ),
-    //       });
-    //     }
-    //   }
-    // }
+
     for (var i = 0; i < transactionsDateSeparated.length; i++) {
       var month = transactionsDateSeparated[i].month;
       var day = transactionsDateSeparated[i].day;
@@ -254,6 +231,13 @@ class SalesReport extends React.Component {
       if (year === DateNow[3]) {
         if (month === DateNow[1]) {
           // DateNow[1]
+          ThisMonthArrayTransactions.push({
+            id: transactionsDateSeparated[i].id,
+            user: transactionsDateSeparated[i].user,
+            items: transactionsDateSeparated[i].items,
+            totalAmount: transactionsDateSeparated[i].totalAmount,
+            date: transactionsDateSeparated[i].date,
+          });
           ThisMonthTransactions.push({
             totalAmount: transactionsDateSeparated[i].totalAmount,
             date:
@@ -267,6 +251,13 @@ class SalesReport extends React.Component {
             if (
               parseInt(transactionsDateSeparated[i].time.split(":")[0]) < 12
             ) {
+              ThisDayArrayTransactions.push({
+                id: transactionsDateSeparated[i].id,
+                user: transactionsDateSeparated[i].user,
+                items: transactionsDateSeparated[i].items,
+                totalAmount: transactionsDateSeparated[i].totalAmount,
+                date: transactionsDateSeparated[i].date,
+              });
               ThisDayTransactions.push({
                 totalAmount: transactionsDateSeparated[i].totalAmount,
                 date:
@@ -316,7 +307,6 @@ class SalesReport extends React.Component {
     //Sales per product
 
     //Destructuring for the ease of sorting which is which is sold
-    console.log(this.props.transaction_items);
     this.props.transaction_items.map((filteredTransactionItemObject) =>
       transactionPerItems.push({
         id: filteredTransactionItemObject.id,
@@ -417,8 +407,24 @@ class SalesReport extends React.Component {
               <h3 class="font-bold pl-2">Reports</h3>
             </div>
           </div>
-
-          <div className="mx-auto w-11/12 mt-6 p-3">
+          <div className="w-11/12 mx-auto">
+            <ReactToPrint
+              trigger={() => {
+                // NOTE: could just as easily return <SomeComponent />. Do NOT pass an `onClick` prop
+                // to the root node of the returned component as it will be overwritten.
+                return (
+                  <div className="text-white cursor-pointer bg-teal_custom hover:bg-gray-600 w-1/4 text-xl rounded ml-2 mt-5 text-center p-2">
+                    Print
+                  </div>
+                );
+              }}
+              content={() => this.dailySales}
+            />{" "}
+          </div>
+          <div
+            className="mx-auto w-11/12 mt-2 p-3"
+            ref={(el) => (this.dailySales = el)}
+          >
             <div className="bg-white shadow-lg p-4">
               <div className="relative w-full max-w-full flex-grow">
                 <h6 className="uppercase text-gray-600 mb-1 text-sm font-semibold">
@@ -471,8 +477,88 @@ class SalesReport extends React.Component {
                 />
               </div>
             </div>
+            {/* </div>
+          <div className="mx-auto w-11/12 mt-6 p-3 overflow-x-auto"> */}
+            <table className="min-w-full bg-white">
+              <thead>
+                <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
+                  <th className="pl-10 pr-4 text-md">ID</th>
+                  <th className="pr-4 text-md">Items</th>
+                  <th className="pr-4 text-md">Total Amount</th>
+                  <th className="pr-4 text-md">User</th>
+                  <th className="pr-4 text-md">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ThisDayArrayTransactions.map((transaction) => (
+                  <tr
+                    key={transaction.id}
+                    className="h-24 border-gray-300 border-b"
+                  >
+                    <td className="pl-12 text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                      {transaction.id}
+                    </td>
+                    <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 w-3/12">
+                      {transaction.items.map((transac, index) => (
+                        <tr
+                          className={
+                            transaction.items.length === 1
+                              ? "h-20 border-gray-300 flex justify-between"
+                              : index + 1 === transaction.items.length
+                              ? "h-20 border-gray-300 flex justify-between"
+                              : "h-20 border-gray-300 border-b-2 flex justify-between"
+                          }
+                        >
+                          <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
+                            {transac.sku_id}
+                          </td>
+                          <td className="text-sm pr-4 whitespace-no-wrap overflow-ellipsis overflow-hidden text-gray-800 ">
+                            {transac.product.name}
+                            <div>
+                              ({transac.product_variation_info.variation})
+                            </div>
+                          </td>
+                          <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
+                            ₱{transac.product.price}
+                          </td>
+                          <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
+                            ₱{transac.product.cost_price}
+                          </td>
+                        </tr>
+                      ))}
+                    </td>
+                    <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                      ₱{transaction.totalAmount}
+                    </td>
+                    <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                      {transaction.user}
+                    </td>
+                    <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                      {transaction.date}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div className="mx-auto w-11/12 mt-6 p-3">
+          <div className="w-11/12 mx-auto">
+            <ReactToPrint
+              trigger={() => {
+                // NOTE: could just as easily return <SomeComponent />. Do NOT pass an `onClick` prop
+                // to the root node of the returned component as it will be overwritten.
+                return (
+                  <div className="text-white cursor-pointer bg-teal_custom hover:bg-gray-600 w-1/4 text-xl rounded ml-2 mt-5 text-center p-2">
+                    Print
+                  </div>
+                );
+              }}
+              content={() => this.weeklySales}
+            />{" "}
+          </div>
+          <div
+            className="mx-auto w-11/12 mt-2 p-3"
+            ref={(el) => (this.weeklySales = el)}
+          >
             <div className="bg-white shadow-lg p-4">
               <div className="relative w-full max-w-full flex-grow">
                 <h6 className="uppercase text-gray-600 mb-1 text-sm font-semibold">
@@ -517,8 +603,90 @@ class SalesReport extends React.Component {
                 />
               </div>
             </div>
+            {/* </div>
+          <div className="mx-auto w-11/12 mt-6 p-3 overflow-x-auto"> */}
+            <table className="min-w-full bg-white">
+              <thead>
+                <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
+                  <th className="pl-10 pr-4 text-md">ID</th>
+                  <th className="pr-4 text-md">Items</th>
+                  <th className="pr-4 text-md">Total Amount</th>
+                  <th className="pr-4 text-md">User</th>
+                  <th className="pr-4 text-md">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ThisWeekArrayTransactions.map((transaction) => (
+                  <tr
+                    key={transaction.id}
+                    className="h-24 border-gray-300 border-b"
+                  >
+                    <td className="pl-12 text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                      {transaction.id}
+                    </td>
+                    <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 w-3/12">
+                      {transaction.items
+                        ? transaction.items.map((transac, index) => (
+                            <tr
+                              className={
+                                transaction.items.length === 1
+                                  ? "h-20 border-gray-300 flex justify-between"
+                                  : index + 1 === transaction.items.length
+                                  ? "h-20 border-gray-300 flex justify-between"
+                                  : "h-20 border-gray-300 border-b-2 flex justify-between"
+                              }
+                            >
+                              <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
+                                {transac.sku_id}
+                              </td>
+                              <td className="text-sm pr-4 whitespace-no-wrap overflow-ellipsis overflow-hidden text-gray-800 ">
+                                {transac.product.name}
+                                <div>
+                                  ({transac.product_variation_info.variation})
+                                </div>
+                              </td>
+                              <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
+                                ₱{transac.product.price}
+                              </td>
+                              <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
+                                ₱{transac.product.cost_price}
+                              </td>
+                            </tr>
+                          ))
+                        : ""}
+                    </td>
+                    <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                      ₱{transaction.totalAmount}
+                    </td>
+                    <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                      {transaction.user}
+                    </td>
+                    <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                      {transaction.date}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div className="mx-auto w-11/12 mt-6 p-3">
+          <div className="w-11/12 mx-auto">
+            <ReactToPrint
+              trigger={() => {
+                // NOTE: could just as easily return <SomeComponent />. Do NOT pass an `onClick` prop
+                // to the root node of the returned component as it will be overwritten.
+                return (
+                  <div className="text-white cursor-pointer bg-teal_custom hover:bg-gray-600 w-1/4 text-xl rounded ml-2 mt-5 text-center p-2">
+                    Print
+                  </div>
+                );
+              }}
+              content={() => this.monthlySales}
+            />{" "}
+          </div>
+          <div
+            className="mx-auto w-11/12 mt-2 p-3"
+            ref={(el) => (this.monthlySales = el)}
+          >
             <div className="bg-white shadow-lg p-4">
               <div className="relative w-full max-w-full flex-grow">
                 <h6 className="uppercase text-gray-600 mb-1 text-sm font-semibold">
@@ -568,6 +736,69 @@ class SalesReport extends React.Component {
                 />
               </div>
             </div>
+            {/* </div>
+          <div className="mx-auto w-11/12 mt-6 p-3 overflow-x-auto"> */}
+            <table className="min-w-full bg-white">
+              <thead>
+                <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
+                  <th className="pl-10 pr-4 text-md">ID</th>
+                  <th className="pr-4 text-md">Items</th>
+                  <th className="pr-4 text-md">Total Amount</th>
+                  <th className="pr-4 text-md">User</th>
+                  <th className="pr-4 text-md">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ThisMonthArrayTransactions.map((transaction) => (
+                  <tr
+                    key={transaction.id}
+                    className="h-24 border-gray-300 border-b"
+                  >
+                    <td className="pl-12 text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                      {transaction.id}
+                    </td>
+                    <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 w-3/12">
+                      {transaction.items.map((transac, index) => (
+                        <tr
+                          className={
+                            transaction.items.length === 1
+                              ? "h-20 border-gray-300 flex justify-between"
+                              : index + 1 === transaction.items.length
+                              ? "h-20 border-gray-300 flex justify-between"
+                              : "h-20 border-gray-300 border-b-2 flex justify-between"
+                          }
+                        >
+                          <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
+                            {transac.sku_id}
+                          </td>
+                          <td className="text-sm pr-4 whitespace-no-wrap overflow-ellipsis overflow-hidden text-gray-800 ">
+                            {transac.product.name}
+                            <div>
+                              ({transac.product_variation_info.variation})
+                            </div>
+                          </td>
+                          <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
+                            ₱{transac.product.price}
+                          </td>
+                          <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
+                            ₱{transac.product.cost_price}
+                          </td>
+                        </tr>
+                      ))}
+                    </td>
+                    <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                      ₱{transaction.totalAmount}
+                    </td>
+                    <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                      {transaction.user}
+                    </td>
+                    <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                      {transaction.date}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
           <div
@@ -716,12 +947,27 @@ class SalesReport extends React.Component {
               </div>
             </div>
           </div>
+          <div className="w-11/12 mx-auto">
+            <ReactToPrint
+              trigger={() => {
+                // NOTE: could just as easily return <SomeComponent />. Do NOT pass an `onClick` prop
+                // to the root node of the returned component as it will be overwritten.
+                return (
+                  <div className="text-white cursor-pointer bg-teal_custom hover:bg-gray-600 w-1/4 text-xl rounded ml-2 mt-5 text-center p-2">
+                    Print
+                  </div>
+                );
+              }}
+              content={() => this.betweenSales}
+            />{" "}
+          </div>
           <div
             className={
               !this.state.occupied
                 ? "mx-auto w-11/12 mt-6 relative"
                 : "mx-auto w-11/12 mt-6 p-3"
             }
+            ref={(el) => (this.betweenSales = el)}
           >
             {!this.state.occupied ? (
               <>
@@ -814,6 +1060,67 @@ class SalesReport extends React.Component {
                   }}
                 />
               </div>
+              <table className="min-w-full bg-white">
+                <thead>
+                  <tr className="w-full h-16 border-gray-300 border-b py-8 text-left font-bold text-gray-500">
+                    <th className="pl-10 pr-4 text-md">ID</th>
+                    <th className="pr-4 text-md">Items</th>
+                    <th className="pr-4 text-md">Total Amount</th>
+                    <th className="pr-4 text-md">User</th>
+                    <th className="pr-4 text-md">Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {TransactionsBetweenDatesInputArray.map((transaction) => (
+                    <tr
+                      key={transaction.id}
+                      className="h-24 border-gray-300 border-b"
+                    >
+                      <td className="pl-12 text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                        {transaction.id}
+                      </td>
+                      <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 w-3/12">
+                        {transaction.items.map((transac, index) => (
+                          <tr
+                            className={
+                              transaction.items.length === 1
+                                ? "h-20 border-gray-300 flex justify-between"
+                                : index + 1 === transaction.items.length
+                                ? "h-20 border-gray-300 flex justify-between"
+                                : "h-20 border-gray-300 border-b-2 flex justify-between"
+                            }
+                          >
+                            <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
+                              {transac.sku_id}
+                            </td>
+                            <td className="text-sm pr-4 whitespace-no-wrap overflow-ellipsis overflow-hidden text-gray-800 ">
+                              {transac.product.name}
+                              <div>
+                                ({transac.product_variation_info.variation})
+                              </div>
+                            </td>
+                            <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
+                              ₱{transac.product.price}
+                            </td>
+                            <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 my-auto">
+                              ₱{transac.product.cost_price}
+                            </td>
+                          </tr>
+                        ))}
+                      </td>
+                      <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                        ₱{transaction.totalAmount}
+                      </td>
+                      <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                        {transaction.user}
+                      </td>
+                      <td className="text-sm pr-4 whitespace-no-wrap text-gray-800 ">
+                        {transaction.date}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

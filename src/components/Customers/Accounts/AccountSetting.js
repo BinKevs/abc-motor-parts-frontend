@@ -57,19 +57,7 @@ class AccountSetting extends React.Component {
     last_name: "",
     username: "",
     email: "",
-    regionData: [],
-    provinceData: [],
-    cityData: [],
-    barangayData: [],
-    regionValue: "",
-    provinceValue: "",
-    cityValue: "",
-    barangayValue: "",
-    regionCode: "",
-    provinceCode: "",
-    cityCode: "",
-    barangayCode: "",
-    street: "",
+    address: "",
     BirthInputDate: "",
     birthdate: "",
     profile_image: "",
@@ -84,6 +72,7 @@ class AccountSetting extends React.Component {
     contact_numberExistError: false,
     passwordError: "",
     ConfirmPasswordError: "",
+    regionValue: "",
   };
   convert(str) {
     if (str === "") {
@@ -402,22 +391,12 @@ class AccountSetting extends React.Component {
   };
   handleUpdateContact = (event) => {
     event.preventDefault();
-    const {
-      regionValue,
-      provinceValue,
-      cityValue,
-      barangayValue,
-      street,
-      contact_number,
-      contact_numberExistError,
-    } = this.state;
+    const { address, contact_number, contact_numberExistError, regionValue } =
+      this.state;
     const formContactNumber = new FormData();
-    if (regionValue !== "") {
+    if (address !== "") {
+      formContactNumber.append("address", address);
       formContactNumber.append("region", regionValue);
-      formContactNumber.append("province", provinceValue);
-      formContactNumber.append("city", cityValue);
-      formContactNumber.append("barangay", barangayValue);
-      formContactNumber.append("street", street);
       formContactNumber.append(
         "address_id",
         this.props.AuthReducer.addresses.id
@@ -428,15 +407,7 @@ class AccountSetting extends React.Component {
         formContactNumber
       );
       this.setState({
-        regionValue: "",
-        provinceValue: "",
-        cityValue: "",
-        barangayValue: "",
-        regionCode: "",
-        provinceCode: "",
-        cityCode: "",
-        barangayCode: "",
-        street: "",
+        address: "",
         contact_number: "",
         contactNumberError: false,
         contact_numberExistError: false,
@@ -453,15 +424,7 @@ class AccountSetting extends React.Component {
           formContactNumber
         );
         this.setState({
-          regionValue: "",
-          provinceValue: "",
-          cityValue: "",
-          barangayValue: "",
-          regionCode: "",
-          provinceCode: "",
-          cityCode: "",
-          barangayCode: "",
-          street: "",
+          address: "",
           contact_number: "",
           contactNumberError: false,
           contact_numberExistError: false,
@@ -513,36 +476,36 @@ class AccountSetting extends React.Component {
     });
   };
 
-  city = (e) => {
-    this.setState({
-      provinceValue: e.target.selectedOptions[0].text,
-      provinceCode: e.target.value,
-    });
-    cities(e.target.value).then((response) => {
-      this.setState({
-        cityData: response,
-      });
-    });
-  };
+  // city = (e) => {
+  //   this.setState({
+  //     provinceValue: e.target.selectedOptions[0].text,
+  //     provinceCode: e.target.value,
+  //   });
+  //   cities(e.target.value).then((response) => {
+  //     this.setState({
+  //       cityData: response,
+  //     });
+  //   });
+  // };
 
-  barangay = (e) => {
-    this.setState({
-      cityValue: e.target.selectedOptions[0].text,
-      cityCode: e.target.value,
-    });
-    barangays(e.target.value).then((response) => {
-      this.setState({
-        barangayData: response,
-      });
-    });
-  };
+  // barangay = (e) => {
+  //   this.setState({
+  //     cityValue: e.target.selectedOptions[0].text,
+  //     cityCode: e.target.value,
+  //   });
+  //   barangays(e.target.value).then((response) => {
+  //     this.setState({
+  //       barangayData: response,
+  //     });
+  //   });
+  // };
 
-  brgy = (e) => {
-    this.setState({
-      barangayValue: e.target.selectedOptions[0].text,
-      barangayCode: e.target.value,
-    });
-  };
+  // brgy = (e) => {
+  //   this.setState({
+  //     barangayValue: e.target.selectedOptions[0].text,
+  //     barangayCode: e.target.value,
+  //   });
+  // };
   render() {
     console.log(this.props.AuthReducer);
     return (
@@ -778,9 +741,6 @@ class AccountSetting extends React.Component {
               state={this.state}
               region={this.region}
               province={this.province}
-              city={this.city}
-              barangay={this.barangay}
-              brgy={this.brgy}
               onChange={this.onChange}
               AuthReducer={this.props.AuthReducer}
               handleUpdateContact={this.handleUpdateContact}

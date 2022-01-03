@@ -1,23 +1,13 @@
 import React, { useState } from "react";
 import { phone } from "phone";
 const ContactDetails = (props) => {
+  const { onChange, handleUpdateContact, region, province } = props;
   const {
-    region,
-    province,
-    city,
-    barangay,
-    brgy,
-    onChange,
-    handleUpdateContact,
-  } = props;
-  const {
-    regionData,
-    provinceData,
-    cityData,
-    barangayData,
     contact_number,
     contactNumberError,
     contact_numberExistError,
+    address,
+    regionData,
   } = props.state;
   return (
     <>
@@ -73,19 +63,7 @@ const ContactDetails = (props) => {
                   <label class="my-5">
                     <span class="ml-2">
                       {props.AuthReducer.addresses
-                        ? props.AuthReducer.addresses.street
-                        : ""}{" "}
-                      {props.AuthReducer.addresses
-                        ? props.AuthReducer.addresses.barangay
-                        : ""}{" "}
-                      {props.AuthReducer.addresses
-                        ? props.AuthReducer.addresses.city
-                        : ""}{" "}
-                      {props.AuthReducer.addresses
-                        ? props.AuthReducer.addresses.province
-                        : ""}{" "}
-                      {props.AuthReducer.addresses
-                        ? props.AuthReducer.addresses.region
+                        ? props.AuthReducer.addresses.address
                         : ""}{" "}
                     </span>
                   </label>
@@ -114,6 +92,7 @@ const ContactDetails = (props) => {
                     </select>
                   </div>
                 </div>
+                {/* 
                 <div class="relative z-0 w-full mb-5">
                   <label class="block my-2">Select Province</label>
                   <div class="relative inline-block w-full text-gray-700">
@@ -176,11 +155,12 @@ const ContactDetails = (props) => {
                         ))}
                     </select>
                   </div>
-                </div>
+                </div> */}
                 <div class="relative z-0 w-full mb-5">
                   <input
                     type="text"
-                    name="street"
+                    name="address"
+                    value={address}
                     onChange={onChange}
                     placeholder=" "
                     class="pt-3 pb-2 block w-full px-0 mt-0 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 focus:border-cyan-700 border-gray-200"
@@ -189,7 +169,8 @@ const ContactDetails = (props) => {
                     for="name"
                     class="absolute duration-300 top-3 -z-1 origin-0 text-gray-500"
                   >
-                    House No., Street name, Building. Subd
+                    House No., Street name, Building. Subd, Brgy, City,
+                    Province, Region
                   </label>
                 </div>
                 <div class="mt-10">
